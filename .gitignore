@@ -188,7 +188,7 @@ cython_debug/
 /benchmarks/BIRD/dev
 /benchmarks/BIRD/train
 /results/logs/spider2-lite/reforce*
-/results/logs/spider2-snow/reforce
+/results/logs/spider2-snow/reforce*
 /benchmarks/Spider2/spider2-lite/resource
 /benchmarks/Spider2/spider2-snow/resource
 
@@ -210,8 +210,6 @@ snowflake_credential.json
 /benchmarks/Spider2/spider2-snow/baselines/dailsql/postprocessed_data/1112_spider2-lite_CTX-200
 /benchmarks/Spider2/spider2-snow/baselines/dailsql/preprocessed_data/spider2-lite
 /benchmarks/Spider2/spider2-snow/baselines/dailsql/third_party/stanford-corenlp-full-2018-10-05
-results/logs/spider2-snow/reforce_logs1.json
-results/logs/spider2-snow/reforce_logs2.json
 benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh
 benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh.1
 benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh.2
