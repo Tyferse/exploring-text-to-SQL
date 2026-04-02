@@ -1,6 +1,6 @@
 ## Исходный код для исследования методов text-to-SQL. _(в процессе)_
 
-<img width="1586" height="1201" alt="benchmarks_ex" src="https://github.com/user-attachments/assets/e921cb4e-a6dc-4b67-bd9f-eba9676ca171" />
+![График изменения точности топ-1 метода на бенчмарках BIRD и Spider 2.0](images/benchmarks_ex.png)
 
 ## Текушие наработки
 
