@@ -1,0 +1,9 @@
+faiss-cpu
+tqdm
+sentence_transformers
+openai
+snowflake
+pandas
+google-cloud-bigquery
+db-dtypes
+func_timeout

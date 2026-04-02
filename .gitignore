@@ -192,7 +192,7 @@ cython_debug/
 /benchmarks/Spider2/spider2-lite/resource
 /benchmarks/Spider2/spider2-snow/resource
 
-# /benchmarks/Spider2/methods/AutoLink/AutoLink/
+/benchmarks/Spider2/methods/AutoLink/AutoLink/
 /benchmarks/Spider2/methods/AutoLink/linking_results
 /benchmarks/Spider2/methods/AutoLink/run/documents
 /benchmarks/Spider2/methods/AutoLink/run/embeddings
