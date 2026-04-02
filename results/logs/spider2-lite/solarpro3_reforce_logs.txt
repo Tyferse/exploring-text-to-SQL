@@ -1,0 +1,2243 @@
+Make folders for some examples.
+100% 548/548 [00:00<00:00, 7856.84it/s]
+Compress DDL files.
+  2% 10/548 [00:01<01:19,  6.73it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq066/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq066/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq066/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq066/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq066/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+  3% 17/548 [00:02<00:58,  9.12it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq097/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq097/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq097/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq097/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq097/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+  9% 51/548 [00:08<01:50,  4.48it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq407/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq407/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq407/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq407/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq407/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 13% 73/548 [00:10<00:43, 10.85it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq061/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq061/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq061/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq061/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq061/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 15% 84/548 [00:12<00:55,  8.43it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq203/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 21% 113/548 [00:14<00:21, 20.43it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq098/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 26% 143/548 [00:15<00:23, 17.60it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq120/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq120/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq120/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq120/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq120/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 27% 146/548 [00:16<00:34, 11.49it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CBSA_2007_1YR, CBSA_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CONGRESSIONALDISTRICT_2010_5YR, CONGRESSIONALDISTRICT_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: COUNTY_2013_5YR, COUNTY_2020_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'pop_15_and_over', 'pop_never_married'}
+set()
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2016_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2019_1YR.
+The difference between two sets:
+{'not_in_labor_force', 'pop_16_over', 'civilian_labor_force', 'armed_forces', 'employed_pop', 'unemployed_pop', 'pop_in_labor_force'}
+{'geoidsl', 'geoidsc'}
+These two schemas are not the same in examples_lite/sf_bq429/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: PLACE_2011_3YR, PLACE_2010_1YR.
+ 29% 157/548 [00:18<00:49,  7.98it/s]The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R25.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R35.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R26.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R38.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R27.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R39.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR10_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R32.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR13_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR8_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R28.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R25.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R40.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R24.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq148/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R31.
+ 30% 164/548 [00:18<00:27, 13.92it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq185/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 30% 167/548 [00:18<00:29, 12.94it/s]The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R25.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R35.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R26.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R38.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R27.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R39.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR10_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R32.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR13_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR8_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R28.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R25.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R40.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R24.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq147/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R31.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R25.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R35.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R26.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R38.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R27.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R39.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR10_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R32.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR13_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR8_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R28.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R25.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R40.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R24.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq043/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R31.
+ 41% 222/548 [00:23<00:45,  7.11it/s]The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR19_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR2_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR14_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR15_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR3_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR11_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR12_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR5_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq170/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+ 42% 231/548 [00:24<00:31, 10.11it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CBSA_2007_1YR, CBSA_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CONGRESSIONALDISTRICT_2010_5YR, CONGRESSIONALDISTRICT_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: COUNTY_2013_5YR, COUNTY_2020_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'pop_15_and_over', 'pop_never_married'}
+set()
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2016_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2019_1YR.
+The difference between two sets:
+{'not_in_labor_force', 'pop_16_over', 'civilian_labor_force', 'armed_forces', 'employed_pop', 'unemployed_pop', 'pop_in_labor_force'}
+{'geoidsl', 'geoidsc'}
+These two schemas are not the same in examples_lite/sf_bq410/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: PLACE_2011_3YR, PLACE_2010_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq094/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq094/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq094/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq094/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq094/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 44% 243/548 [00:29<01:28,  3.45it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CBSA_2007_1YR, CBSA_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CONGRESSIONALDISTRICT_2010_5YR, CONGRESSIONALDISTRICT_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: COUNTY_2013_5YR, COUNTY_2020_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'pop_15_and_over', 'pop_never_married'}
+set()
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2016_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2019_1YR.
+The difference between two sets:
+{'not_in_labor_force', 'pop_16_over', 'civilian_labor_force', 'armed_forces', 'employed_pop', 'unemployed_pop', 'pop_in_labor_force'}
+{'geoidsl', 'geoidsc'}
+These two schemas are not the same in examples_lite/sf_bq073/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: PLACE_2011_3YR, PLACE_2010_1YR.
+ 45% 248/548 [00:29<01:07,  4.45it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq395/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq395/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq395/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq395/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq395/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 49% 266/548 [00:31<00:28,  9.79it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq202/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 50% 273/548 [00:31<00:22, 12.27it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq338/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq338/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq338/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq338/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq338/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 51% 282/548 [00:33<00:39,  6.82it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq064/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq064/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq064/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq064/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq064/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 55% 301/548 [00:35<00:19, 12.81it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq040/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 64% 349/548 [00:41<00:11, 17.41it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq089/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq089/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq089/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq089/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq089/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 64% 352/548 [00:42<00:18, 10.78it/s]The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR19_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR2_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR14_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR15_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR3_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR11_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR12_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR5_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq166/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+ 71% 390/548 [00:46<00:16,  9.71it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq074/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq074/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq074/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq074/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq074/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 74% 405/548 [00:49<00:21,  6.73it/s]The difference between two sets:
+{'Id', 'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'Manifest_Id', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'HTAN_Parent_Biospecimen_ID', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Total_Reads', 'Alignment_Workflow_Type'}
+{'Uuid', 'Data_Category', 'Matrix_Type', 'Fusion_Gene_Detected', 'Pseudo_Alignment_Used', 'Fusion_Gene_Identity', 'Expression_Units'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level3_metadata_r3.
+The difference between two sets:
+set()
+{'Data_Category', 'Matrix_Type', 'Cell_Median_Number_Genes', 'Cell_Median_Number_Reads', 'Cell_Total', 'Linked_Matrices'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level3_metadata_r2.
+The difference between two sets:
+{'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'Blacklist_Region_Fragments', 'MACS2_Start', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Workflow_Version', 'scATACseq_Workflow_Type', 'Workflow_Link', 'scATACseq_Workflow_Parameters_Description'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level4_metadata_r4.
+The difference between two sets:
+{'Base_Filename'}
+{'Manifest_Id', 'Id', 'Manifest_Version', 'CDS_Release'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level4_metadata_r5.
+The difference between two sets:
+{'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'HTAN_Parent_Data_File_ID', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Alignment_Workflow_Type'}
+{'Per_Sequence_Quality_Score', 'Nucleic_Acid_Source', 'ROI_Tag', 'QC_Workflow_Type', 'Per_Sequence_GC_Content', 'Read_Indicator', 'Micro_region_Seq_Platform', 'Adapter_Sequence', 'Library_Layout', 'Basic_Statistics', 'Library_Preparation_Days_from_Index', 'Base_Caller_Version', 'Fragment_Minimum_Length', 'Sequencing_Batch_ID', 'Library_Selection_Method', 'Library_Preparation_Kit_Name', 'Per_Tile_Sequence_Quality', 'Spike_In_Concentration', 'Library_Preparation_Kit_Vendor', 'RIN', 'Adapter_Name', 'Multiplex_Barcode', 'Per_Base_N_Content', 'Library_Preparation_Kit_Version', 'Library_Strand', 'Per_Base_Sequence_Content', 'To_Trim_Adapter_Sequence', 'Size_Selection_Range', 'Kmer_Content', 'DV200', 'Read_Length', 'Fragment_Standard_Deviation_Length', 'Encoding', 'Fragment_Mean_Length', 'Percent_GC_Content', 'Sequence_Duplication_Levels', 'Flow_Cell_Barcode', 'QC_Workflow_Version', 'Per_Base_Sequence_Quality', 'Sequencing_Platform', 'Target_Depth', 'Sequence_Length_Distribution', 'Spike_In', 'Adapter_Content', 'Lane_Number', 'Fragment_Maximum_Length', 'Overrepresented_Sequences', 'Transcript_Integrity_Number', 'Base_Caller_Name', 'QC_Workflow_Link'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level1_metadata_r5.
+The difference between two sets:
+{'scRNAseq_Workflow_Type', 'Base_Filename', 'scRNAseq_Workflow_Parameters_Description', 'Workflow_Version', 'HTAN_Parent_Data_File_ID', 'Workflow_Link'}
+{'Nucleic_Acid_Source', 'Id', 'Manifest_Version', 'Valid_Barcodes_Cell_Number', 'Library_Construction_Method', 'Cryopreserved_Cells_in_Sample', 'cDNA_Length', 'Read_Indicator', 'Median_UMIs_per_Cell_Number', 'Single_Cell_Dissociation_Days_from_Index', 'Total_Number_of_Input_Cells', 'Manifest_Id', 'Cell_Barcode_Offset', 'UMI_Barcode_Offset', 'Protocol_Link', 'Library_Preparation_Days_from_Index', 'Reverse_Transcription_Primer', 'End_Bias', 'Spike_In_Concentration', 'HTAN_Parent_Biospecimen_ID', 'Nucleic_Acid_Capture_Days_from_Index', 'Feature_Reference_Id', 'Empty_Well_Barcode', 'CDS_Release', 'Technical_Replicate_Group', 'Cell_Barcode_Length', 'UMI_Barcode_Length', 'Dissociation_Method', 'Single_Cell_Isolation_Method', 'Read1', 'Sequencing_Platform', 'Well_Index', 'Spike_In', 'Read2', 'Input_Cells_and_Nuclei', 'cDNA_Offset', 'Sequencing_Library_Construction_Days_from_Index'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level1_metadata_r4.
+The difference between two sets:
+{'Id', 'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'Manifest_Id', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'HTAN_Parent_Data_File_ID', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Alignment_Workflow_Type'}
+{'Per_Sequence_Quality_Score', 'Nucleic_Acid_Source', 'Flow', 'QC_Workflow_Type', 'Read_Indicator', 'Per_Sequence_GC_Content', 'Fragment_Maximum_Length', 'Library_Layout', 'Adapter_Sequence', 'Basic_Statistics', 'Cell_Barcode', 'Library_Preparation_Days_from_Index', 'Base_Caller_Version', 'Uuid', 'Fragment_Minimum_Length', 'Sequencing_Batch_ID', 'Library_Selection_Method', 'Library_Preparation_Kit_Name', 'Per_Tile_Sequence_Quality', 'Library_Preparation_Kit_Vendor', 'RIN', 'Adapter_Name', 'Multiplex_Barcode', 'Per_Base_N_Content', 'Library_Preparation_Kit_Version', 'Library_Strand', 'Per_Base_Sequence_Content', 'To_Trim_Adapter_Sequence', 'Size_Selection_Range', 'Kmer_Content', 'Read_Length', 'Fragment_Standard_Deviation_Length', 'Encoding', 'Fragment_Mean_Length', 'Percent_GC_Content', 'Sequence_Duplication_Levels', 'QC_Workflow_Version', 'Per_Base_Sequence_Quality', 'Sequencing_Platform', 'Target_Depth', 'Spike_In', 'Sequence_Length_Distribution', 'Adapter_Content', 'Lane_Number', 'DV200', 'Overrepresented_Sequences', 'Transcript_Integrity_Number', 'Base_Caller_Name', 'QC_Workflow_Link'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level1_metadata_r3.
+The difference between two sets:
+{'Base_Filename'}
+{'Manifest_Version', 'UMI_Tag', 'Uuid', 'Checksum', 'Genomic_Reference', 'CDS_Release', 'Cell_Barcode_Tag', 'Genomic_Reference_URL', 'Is_lowest_level', 'Applied_Hard_Trimming', 'Whitelist_Cell_Barcode_File_Link', 'Genome_Annotation_URL'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level2_metadata_r3.
+The difference between two sets:
+{'Base_Filename'}
+{'Id', 'Manifest_Version', 'UMI_Tag', 'Aligned_Read_Length', 'Checksum', 'Genomic_Reference', 'CDS_Release', 'Cell_Barcode_Tag', 'Genomic_Reference_URL', 'Manifest_Id', 'Applied_Hard_Trimming', 'Whitelist_Cell_Barcode_File_Link', 'Genome_Annotation_URL'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level2_metadata_r5.
+The difference between two sets:
+{'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'Blacklist_Region_Fragments', 'MACS2_Start', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Workflow_Version', 'scATACseq_Workflow_Type', 'Workflow_Link', 'scATACseq_Workflow_Parameters_Description'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level4_metadata_r5.
+The difference between two sets:
+{'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'Blacklist_Region_Fragments', 'MACS2_Start', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'HTAN_Parent_Data_File_ID', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Nucleic_Acid_Source', 'Total_Number_of_Passing_Nuclei', 'scATACseq_Read2', 'Library_Construction_Method', 'scATACseq_Library_Layout', 'Single_Nucleus_Buffer', 'Threshold_for_Minimum_Passing_Reads', 'Median_Passing_Read_Percentage', 'Protocol_Link', 'Median_Fraction_of_Reads_in_Annotated_cis_DNA_Elements', 'Median_Fraction_of_Reads_in_Peaks', 'HTAN_Parent_Biospecimen_ID', 'Transposition_Reaction', 'Nuclei_Barcode_Length', 'scATACseq_Read1', 'Empty_Well_Barcode', 'Median_Percentage_of_Mitochondrial_Reads_per_Nucleus', 'Technical_Replicate_Group', 'scATACseq_Read3', 'Dissociation_Method', 'Single_Cell_Isolation_Method', 'Nuclei_Barcode_Read', 'Nucleus_Identifier', 'Sequencing_Platform', 'Well_Index', 'Total_Reads'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level1_metadata_r4.
+The difference between two sets:
+{'Base_Filename'}
+{'Id', 'Manifest_Version', 'Data_Category', 'Matrix_Type', 'CDS_Release', 'Cell_Median_Number_Genes', 'Manifest_Id', 'Cell_Median_Number_Reads', 'Cell_Total', 'Linked_Matrices'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level3_metadata_r5.
+The difference between two sets:
+{'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'HTAN_Parent_Data_File_ID', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Alignment_Workflow_Type'}
+{'Per_Sequence_Quality_Score', 'Nucleic_Acid_Source', 'ROI_Tag', 'QC_Workflow_Type', 'Per_Sequence_GC_Content', 'Read_Indicator', 'Micro_region_Seq_Platform', 'Fragment_Maximum_Length', 'Library_Layout', 'Adapter_Sequence', 'Basic_Statistics', 'Library_Preparation_Days_from_Index', 'Base_Caller_Version', 'Fragment_Minimum_Length', 'Sequencing_Batch_ID', 'Library_Selection_Method', 'Spike_In_Concentration', 'Per_Tile_Sequence_Quality', 'Library_Preparation_Kit_Name', 'Library_Preparation_Kit_Vendor', 'RIN', 'Per_Base_N_Content', 'Adapter_Name', 'Multiplex_Barcode', 'Library_Preparation_Kit_Version', 'Library_Strand', 'Per_Base_Sequence_Content', 'To_Trim_Adapter_Sequence', 'Size_Selection_Range', 'Kmer_Content', 'Read_Length', 'Encoding', 'Fragment_Standard_Deviation_Length', 'Fragment_Mean_Length', 'Percent_GC_Content', 'Sequence_Duplication_Levels', 'Flow_Cell_Barcode', 'QC_Workflow_Version', 'Per_Base_Sequence_Quality', 'Sequencing_Platform', 'Target_Depth', 'Sequence_Length_Distribution', 'Spike_In', 'Adapter_Content', 'Lane_Number', 'DV200', 'Overrepresented_Sequences', 'Transcript_Integrity_Number', 'Base_Caller_Name', 'QC_Workflow_Link'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level1_metadata_r4.
+The difference between two sets:
+{'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'Blacklist_Region_Fragments', 'MACS2_Start', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Proportion_Coverage_30X', 'Contamination', 'Total_Unmapped_reads', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'MapQ30', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Median_Percentage_of_Mitochondrial_Reads_per_Nucleus', 'Average_Read_Length', 'Average_Insert_Size', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'Proportion_Coverage_10x', 'Pairs_On_Diff_CHR', 'Total_Reads', 'Alignment_Workflow_Type'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level2_metadata_r4.
+The difference between two sets:
+{'Id', 'Manifest_Version', 'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Manifest_Id', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'MACS2_Start', 'Blacklist_Region_Fragments', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'CDS_Release', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Base_Filename', 'Workflow_Version', 'scATACseq_Workflow_Type', 'Workflow_Link', 'scATACseq_Workflow_Parameters_Description'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level4_metadata_r2.
+The difference between two sets:
+{'Id', 'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Manifest_Id', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'MACS2_Start', 'Blacklist_Region_Fragments', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Uuid', 'Workflow_Version', 'scATACseq_Workflow_Type', 'Workflow_Link', 'scATACseq_Workflow_Parameters_Description'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level4_metadata_r3.
+The difference between two sets:
+{'scRNAseq_Workflow_Type', 'Base_Filename', 'scRNAseq_Workflow_Parameters_Description', 'Workflow_Version', 'HTAN_Parent_Data_File_ID', 'Workflow_Link'}
+{'Nucleic_Acid_Source', 'Valid_Barcodes_Cell_Number', 'Manifest_Version', 'Id', 'Library_Construction_Method', 'Cryopreserved_Cells_in_Sample', 'cDNA_Length', 'Read_Indicator', 'Median_UMIs_per_Cell_Number', 'Single_Cell_Dissociation_Days_from_Index', 'Total_Number_of_Input_Cells', 'Manifest_Id', 'Cell_Barcode_Offset', 'UMI_Barcode_Offset', 'Protocol_Link', 'Library_Preparation_Days_from_Index', 'Reverse_Transcription_Primer', 'End_Bias', 'Spike_In_Concentration', 'HTAN_Parent_Biospecimen_ID', 'Nucleic_Acid_Capture_Days_from_Index', 'Feature_Reference_Id', 'Empty_Well_Barcode', 'CDS_Release', 'Technical_Replicate_Group', 'Cell_Barcode_Length', 'UMI_Barcode_Length', 'Dissociation_Method', 'Single_Cell_Isolation_Method', 'Read1', 'Sequencing_Platform', 'Well_Index', 'Spike_In', 'Read2', 'Input_Cells_and_Nuclei', 'cDNA_Offset', 'Sequencing_Library_Construction_Days_from_Index'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level1_metadata_r5.
+The difference between two sets:
+{'Base_Filename'}
+{'Id', 'Manifest_Version', 'Data_Category', 'Matrix_Type', 'CDS_Release', 'Cell_Median_Number_Genes', 'Manifest_Id', 'Cell_Median_Number_Reads', 'Cell_Total', 'Linked_Matrices'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level3_metadata_r4.
+The difference between two sets:
+{'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Proportion_Targets_No_Coverage', 'HTAN_Parent_Biospecimen_ID', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Total_Reads', 'Alignment_Workflow_Type'}
+{'Data_Category', 'Specify_Other_Fusion_Gene', 'Matrix_Type', 'Fusion_Gene_Detected', 'Pseudo_Alignment_Used', 'Fusion_Gene_Identity', 'Software_and_Version', 'Workflow_Link', 'Expression_Units'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level3_metadata_r5.
+The difference between two sets:
+{'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'Blacklist_Region_Fragments', 'MACS2_Start', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Proportion_Coverage_30X', 'Contamination', 'Total_Unmapped_reads', 'Proportion_Base_Mismatch', 'Genomic_Reference_URL', 'Contamination_Error', 'MapQ30', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Genomic_Reference', 'Proportion_Targets_No_Coverage', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Median_Percentage_of_Mitochondrial_Reads_per_Nucleus', 'Average_Read_Length', 'Average_Insert_Size', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'Proportion_Coverage_10x', 'Pairs_On_Diff_CHR', 'Total_Reads', 'Alignment_Workflow_Type'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level2_metadata_r5.
+The difference between two sets:
+{'Base_Filename'}
+{'Id', 'Manifest_Version', 'UMI_Tag', 'Aligned_Read_Length', 'Checksum', 'Genomic_Reference', 'CDS_Release', 'Cell_Barcode_Tag', 'Genomic_Reference_URL', 'Manifest_Id', 'Applied_Hard_Trimming', 'Whitelist_Cell_Barcode_File_Link', 'Genome_Annotation_URL'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level2_metadata_r4.
+The difference between two sets:
+{'Base_Filename'}
+{'Manifest_Version', 'Uuid', 'Data_Category', 'Matrix_Type', 'CDS_Release', 'Cell_Median_Number_Genes', 'Cell_Median_Number_Reads', 'Cell_Total', 'Linked_Matrices'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level3_metadata_r3.
+The difference between two sets:
+{'Id', 'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Manifest_Id', 'Nucleosome_Signal', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'nFeature_RNA', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'MACS2_Start', 'Blacklist_Region_Fragments', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'Total_Read_Pairs', 'TSS_Fragments', 'HTAN_Parent_Data_File_ID', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'TSS_Enrichment'}
+{'Nucleic_Acid_Source', 'Total_Number_of_Passing_Nuclei', 'Library_Construction_Method', 'Single_Nucleus_Buffer', 'scATACseq_Library_Layout', 'Threshold_for_Minimum_Passing_Reads', 'Median_Passing_Read_Percentage', 'Protocol_Link', 'MapQ30', 'Uuid', 'Median_Fraction_of_Reads_in_Annotated_cis_DNA_Elements', 'Median_Fraction_of_Reads_in_Peaks', 'HTAN_Parent_Biospecimen_ID', 'Transposition_Reaction', 'Peaks_Calling_Software', 'Median_Percentage_of_Mitochondrial_Reads_per_Nucleus', 'scATACseq_Read3', 'Technical_Replicate_Group', 'Dissociation_Method', 'Single_Cell_Isolation_Method', 'Nucleus_Identifier', 'Sequencing_Platform', 'Total_Reads'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level1_metadata_r3.
+The difference between two sets:
+{'Custom_Alignment_Workflow', 'Manifest_Id', 'Id', 'Proportion_Targets_No_Coverage'}
+{'Targets_No_Coverage', 'Uuid', 'Proportion'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level2_metadata_r3.
+The difference between two sets:
+{'Contamination', 'MSI_Workflow_Link', 'Total_Unmapped_reads', 'MSI_Status', 'Proportion_Base_Mismatch', 'Is_lowest_level', 'Contamination_Error', 'Proportion_Reads_Duplicated', 'Custom_Alignment_Workflow', 'Proportion_Targets_No_Coverage', 'HTAN_Parent_Biospecimen_ID', 'Alignment_Workflow_Url', 'Index_File_Name', 'Short_Reads', 'Average_Read_Length', 'Average_Insert_Size', 'Proportion_Reads_Mapped', 'Total_Uniquely_Mapped', 'Average_Base_Quality', 'Mean_Coverage', 'MSI_Score', 'Pairs_On_Diff_CHR', 'Total_Reads', 'Alignment_Workflow_Type'}
+{'Data_Category', 'Specify_Other_Fusion_Gene', 'Matrix_Type', 'Fusion_Gene_Detected', 'Pseudo_Alignment_Used', 'Software_and_Version', 'Fusion_Gene_Identity', 'Workflow_Link', 'Expression_Units'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: bulkRNAseq_level2_metadata_r4, bulkRNAseq_level3_metadata_r4.
+The difference between two sets:
+{'Base_Filename'}
+{'Manifest_Version', 'Uuid', 'CDS_Release'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scRNAseq_level4_metadata_r2, scRNAseq_level4_metadata_r3.
+The difference between two sets:
+{'Id', 'Manifest_Version', 'MACS2_Strand', 'Passed_Filters', 'MACS2_Name', 'Manifest_Id', 'Nucleosome_Signal', 'TSS_Enrichment', 'Mitochondrial_Read_Pairs', 'Nucleosome_Percentile', 'Chimeric_Read_Pairs', 'MACS2_Neg_Log10_qvalue_Summit', 'Peak_Region_Fragments', 'nFeature_Peaks', 'Promoter_Region_Fragments', 'Duplicate_Read_Pairs', 'nCount_RNA', 'Pct_Reads_in_Peaks', 'nCount_Peaks', 'TSS_Percentile', 'MACS2_Start', 'Blacklist_Region_Fragments', 'On_Target_Fragments', 'MACS2_Neg_Log10_pvalue_Summit', 'MACS2_End', 'MACS2_Seqnames', 'Peak_Region_Cutsites', 'Unmapped_Read_Pairs', 'CDS_Release', 'Total_Read_Pairs', 'TSS_Fragments', 'HTAN_Parent_Data_File_ID', 'MACS2_Width', 'Enhancer_Region_Fragments', 'Seurat_Clusters', 'MACS2_Relative_Summit_Position', 'scATAC_seq_Object_ID', 'LowMapQ', 'MACS2_Score', 'Blacklist_Ratio', 'MACS2_Fold_Change', 'DNase_Sensitive_Region_Fragments', 'nFeature_RNA'}
+{'Base_Filename', 'HTAN_Parent_Biospecimen_ID', 'Assay_Type'}
+These two schemas are not the same in examples_lite/bq162/isb-cgc-bq/HTAN_versioned: scATACseq_level3_metadata_r5, scATACseq_level3_metadata_r2.
+ 75% 411/548 [00:50<00:15,  9.03it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CBSA_2007_1YR, CBSA_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: CONGRESSIONALDISTRICT_2010_5YR, CONGRESSIONALDISTRICT_2019_1YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: COUNTY_2013_5YR, COUNTY_2020_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'pop_15_and_over', 'pop_never_married'}
+set()
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2016_5YR.
+The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: STATE_2013_1YR, STATE_2019_1YR.
+The difference between two sets:
+{'not_in_labor_force', 'pop_16_over', 'civilian_labor_force', 'armed_forces', 'employed_pop', 'unemployed_pop', 'pop_in_labor_force'}
+{'geoidsl', 'geoidsc'}
+These two schemas are not the same in examples_lite/sf_bq007/CENSUS_BUREAU_ACS_2/CENSUS_BUREAU_ACS: PLACE_2011_3YR, PLACE_2010_1YR.
+ 76% 417/548 [00:51<00:18,  6.91it/s]The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2016.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2014.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2019.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2017.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2012.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2015.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2018.
+The difference between two sets:
+set()
+{'airport_fee'}
+These two schemas are not the same in examples_lite/bq039/bigquery-public-data/new_york_taxi_trips: tlc_yellow_trips_2023, tlc_yellow_trips_2020.
+ 76% 419/548 [00:51<00:17,  7.17it/s]The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR19_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR2_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR14_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR15_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR3_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR11_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR12_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR5_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq175/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+ 83% 454/548 [00:54<00:06, 14.73it/s]The difference between two sets:
+{'submitter_id', 'project__dbgap_accession_number', 'file_id', 'project__program__name', 'project__project_id', 'project__disease_type', 'project__name', 'project__program__dbgap_accession_number'}
+{'project_disease_type', 'program_name', 'program_dbgap_accession_number', 'project_dbgap_accession_number', 'case_gdc_id', 'project_id', 'case_barcode', 'project_name'}
+These two schemas are not the same in examples_lite/bq046/isb-cgc/GDC_metadata: rel13_caseData, rel22_caseData.
+The difference between two sets:
+{'submitter_id', 'project__dbgap_accession_number', 'file_id', 'project__program__name', 'project__project_id', 'project__disease_type', 'project__name', 'project__program__dbgap_accession_number'}
+{'project_disease_type', 'program_name', 'program_dbgap_accession_number', 'project_dbgap_accession_number', 'case_gdc_id', 'project_id', 'case_barcode', 'project_name'}
+These two schemas are not the same in examples_lite/bq046/isb-cgc/GDC_metadata: rel13_caseData, rel16_caseData.
+The difference between two sets:
+{'sample_is_ffpe', 'sample_type_name', 'sample_preservation_method'}
+{'sample_type_id'}
+These two schemas are not the same in examples_lite/bq046/isb-cgc/GDC_metadata: rel18_aliquot2caseIDmap, rel12_aliquot2caseIDmap.
+The difference between two sets:
+{'program_name', 'center_code', 'index_file_size', 'archive_submitter_id', 'index_file_gdc_id', 'file_type', 'project_name', 'project_disease_type', 'archive_gdc_id', 'file_submitter_id', 'file_state', 'metadata_file_name', 'archive_state', 'metadata_file_type', 'center_short_name', 'file_gdc_id', 'center_name', 'archive_revision', 'project_short_name', 'center_type', 'program_dbgap_accession_number', 'file_tags', 'case_gdc_id', 'metadata_file_id', 'associated_entities__case_gdc_id', 'associated_entities__entity_gdc_id', 'index_file_name', 'project_dbgap_accession_number', 'metadata_file_size'}
+{'tags', 'cases__project__name', 'cases__project__disease_type', 'center__name', 'index_files__file_name', 'metadata_files__type', 'submitter_id', 'archive__submitter_id', 'metadata_files__file_size', 'state', 'cases__project__program__name', 'cases__project__dbgap_accession_number', 'metadata_files__file_name', 'center__code', 'associated_entities__case_id', 'cases__project__project_id', 'index_files__file_id', 'center__short_name', 'archive__state', 'cases__project__program__dbgap_accession_number', 'archive__archive_id', 'cases__case_id', 'metadata_files__file_id', 'associated_entities__entity_id', 'type', 'id', 'archive__revision', 'center__center_type', 'index_files__file_size'}
+These two schemas are not the same in examples_lite/bq046/isb-cgc/GDC_metadata: rel16_fileData_legacy, rel13_fileData_legacy.
+The difference between two sets:
+{'submitter_id', 'project__dbgap_accession_number', 'file_id', 'project__program__name', 'project__project_id', 'project__disease_type', 'project__name', 'active_file_count', 'project__program__dbgap_accession_number'}
+{'project_disease_type', 'program_name', 'program_dbgap_accession_number', 'project_dbgap_accession_number', 'case_gdc_id', 'current_file_count', 'project_id', 'case_barcode', 'project_name'}
+These two schemas are not the same in examples_lite/bq046/isb-cgc/GDC_metadata: rel13_caseData, rel14_caseData.
+ 87% 476/548 [00:55<00:03, 18.74it/s]The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R25.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R35.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R26.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R38.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R27.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R39.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR10_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R32.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR13_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR8_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG19_GDC_R28.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R25.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R40.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R36.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R24.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: DNA_METHYLATION_CHR16_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'disease_code', 'type'}
+{'file_type', 'sample_type_name', 'project_short_name_suffix'}
+These two schemas are not the same in examples_lite/sf_bq044/TCGA/TCGA_VERSIONED: PER_SAMPLE_FILE_METADATA_HG19_GDC_R14, PER_SAMPLE_FILE_METADATA_HG38_GDC_R31.
+ 87% 478/548 [00:56<00:04, 15.44it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq023/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq023/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq023/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq023/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq023/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 92% 504/548 [01:00<00:09,  4.42it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq352/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq352/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq352/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq352/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq352/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 93% 511/548 [01:01<00:06,  5.76it/s]The difference between two sets:
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq110/bigquery-public-data/census_bureau_acs: congressionaldistrict_2017_1yr, congressionaldistrict_2021_1yr.
+The difference between two sets:
+{'male_62_to_64', 'male_60_to_61'}
+{'pop_separated', 'pop_widowed', 'pop_now_married', 'male_60_61', 'male_62_64', 'pop_divorced', 'do_date', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq110/bigquery-public-data/census_bureau_acs: state_2021_1yr, state_2011_3yr.
+The difference between two sets:
+{'commute_40_44_mins', 'commute_60_89_mins', 'households_retirement_income', 'commute_5_9_mins', 'male_60_61', 'black_including_hispanic', 'asian_including_hispanic', 'male_62_64', 'commute_90_more_mins', 'commute_35_39_mins', 'amerindian_including_hispanic', 'white_including_hispanic'}
+{'male_62_to_64', 'male_60_to_61'}
+These two schemas are not the same in examples_lite/bq110/bigquery-public-data/census_bureau_acs: puma_2012_1yr, puma_2018_5yr.
+The difference between two sets:
+set()
+{'male_62_to_64', 'pop_separated', 'pop_widowed', 'pop_now_married', 'pop_divorced', 'male_60_to_61', 'pop_15_and_over', 'pop_never_married'}
+These two schemas are not the same in examples_lite/bq110/bigquery-public-data/census_bureau_acs: zcta5_2015_5yr, zcta5_2018_5yr.
+The difference between two sets:
+{'male_62_to_64', 'speak_spanish_at_home_low_english', 'pop_5_years_over', 'speak_only_english_at_home', 'hispanic_any_race', 'male_60_to_61', 'speak_spanish_at_home'}
+{'male_60_61', 'male_62_64', 'do_date'}
+These two schemas are not the same in examples_lite/bq110/bigquery-public-data/census_bureau_acs: schooldistrictunified_2021_1yr, schooldistrictunified_2015_1yr.
+ 95% 519/548 [01:02<00:03,  7.75it/s]The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR19_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR2_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR6_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR21_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR4_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR14_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR15_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR3_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR7_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR22_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR9_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR11_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'case_gdc_id', 'file_gdc_id', 'aliquot_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR12_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR5_HG38_GDC_2017_01.
+The difference between two sets:
+{'project_short_name'}
+{'file_gdc_id', 'aliquot_gdc_id', 'case_gdc_id', 'sample_gdc_id'}
+These two schemas are not the same in examples_lite/sf_bq176/TCGA_MITELMAN/TCGA_VERSIONED: DNA_METHYLATION_CHR10_HG19_GDC_2017_01, DNA_METHYLATION_CHR17_HG38_GDC_2017_01.
+100% 548/548 [01:03<00:00,  8.66it/s]
+Number of prompts.txt files in examples_lite larger than 200KB before reducing: 85
+Doing table-level schema linking
+Processing:   1% 6/547 [01:21<2:43:34, 18.14s/it]get_model_response() exit, max_try: 0, code_blocks: []
+Processing:   1% 6/547 [01:42<2:34:39, 17.15s/it]
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: ['{\n    "think": "The table contains ACS 5-year estimate variables like mortgage status, occupants per room, and bedrooms by rent, but lacks a total population column. The VALUE column represents counts or percentages for specific subgroups, not aggregate population metrics. Growth rate computation requires consecutive-year population values, which are absent here. The table\'s schema focuses on detailed demographic indicators rather than population totals, making it unsuitable for the task.",\n    "answer": "N",\n    "columns": []\n}']
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: ['{\n    "think": "The table CRYPTO.CRYPTO_BITCOIN_CASH.OUTPUTS contains Bitcoin Cash (BCH) transaction data, as evidenced by BCH-specific address formats (e.g., \'bitcoincash:...\') and sample rows with BCH transaction hashes. The task requires analysis of Bitcoin (BTC) transaction volume in 2021, which involves BTC-specific metrics. While the table includes timestamp and value columns, it lacks BTC-specific identifiers (e.g., BTC addresses, BTC transaction hashes) and focuses on BCH outputs. The task\'s definition of CoinJoin transactions (output value ≤ input value, multiple equal-value outputs) could theoretically apply to any blockchain, but the table\'s BCH context makes it irrelevant for BTC volume analysis. No columns in this table directly relate to BTC transaction volume or the required CoinJoin criteria for BTC.",\n    "answer": "N",\n    "columns": []\n}']
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: ['{\n    "think": "The task requires clinical data for bladder cancer patients with CDKN2A mutations, including mutation types, gender, vital status, days to death, and gene expression levels for MDM2, TP53, CDKN1A, and CCNE1. The provided table (TCGA.TCGA_VERSIONED.CLINICAL_GDC_R27) contains clinical and demographic information but lacks mutation data (e.g., mutation types for CDKN2A) and gene expression data (e.g., RNA-seq levels for downstream genes). However, it includes columns to identify bladder cancer patients (primary_site, disease_type) and retrieve clinical attributes (gender, vital status, days to death). While insufficient for the full task, these columns are partially relevant to the clinical portion.",\n    "answer": "Y",\n    "columns": ["primary_site", "disease_type", "demo__gender", "demo__vital_status", "demo__days_to_death"]\n}']
+get_model_response() exit, max_try: 0, code_blocks: []
+get_model_response() exit, max_try: 0, code_blocks: []
+Number of prompts.txt files in examples_lite larger than 200KB before reducing: 85
+AZURE mode: false
+Model: solar-pro3
+Task: lite
+Output Path: output/solar-pro3-lite-log-20260218-082617
+/usr/local/envs/reforce/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.19) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+local269
+ga018
+sf_bq451
+sf_bq070
+sf_bq071
+local074
+local230
+bq277
+Table info len: 201238, return
+Table info len: 182148, return
+Table info len: 197198, return
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 138579 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+bq277: Empty
+Time for bq277: 0 min
+sf_bq069
+Table info len: 202052, return
+local230/4log.log: chat_session len: {'prompt_len': 4279, 'response_len': 1569, 'num_calls': 2}
+sf_bq071/7log.log: chat_session len: {'prompt_len': 203735, 'response_len': 2856, 'num_calls': 5}
+local230/3log.log: chat_session len: {'prompt_len': 4367, 'response_len': 1816, 'num_calls': 3}
+local230/1log.log: chat_session len: {'prompt_len': 4125, 'response_len': 748, 'num_calls': 1}
+local230/7log.log: chat_session len: {'prompt_len': 4125, 'response_len': 950, 'num_calls': 1}
+sf_bq071/5log.log: chat_session len: {'prompt_len': 203795, 'response_len': 2710, 'num_calls': 5}
+sf_bq071/1log.log: chat_session len: {'prompt_len': 203650, 'response_len': 2835, 'num_calls': 5}
+local230/2log.log: chat_session len: {'prompt_len': 4673, 'response_len': 3804, 'num_calls': 5}
+sf_bq071/4log.log: chat_session len: {'prompt_len': 203625, 'response_len': 3062, 'num_calls': 5}
+local074/6log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1451, 'num_calls': 1}
+local074/4log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1986, 'num_calls': 1}
+sf_bq071/0log.log: chat_session len: {'prompt_len': 203591, 'response_len': 2968, 'num_calls': 5}
+local230/6log.log: chat_session len: {'prompt_len': 4125, 'response_len': 916, 'num_calls': 1}
+sf_bq071/6log.log: chat_session len: {'prompt_len': 203598, 'response_len': 3020, 'num_calls': 5}
+local269/7log.log: chat_session len: {'prompt_len': 11872, 'response_len': 957, 'num_calls': 1}
+local269/2log.log: chat_session len: {'prompt_len': 11872, 'response_len': 1416, 'num_calls': 1}
+sf_bq071/3log.log: chat_session len: {'prompt_len': 203578, 'response_len': 4308, 'num_calls': 5}
+local074/5log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1408, 'num_calls': 1}
+local269/5log.log: chat_session len: {'prompt_len': 11872, 'response_len': 1009, 'num_calls': 1}
+local230/0log.log: chat_session len: {'prompt_len': 4125, 'response_len': 798, 'num_calls': 1}
+local230/5log.log: chat_session len: {'prompt_len': 4125, 'response_len': 897, 'num_calls': 1}
+Time for local230: 4 min
+bq280
+local074/7log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1431, 'num_calls': 1}
+local269/6log.log: chat_session len: {'prompt_len': 11872, 'response_len': 907, 'num_calls': 1}
+sf_bq451/6log.log: chat_session len: {'prompt_len': 29780, 'response_len': 6563, 'num_calls': 5}
+local269/0log.log: chat_session len: {'prompt_len': 12341, 'response_len': 2563, 'num_calls': 4}
+local074/2log.log: chat_session len: {'prompt_len': 10581, 'response_len': 2374, 'num_calls': 2}
+sf_bq070/1log.log: chat_session len: {'prompt_len': 204100, 'response_len': 9970, 'num_calls': 5}
+local074/3log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1380, 'num_calls': 1}
+local269/4log.log: chat_session len: {'prompt_len': 12197, 'response_len': 2488, 'num_calls': 3}
+local074/1log.log: chat_session len: {'prompt_len': 10742, 'response_len': 4078, 'num_calls': 3}
+sf_bq070/7log.log: chat_session len: {'prompt_len': 204053, 'response_len': 8320, 'num_calls': 5}
+sf_bq070/3log.log: chat_session len: {'prompt_len': 204126, 'response_len': 10689, 'num_calls': 5}
+sf_bq070/5log.log: chat_session len: {'prompt_len': 204109, 'response_len': 5549, 'num_calls': 5}
+local269/1log.log: chat_session len: {'prompt_len': 11872, 'response_len': 1179, 'num_calls': 1}
+bq280/1log.log: chat_session len: {'prompt_len': 74488, 'response_len': 304, 'num_calls': 1}
+local074/0log.log: chat_session len: {'prompt_len': 10430, 'response_len': 1663, 'num_calls': 1}
+Time for local074: 5 min
+sf_bq153
+sf_bq070/4log.log: chat_session len: {'prompt_len': 204109, 'response_len': 8204, 'num_calls': 5}
+sf_bq071/2log.log: chat_session len: {'prompt_len': 203602, 'response_len': 5625, 'num_calls': 5}
+sf_bq071: Empty
+Time for sf_bq071: 5 min
+bq066
+Table info len: 716965, return
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289924 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+bq066: Empty
+Time for bq066: 0 min
+sf_bq135
+Table info len: 204793, return
+sf_bq451/0log.log: chat_session len: {'prompt_len': 30173, 'response_len': 9980, 'num_calls': 5}
+bq280/4log.log: chat_session len: {'prompt_len': 74488, 'response_len': 467, 'num_calls': 1}
+sf_bq070/2log.log: chat_session len: {'prompt_len': 204057, 'response_len': 11152, 'num_calls': 5}
+ga018/3log.log: chat_session len: {'prompt_len': 23523, 'response_len': 11580, 'num_calls': 5}
+ga018/1log.log: chat_session len: {'prompt_len': 22484, 'response_len': 8542, 'num_calls': 2}
+bq280/6log.log: chat_session len: {'prompt_len': 74488, 'response_len': 434, 'num_calls': 1}
+bq280/3log.log: chat_session len: {'prompt_len': 74488, 'response_len': 317, 'num_calls': 1}
+bq280/5log.log: chat_session len: {'prompt_len': 74488, 'response_len': 368, 'num_calls': 1}
+bq280/7log.log: chat_session len: {'prompt_len': 74488, 'response_len': 424, 'num_calls': 1}
+sf_bq153/0log.log: chat_session len: {'prompt_len': 75155, 'response_len': 4796, 'num_calls': 5}
+sf_bq451/2log.log: chat_session len: {'prompt_len': 30211, 'response_len': 7711, 'num_calls': 5}
+sf_bq451/4log.log: chat_session len: {'prompt_len': 29622, 'response_len': 6985, 'num_calls': 5}
+bq280/0log.log: chat_session len: {'prompt_len': 74488, 'response_len': 272, 'num_calls': 1}
+sf_bq069/7log.log: chat_session len: {'prompt_len': 205778, 'response_len': 25053, 'num_calls': 5}
+sf_bq069/1log.log: chat_session len: {'prompt_len': 205277, 'response_len': 13997, 'num_calls': 5}
+max_try: 1, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 248371 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 1, code_blocks: []
+bq280/2log.log: chat_session len: {'prompt_len': 74488, 'response_len': 425, 'num_calls': 1}
+Time for bq280: 3 min
+bq406
+ga018/4log.log: chat_session len: {'prompt_len': 23511, 'response_len': 15018, 'num_calls': 5}
+sf_bq135/1log.log: chat_session len: {'prompt_len': 207552, 'response_len': 1846, 'num_calls': 5}
+sf_bq135/7log.log: chat_session len: {'prompt_len': 207580, 'response_len': 1870, 'num_calls': 5}
+sf_bq451/1log.log: chat_session len: {'prompt_len': 29537, 'response_len': 11476, 'num_calls': 5}
+sf_bq070/0log.log: chat_session len: {'prompt_len': 203948, 'response_len': 8157, 'num_calls': 5}
+sf_bq135/6log.log: chat_session len: {'prompt_len': 207550, 'response_len': 1478, 'num_calls': 5}
+sf_bq451/5log.log: chat_session len: {'prompt_len': 29559, 'response_len': 7626, 'num_calls': 5}
+sf_bq135/0log.log: chat_session len: {'prompt_len': 207671, 'response_len': 1403, 'num_calls': 5}
+ga018/7log.log: chat_session len: {'prompt_len': 23487, 'response_len': 17986, 'num_calls': 5}
+sf_bq135/4log.log: chat_session len: {'prompt_len': 207575, 'response_len': 2037, 'num_calls': 5}
+sf_bq451/7log.log: chat_session len: {'prompt_len': 30305, 'response_len': 11417, 'num_calls': 5}
+sf_bq135/5log.log: chat_session len: {'prompt_len': 207540, 'response_len': 2233, 'num_calls': 5}
+sf_bq153/3log.log: chat_session len: {'prompt_len': 75203, 'response_len': 4334, 'num_calls': 5}
+ga018/2log.log: chat_session len: {'prompt_len': 23465, 'response_len': 14655, 'num_calls': 5}
+sf_bq153/7log.log: chat_session len: {'prompt_len': 75164, 'response_len': 5481, 'num_calls': 5}
+sf_bq135/2log.log: chat_session len: {'prompt_len': 207350, 'response_len': 1941, 'num_calls': 5}
+sf_bq135: Empty
+Time for sf_bq135: 2 min
+sf_bq333
+bq406/4log.log: chat_session len: {'prompt_len': 93969, 'response_len': 2893, 'num_calls': 1}
+sf_bq070/6log.log: chat_session len: {'prompt_len': 204061, 'response_len': 7080, 'num_calls': 5}
+sf_bq070: Empty
+Time for sf_bq070: 8 min
+bq038
+sf_bq069/5log.log: chat_session len: {'prompt_len': 205100, 'response_len': 30988, 'num_calls': 5}
+bq406/5log.log: chat_session len: {'prompt_len': 93969, 'response_len': 2261, 'num_calls': 1}
+sf_bq451/3log.log: chat_session len: {'prompt_len': 30447, 'response_len': 7847, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq451 Empty, return
+Time for sf_bq451: 9 min
+sf_bq017
+sf_bq069/4log.log: chat_session len: {'prompt_len': 207167, 'response_len': 26824, 'num_calls': 5}
+ga018/0log.log: chat_session len: {'prompt_len': 23535, 'response_len': 14562, 'num_calls': 5}
+sf_bq333/0log.log: chat_session len: {'prompt_len': 14775, 'response_len': 631, 'num_calls': 1}
+sf_bq153/6log.log: chat_session len: {'prompt_len': 75036, 'response_len': 4962, 'num_calls': 4}
+bq038/6log.log: chat_session len: {'prompt_len': 86430, 'response_len': 1317, 'num_calls': 1}
+sf_bq069/2log.log: chat_session len: {'prompt_len': 205107, 'response_len': 31326, 'num_calls': 5}
+ga018/5log.log: chat_session len: {'prompt_len': 23459, 'response_len': 14993, 'num_calls': 5}
+sf_bq069/0log.log: chat_session len: {'prompt_len': 205093, 'response_len': 26137, 'num_calls': 5}
+bq406/6log.log: chat_session len: {'prompt_len': 93969, 'response_len': 2841, 'num_calls': 1}
+sf_bq333/7log.log: chat_session len: {'prompt_len': 14775, 'response_len': 422, 'num_calls': 1}
+sf_bq153/2log.log: chat_session len: {'prompt_len': 75203, 'response_len': 5170, 'num_calls': 5}
+bq038/3log.log: chat_session len: {'prompt_len': 87942, 'response_len': 5772, 'num_calls': 5}
+sf_bq333/5log.log: chat_session len: {'prompt_len': 15681, 'response_len': 3569, 'num_calls': 5}
+sf_bq333/1log.log: chat_session len: {'prompt_len': 15693, 'response_len': 5257, 'num_calls': 5}
+bq406/0log.log: chat_session len: {'prompt_len': 94332, 'response_len': 8467, 'num_calls': 4}
+sf_bq017/1log.log: chat_session len: {'prompt_len': 43640, 'response_len': 5044, 'num_calls': 5}
+sf_bq153/5log.log: chat_session len: {'prompt_len': 75210, 'response_len': 6241, 'num_calls': 5}
+##ERROR## WITH RECURSIVE
+  qty_tree AS (
+    SELECT pr.packaging_id AS root_id, 
+           pr.contains_id AS leaf_id,
+           pr.qty AS total_qty
+    FROM packaging_relations pr
+    JOIN packaging p ON pr.packaging_id = p.id
+    
+    UNION ALL
+    
+    SELECT pr.packaging_id AS root_id, 
+           pr.contains_id AS leaf_id,
+           pr.qty * t.total_qty AS total_qty
+    FROM packaging_relations pr
+    JOIN qty_tree t ON pr.contains_id = t.leaf_id
+  ),
+  package_totals AS (
+    SELECT root_id, 
+           SUM(total_qty) AS total_qty
+    FROM qty_tree
+    GROUP BY root_id
+  )
+SELECT ROUND(AVG(total_qty), 4) AS average_total_quantity
+FROM package_totals; Timed out
+sf_bq333/4log.log: chat_session len: {'prompt_len': 14775, 'response_len': 1257, 'num_calls': 1}
+sf_bq333/2log.log: chat_session len: {'prompt_len': 15739, 'response_len': 4173, 'num_calls': 5}
+sf_bq069/6log.log: chat_session len: {'prompt_len': 205090, 'response_len': 28344, 'num_calls': 5}
+bq038/0log.log: chat_session len: {'prompt_len': 87394, 'response_len': 4316, 'num_calls': 3}
+sf_bq153/4log.log: chat_session len: {'prompt_len': 75202, 'response_len': 5824, 'num_calls': 5}
+sf_bq153/1log.log: chat_session len: {'prompt_len': 75199, 'response_len': 4977, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq153 Empty, return
+Time for sf_bq153: 7 min
+bq059
+sf_bq333/6log.log: chat_session len: {'prompt_len': 15678, 'response_len': 5774, 'num_calls': 5}
+bq406/2log.log: chat_session len: {'prompt_len': 94211, 'response_len': 6594, 'num_calls': 3}
+bq038/7log.log: chat_session len: {'prompt_len': 86823, 'response_len': 2710, 'num_calls': 2}
+bq059/7log.log: chat_session len: {'prompt_len': 88185, 'response_len': 966, 'num_calls': 1}
+bq059/0log.log: chat_session len: {'prompt_len': 88185, 'response_len': 852, 'num_calls': 1}
+ga018/6log.log: chat_session len: {'prompt_len': 23487, 'response_len': 16890, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/ga018 Empty, return
+Time for ga018: 13 min
+bq097
+Table info len: 716965, return
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 289895 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+bq097: Empty
+Time for bq097: 0 min
+bq032
+Table info len: 173253, return
+sf_bq017/6log.log: chat_session len: {'prompt_len': 43637, 'response_len': 8075, 'num_calls': 5}
+sf_bq017/4log.log: chat_session len: {'prompt_len': 43633, 'response_len': 8430, 'num_calls': 5}
+sf_bq017/0log.log: chat_session len: {'prompt_len': 44278, 'response_len': 5180, 'num_calls': 5}
+sf_bq017/5log.log: chat_session len: {'prompt_len': 43822, 'response_len': 6084, 'num_calls': 5}
+bq406/7log.log: chat_session len: {'prompt_len': 94669, 'response_len': 10017, 'num_calls': 5}
+sf_bq017/7log.log: chat_session len: {'prompt_len': 43736, 'response_len': 7945, 'num_calls': 5}
+bq059/3log.log: chat_session len: {'prompt_len': 88185, 'response_len': 589, 'num_calls': 1}
+bq059/6log.log: chat_session len: {'prompt_len': 88185, 'response_len': 594, 'num_calls': 1}
+bq038/2log.log: chat_session len: {'prompt_len': 86430, 'response_len': 1393, 'num_calls': 1}
+bq059/4log.log: chat_session len: {'prompt_len': 88185, 'response_len': 610, 'num_calls': 1}
+bq032/1log.log: chat_session len: {'prompt_len': 174179, 'response_len': 440, 'num_calls': 1}
+bq032/2log.log: chat_session len: {'prompt_len': 174179, 'response_len': 423, 'num_calls': 1}
+sf_bq333/3log.log: chat_session len: {'prompt_len': 15726, 'response_len': 9398, 'num_calls': 5}
+Time for sf_bq333: 6 min
+sf_bq197
+sf_bq017/3log.log: chat_session len: {'prompt_len': 43702, 'response_len': 5343, 'num_calls': 5}
+bq059/5log.log: chat_session len: {'prompt_len': 88185, 'response_len': 864, 'num_calls': 1}
+bq059/1log.log: chat_session len: {'prompt_len': 88185, 'response_len': 645, 'num_calls': 1}
+bq059/2log.log: chat_session len: {'prompt_len': 88185, 'response_len': 988, 'num_calls': 1}
+Time for bq059: 2 min
+bq034
+bq034/1log.log: chat_session len: {'prompt_len': 15761, 'response_len': 180, 'num_calls': 1}
+bq034/4log.log: chat_session len: {'prompt_len': 15761, 'response_len': 172, 'num_calls': 1}
+bq034/5log.log: chat_session len: {'prompt_len': 15761, 'response_len': 841, 'num_calls': 1}
+bq034/0log.log: chat_session len: {'prompt_len': 15761, 'response_len': 191, 'num_calls': 1}
+bq034/2log.log: chat_session len: {'prompt_len': 16310, 'response_len': 475, 'num_calls': 2}
+bq032/5log.log: chat_session len: {'prompt_len': 174720, 'response_len': 2760, 'num_calls': 2}
+bq034/7log.log: chat_session len: {'prompt_len': 15761, 'response_len': 194, 'num_calls': 1}
+bq032/7log.log: chat_session len: {'prompt_len': 174929, 'response_len': 6465, 'num_calls': 5}
+bq038/1log.log: chat_session len: {'prompt_len': 88156, 'response_len': 7065, 'num_calls': 5}
+bq032/3log.log: chat_session len: {'prompt_len': 176111, 'response_len': 9591, 'num_calls': 5}
+bq034/3log.log: chat_session len: {'prompt_len': 16132, 'response_len': 490, 'num_calls': 2}
+bq038/5log.log: chat_session len: {'prompt_len': 86823, 'response_len': 3215, 'num_calls': 2}
+sf_bq069/3log.log: chat_session len: {'prompt_len': 205122, 'response_len': 26188, 'num_calls': 5}
+sf_bq069: Empty
+Time for sf_bq069: 17 min
+bq021
+sf_bq197/1log.log: chat_session len: {'prompt_len': 15769, 'response_len': 6489, 'num_calls': 5}
+bq032/0log.log: chat_session len: {'prompt_len': 175295, 'response_len': 7184, 'num_calls': 5}
+sf_bq197/0log.log: chat_session len: {'prompt_len': 15789, 'response_len': 7487, 'num_calls': 5}
+sf_bq197/7log.log: chat_session len: {'prompt_len': 15769, 'response_len': 7082, 'num_calls': 5}
+bq406/1log.log: chat_session len: {'prompt_len': 94937, 'response_len': 12433, 'num_calls': 5}
+bq032/6log.log: chat_session len: {'prompt_len': 175099, 'response_len': 7367, 'num_calls': 5}
+sf_bq197/4log.log: chat_session len: {'prompt_len': 15777, 'response_len': 6955, 'num_calls': 5}
+bq021/6log.log: chat_session len: {'prompt_len': 86333, 'response_len': 848, 'num_calls': 1}
+sf_bq197/5log.log: chat_session len: {'prompt_len': 15785, 'response_len': 8988, 'num_calls': 5}
+sf_bq197/6log.log: chat_session len: {'prompt_len': 15774, 'response_len': 6484, 'num_calls': 5}
+sf_bq197/2log.log: chat_session len: {'prompt_len': 14857, 'response_len': 1470, 'num_calls': 1}
+bq021/3log.log: chat_session len: {'prompt_len': 86333, 'response_len': 1017, 'num_calls': 1}
+sf_bq017/2log.log: chat_session len: {'prompt_len': 43639, 'response_len': 12483, 'num_calls': 5}
+sf_bq017: Empty
+Time for sf_bq017: 10 min
+local098
+bq406/3log.log: chat_session len: {'prompt_len': 94332, 'response_len': 10738, 'num_calls': 4}
+output/solar-pro3-lite-log-20260218-082617/bq406 Empty, return
+Time for bq406: 11 min
+sf_bq415
+bq032/4log.log: chat_session len: {'prompt_len': 175557, 'response_len': 6919, 'num_calls': 5}
+Time for bq032: 5 min
+local081
+bq021/1log.log: chat_session len: {'prompt_len': 86672, 'response_len': 2056, 'num_calls': 2}
+bq021/4log.log: chat_session len: {'prompt_len': 87809, 'response_len': 4778, 'num_calls': 5}
+bq021/2log.log: chat_session len: {'prompt_len': 86333, 'response_len': 1463, 'num_calls': 1}
+sf_bq197/3log.log: chat_session len: {'prompt_len': 15728, 'response_len': 9442, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq197 Empty, return
+Time for sf_bq197: 5 min
+sf_bq450
+local081/3log.log: chat_session len: {'prompt_len': 10019, 'response_len': 753, 'num_calls': 1}
+bq021/0log.log: chat_session len: {'prompt_len': 88571, 'response_len': 9672, 'num_calls': 5}
+bq034/6log.log: chat_session len: {'prompt_len': 17240, 'response_len': 2688, 'num_calls': 6}
+Time for bq034: 4 min
+bq462
+bq021/5log.log: chat_session len: {'prompt_len': 88383, 'response_len': 6664, 'num_calls': 5}
+local098/5log.log: chat_session len: {'prompt_len': 5065, 'response_len': 672, 'num_calls': 1}
+local081/5log.log: chat_session len: {'prompt_len': 10019, 'response_len': 1434, 'num_calls': 1}
+local081/0log.log: chat_session len: {'prompt_len': 10173, 'response_len': 2085, 'num_calls': 2}
+local098/4log.log: chat_session len: {'prompt_len': 5065, 'response_len': 714, 'num_calls': 1}
+bq462/7log.log: chat_session len: {'prompt_len': 95911, 'response_len': 1844, 'num_calls': 1}
+local081/7log.log: chat_session len: {'prompt_len': 10019, 'response_len': 706, 'num_calls': 1}
+local081/2log.log: chat_session len: {'prompt_len': 10019, 'response_len': 654, 'num_calls': 1}
+local098/6log.log: chat_session len: {'prompt_len': 5371, 'response_len': 2040, 'num_calls': 3}
+local098/7log.log: chat_session len: {'prompt_len': 5065, 'response_len': 788, 'num_calls': 1}
+local098/2log.log: chat_session len: {'prompt_len': 5065, 'response_len': 476, 'num_calls': 1}
+local098/0log.log: chat_session len: {'prompt_len': 5065, 'response_len': 969, 'num_calls': 1}
+bq462/5log.log: chat_session len: {'prompt_len': 96316, 'response_len': 3897, 'num_calls': 2}
+##ERROR## WITH RECURSIVE
+  paths AS (
+    SELECT 
+      pr.packaging_id AS root_id,
+      pr.contains_id AS leaf_id,
+      pr.qty AS total_qty,
+      pr.packaging_id AS current_pkg
+    FROM packaging_relations pr
+    JOIN packaging p ON pr.packaging_id = p.id
+    WHERE pr.packaging_id IN (
+      SELECT id FROM packaging 
+      WHERE id NOT IN (SELECT contains_id FROM packaging_relations)
+    )
+
+    UNION ALL
+
+    SELECT 
+      p.root_id,
+      pr.contains_id AS leaf_id,
+      p.total_qty * pr.qty AS total_qty,
+      pr.packaging_id
+    FROM paths p
+    JOIN packaging_relations pr ON p.current_pkg = pr.packaging_id
+    WHERE pr.contains_id IN (
+      SELECT id FROM packaging 
+      WHERE id NOT IN (SELECT packaging_id FROM packaging_relations)
+    )
+  )
+SELECT ROUND(AVG(total_qty), 4) AS average_total_quantity
+FROM paths
+WHERE leaf_id NOT IN (
+  SELECT packaging_id FROM packaging_relations
+); Timed out
+local098/1log.log: chat_session len: {'prompt_len': 5065, 'response_len': 841, 'num_calls': 1}
+local081/4log.log: chat_session len: {'prompt_len': 10019, 'response_len': 892, 'num_calls': 1}
+bq462/6log.log: chat_session len: {'prompt_len': 96639, 'response_len': 5835, 'num_calls': 3}
+sf_bq415/2log.log: chat_session len: {'prompt_len': 77909, 'response_len': 4961, 'num_calls': 4}
+bq462/2log.log: chat_session len: {'prompt_len': 96316, 'response_len': 3929, 'num_calls': 2}
+local081/6log.log: chat_session len: {'prompt_len': 10179, 'response_len': 2124, 'num_calls': 2}
+bq462/4log.log: chat_session len: {'prompt_len': 96625, 'response_len': 5770, 'num_calls': 3}
+bq462/1log.log: chat_session len: {'prompt_len': 97427, 'response_len': 7203, 'num_calls': 5}
+bq462/3log.log: chat_session len: {'prompt_len': 97224, 'response_len': 8331, 'num_calls': 4}
+local081/1log.log: chat_session len: {'prompt_len': 10019, 'response_len': 1178, 'num_calls': 1}
+Time for local081: 5 min
+local354
+local098/3log.log: chat_session len: {'prompt_len': 5065, 'response_len': 680, 'num_calls': 1}
+Time for local098: 5 min
+sf_bq221
+sf_bq415/7log.log: chat_session len: {'prompt_len': 78246, 'response_len': 5003, 'num_calls': 5}
+sf_bq415/3log.log: chat_session len: {'prompt_len': 78176, 'response_len': 4917, 'num_calls': 5}
+bq021/7log.log: chat_session len: {'prompt_len': 88665, 'response_len': 16844, 'num_calls': 5}
+Time for bq021: 7 min
+local219
+local219/5log.log: chat_session len: {'prompt_len': 13336, 'response_len': 1053, 'num_calls': 1}
+local219/6log.log: chat_session len: {'prompt_len': 13336, 'response_len': 1633, 'num_calls': 1}
+bq462/0log.log: chat_session len: {'prompt_len': 97375, 'response_len': 11152, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/bq462 Empty, return
+Time for bq462: 6 min
+sf010
+local354/1log.log: chat_session len: {'prompt_len': 18735, 'response_len': 787, 'num_calls': 1}
+local354/3log.log: chat_session len: {'prompt_len': 18735, 'response_len': 1430, 'num_calls': 1}
+local354/0log.log: chat_session len: {'prompt_len': 18735, 'response_len': 1245, 'num_calls': 1}
+sf_bq415/5log.log: chat_session len: {'prompt_len': 78208, 'response_len': 7351, 'num_calls': 5}
+sf_bq415/0log.log: chat_session len: {'prompt_len': 78693, 'response_len': 16412, 'num_calls': 5}
+sf_bq415/6log.log: chat_session len: {'prompt_len': 78308, 'response_len': 7783, 'num_calls': 5}
+local354/4log.log: chat_session len: {'prompt_len': 18896, 'response_len': 1459, 'num_calls': 2}
+local354/2log.log: chat_session len: {'prompt_len': 18735, 'response_len': 831, 'num_calls': 1}
+local219/4log.log: chat_session len: {'prompt_len': 13336, 'response_len': 1504, 'num_calls': 1}
+local219/2log.log: chat_session len: {'prompt_len': 13336, 'response_len': 1203, 'num_calls': 1}
+local354/6log.log: chat_session len: {'prompt_len': 18735, 'response_len': 172, 'num_calls': 1}
+local219/7log.log: chat_session len: {'prompt_len': 13336, 'response_len': 782, 'num_calls': 1}
+sf_bq415/4log.log: chat_session len: {'prompt_len': 78372, 'response_len': 9818, 'num_calls': 5}
+##ERROR## WITH RECURSIVE
+  leaf_ids AS (
+    SELECT contains_id AS leaf_id
+    FROM packaging_relations
+    WHERE contains_id NOT IN (SELECT packaging_id FROM packaging_relations)
+  ),
+  qty_paths AS (
+    SELECT pr.packaging_id AS root_id,
+           pr.contains_id AS leaf_id,
+           pr.qty AS total_qty
+    FROM packaging_relations pr
+    JOIN leaf_ids l ON pr.contains_id = l.leaf_id
+
+    UNION ALL
+
+    SELECT qp.root_id,
+           pr.contains_id,
+           pr.qty * qp.total_qty
+    FROM qty_paths qp
+    JOIN packaging_relations pr ON qp.leaf_id = pr.packaging_id
+  )
+SELECT ROUND(AVG(total_qty), 4) AS average_total_quantity
+FROM qty_paths
+WHERE root_id NOT IN (SELECT packaging_id FROM packaging_relations); Timed out
+local269/3log.log: chat_session len: {'prompt_len': 14199, 'response_len': 4328, 'num_calls': 5}
+local219/3log.log: chat_session len: {'prompt_len': 13336, 'response_len': 1220, 'num_calls': 1}
+local354/5log.log: chat_session len: {'prompt_len': 18735, 'response_len': 659, 'num_calls': 1}
+sf_bq450/0log.log: chat_session len: {'prompt_len': 48437, 'response_len': 53730, 'num_calls': 5}
+local219/1log.log: chat_session len: {'prompt_len': 13492, 'response_len': 1762, 'num_calls': 2}
+local354/7log.log: chat_session len: {'prompt_len': 18891, 'response_len': 1888, 'num_calls': 2}
+Time for local354: 4 min
+bq113
+Table info len: 190967, return
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 144231 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+bq113: Empty
+Time for bq113: 0 min
+bq108
+Table info len: 221572, return
+sf010/4log.log: chat_session len: {'prompt_len': 96849, 'response_len': 3069, 'num_calls': 5}
+sf010/7log.log: chat_session len: {'prompt_len': 96617, 'response_len': 3528, 'num_calls': 4}
+sf010/6log.log: chat_session len: {'prompt_len': 96617, 'response_len': 2758, 'num_calls': 4}
+local219/0log.log: chat_session len: {'prompt_len': 13492, 'response_len': 2880, 'num_calls': 2}
+Time for local219: 4 min
+local073
+sf010/2log.log: chat_session len: {'prompt_len': 96254, 'response_len': 1010, 'num_calls': 1}
+sf_bq221/4log.log: chat_session len: {'prompt_len': 26219, 'response_len': 10915, 'num_calls': 5}
+bq108/7log.log: chat_session len: {'prompt_len': 222963, 'response_len': 1016, 'num_calls': 2}
+bq108/5log.log: chat_session len: {'prompt_len': 222580, 'response_len': 725, 'num_calls': 1}
+bq108/6log.log: chat_session len: {'prompt_len': 222972, 'response_len': 2781, 'num_calls': 3}
+bq108/3log.log: chat_session len: {'prompt_len': 222939, 'response_len': 1807, 'num_calls': 2}
+sf010/1log.log: chat_session len: {'prompt_len': 96843, 'response_len': 3433, 'num_calls': 5}
+sf_bq415/1log.log: chat_session len: {'prompt_len': 78139, 'response_len': 11490, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq415 Empty, return
+Time for sf_bq415: 11 min
+bq051
+sf010/5log.log: chat_session len: {'prompt_len': 96617, 'response_len': 2296, 'num_calls': 4}
+sf010/0log.log: chat_session len: {'prompt_len': 96831, 'response_len': 2392, 'num_calls': 4}
+sf_bq450/5log.log: chat_session len: {'prompt_len': 48724, 'response_len': 50998, 'num_calls': 5}
+sf010/3log.log: chat_session len: {'prompt_len': 96617, 'response_len': 2825, 'num_calls': 4}
+output/solar-pro3-lite-log-20260218-082617/sf010 Empty, return
+Time for sf010: 5 min
+bq208
+bq108/0log.log: chat_session len: {'prompt_len': 222580, 'response_len': 648, 'num_calls': 1}
+sf_bq221/2log.log: chat_session len: {'prompt_len': 26076, 'response_len': 8042, 'num_calls': 5}
+sf_bq221/3log.log: chat_session len: {'prompt_len': 26171, 'response_len': 9574, 'num_calls': 5}
+bq051/3log.log: chat_session len: {'prompt_len': 101105, 'response_len': 1571, 'num_calls': 1}
+bq108/4log.log: chat_session len: {'prompt_len': 222923, 'response_len': 2192, 'num_calls': 2}
+bq051/4log.log: chat_session len: {'prompt_len': 101105, 'response_len': 1466, 'num_calls': 1}
+bq108/2log.log: chat_session len: {'prompt_len': 223444, 'response_len': 2380, 'num_calls': 3}
+sf_bq221/1log.log: chat_session len: {'prompt_len': 26064, 'response_len': 11003, 'num_calls': 5}
+bq108/1log.log: chat_session len: {'prompt_len': 222580, 'response_len': 694, 'num_calls': 1}
+Time for bq108: 4 min
+sf_bq416
+bq051/6log.log: chat_session len: {'prompt_len': 102715, 'response_len': 9505, 'num_calls': 5}
+sf_bq450/7log.log: chat_session len: {'prompt_len': 48210, 'response_len': 41930, 'num_calls': 5}
+sf_bq450/2log.log: chat_session len: {'prompt_len': 48963, 'response_len': 37074, 'num_calls': 5}
+sf_bq450/1log.log: chat_session len: {'prompt_len': 49033, 'response_len': 64392, 'num_calls': 5}
+bq208/7log.log: chat_session len: {'prompt_len': 97100, 'response_len': 736, 'num_calls': 1}
+bq051/2log.log: chat_session len: {'prompt_len': 102425, 'response_len': 9182, 'num_calls': 5}
+bq208/3log.log: chat_session len: {'prompt_len': 97100, 'response_len': 1509, 'num_calls': 1}
+bq208/0log.log: chat_session len: {'prompt_len': 97100, 'response_len': 1603, 'num_calls': 1}
+sf_bq450/6log.log: chat_session len: {'prompt_len': 48325, 'response_len': 58677, 'num_calls': 5}
+sf_bq450/4log.log: chat_session len: {'prompt_len': 48389, 'response_len': 56369, 'num_calls': 5}
+sf_bq221/6log.log: chat_session len: {'prompt_len': 25964, 'response_len': 9181, 'num_calls': 5}
+sf_bq221/0log.log: chat_session len: {'prompt_len': 26177, 'response_len': 9289, 'num_calls': 5}
+bq208/2log.log: chat_session len: {'prompt_len': 97776, 'response_len': 2147, 'num_calls': 3}
+sf_bq221/7log.log: chat_session len: {'prompt_len': 26019, 'response_len': 9111, 'num_calls': 5}
+sf_bq221/5log.log: chat_session len: {'prompt_len': 25879, 'response_len': 10534, 'num_calls': 5}
+sf_bq221: Empty
+Time for sf_bq221: 12 min
+local100
+bq208/5log.log: chat_session len: {'prompt_len': 98338, 'response_len': 3534, 'num_calls': 5}
+sf_bq416/6log.log: chat_session len: {'prompt_len': 51777, 'response_len': 3456, 'num_calls': 5}
+sf_bq450/3log.log: chat_session len: {'prompt_len': 48409, 'response_len': 44444, 'num_calls': 5}
+sf_bq450: Empty
+Time for sf_bq450: 18 min
+sf_bq211
+bq051/7log.log: chat_session len: {'prompt_len': 102861, 'response_len': 10030, 'num_calls': 5}
+bq051/5log.log: chat_session len: {'prompt_len': 102781, 'response_len': 9228, 'num_calls': 5}
+sf_bq416/1log.log: chat_session len: {'prompt_len': 51782, 'response_len': 4552, 'num_calls': 5}
+local100/6log.log: chat_session len: {'prompt_len': 4927, 'response_len': 793, 'num_calls': 1}
+sf_bq416/0log.log: chat_session len: {'prompt_len': 51753, 'response_len': 4253, 'num_calls': 5}
+bq051/1log.log: chat_session len: {'prompt_len': 102435, 'response_len': 11029, 'num_calls': 5}
+sf_bq416/7log.log: chat_session len: {'prompt_len': 51790, 'response_len': 6525, 'num_calls': 5}
+bq208/6log.log: chat_session len: {'prompt_len': 98452, 'response_len': 5355, 'num_calls': 5}
+sf_bq416/3log.log: chat_session len: {'prompt_len': 51789, 'response_len': 3975, 'num_calls': 5}
+sf_bq211/5log.log: chat_session len: {'prompt_len': 22771, 'response_len': 608, 'num_calls': 1}
+local100/2log.log: chat_session len: {'prompt_len': 4927, 'response_len': 826, 'num_calls': 1}
+sf_bq211/7log.log: chat_session len: {'prompt_len': 22771, 'response_len': 472, 'num_calls': 1}
+sf_bq211/6log.log: chat_session len: {'prompt_len': 22771, 'response_len': 455, 'num_calls': 1}
+sf_bq416/2log.log: chat_session len: {'prompt_len': 51752, 'response_len': 2957, 'num_calls': 5}
+local100/5log.log: chat_session len: {'prompt_len': 4927, 'response_len': 810, 'num_calls': 1}
+sf_bq211/1log.log: chat_session len: {'prompt_len': 22996, 'response_len': 793, 'num_calls': 2}
+local100/1log.log: chat_session len: {'prompt_len': 4927, 'response_len': 600, 'num_calls': 1}
+bq208/1log.log: chat_session len: {'prompt_len': 98010, 'response_len': 3997, 'num_calls': 5}
+local100/3log.log: chat_session len: {'prompt_len': 4927, 'response_len': 821, 'num_calls': 1}
+local100/4log.log: chat_session len: {'prompt_len': 4927, 'response_len': 723, 'num_calls': 1}
+sf_bq211/3log.log: chat_session len: {'prompt_len': 22771, 'response_len': 411, 'num_calls': 1}
+local100/0log.log: chat_session len: {'prompt_len': 4927, 'response_len': 676, 'num_calls': 1}
+sf_bq416/4log.log: chat_session len: {'prompt_len': 51779, 'response_len': 2694, 'num_calls': 5}
+sf_bq416/5log.log: chat_session len: {'prompt_len': 51789, 'response_len': 4793, 'num_calls': 5}
+sf_bq416: Empty
+Time for sf_bq416: 8 min
+sf_bq452
+sf_bq211/0log.log: chat_session len: {'prompt_len': 23689, 'response_len': 1964, 'num_calls': 5}
+local073/4log.log: chat_session len: {'prompt_len': 9124, 'response_len': 16919, 'num_calls': 5}
+local073/6log.log: chat_session len: {'prompt_len': 9196, 'response_len': 20405, 'num_calls': 5}
+sf_bq211/2log.log: chat_session len: {'prompt_len': 22993, 'response_len': 866, 'num_calls': 2}
+local073/7log.log: chat_session len: {'prompt_len': 8981, 'response_len': 14414, 'num_calls': 4}
+local073/5log.log: chat_session len: {'prompt_len': 9131, 'response_len': 20900, 'num_calls': 5}
+bq208/4log.log: chat_session len: {'prompt_len': 98648, 'response_len': 17371, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/bq208 Empty, return
+Time for bq208: 12 min
+bq427
+sf_bq211/4log.log: chat_session len: {'prompt_len': 23711, 'response_len': 2663, 'num_calls': 5}
+##ERROR## WITH 
+    shk_films AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") = 'nm0010914'
+    ),
+    shk_cast_members AS (
+        SELECT DISTINCT TRIM("PID") AS pid 
+        FROM "M_Cast" 
+        WHERE "MID" IN (SELECT "MID" FROM shk_films) 
+          AND TRIM("PID") != 'nm0010914'
+    ),
+    good_films AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") IN (SELECT pid FROM shk_cast_members) 
+          AND "MID" NOT IN (SELECT "MID" FROM shk_films)
+    ),
+    actor_counts AS (
+        SELECT 
+            p."PID",
+            COUNT(DISTINCT g."MID") AS cnt
+        FROM "Person" p
+        INNER JOIN "M_Cast" m ON TRIM(p."PID") = TRIM(m."PID")
+        INNER JOIN good_films g ON m."MID" = g."MID"
+        GROUP BY p."PID"
+    )
+SELECT COUNT(*) 
+FROM actor_counts 
+WHERE cnt = 2; Timed out
+Time for sf_bq211: 6 min
+sf_bq390
+Table info len: 199704, return
+bq051/0log.log: chat_session len: {'prompt_len': 102543, 'response_len': 28533, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/bq051 Empty, return
+Time for bq051: 14 min
+bq360
+local073/3log.log: chat_session len: {'prompt_len': 9129, 'response_len': 19316, 'num_calls': 5}
+local073/1log.log: chat_session len: {'prompt_len': 9129, 'response_len': 25541, 'num_calls': 5}
+local073/2log.log: chat_session len: {'prompt_len': 9146, 'response_len': 18326, 'num_calls': 5}
+bq427/6log.log: chat_session len: {'prompt_len': 97263, 'response_len': 1618, 'num_calls': 2}
+sf_bq390/5log.log: chat_session len: {'prompt_len': 202116, 'response_len': 1908, 'num_calls': 5}
+bq427/5log.log: chat_session len: {'prompt_len': 97963, 'response_len': 2120, 'num_calls': 2}
+sf_bq390/7log.log: chat_session len: {'prompt_len': 202355, 'response_len': 4238, 'num_calls': 5}
+bq427/4log.log: chat_session len: {'prompt_len': 97963, 'response_len': 3241, 'num_calls': 2}
+sf_bq390/6log.log: chat_session len: {'prompt_len': 202346, 'response_len': 2772, 'num_calls': 5}
+sf_bq452/2log.log: chat_session len: {'prompt_len': 29313, 'response_len': 12256, 'num_calls': 5}
+sf_bq452/3log.log: chat_session len: {'prompt_len': 28447, 'response_len': 14573, 'num_calls': 5}
+sf_bq390/1log.log: chat_session len: {'prompt_len': 202352, 'response_len': 2494, 'num_calls': 5}
+bq427/1log.log: chat_session len: {'prompt_len': 100986, 'response_len': 2045, 'num_calls': 3}
+bq427/7log.log: chat_session len: {'prompt_len': 100715, 'response_len': 3905, 'num_calls': 4}
+sf_bq390/4log.log: chat_session len: {'prompt_len': 202360, 'response_len': 3377, 'num_calls': 5}
+local073/0log.log: chat_session len: {'prompt_len': 9163, 'response_len': 24866, 'num_calls': 6}
+output/solar-pro3-lite-log-20260218-082617/local073 Empty, return
+Time for local073: 18 min
+ga007
+bq427/2log.log: chat_session len: {'prompt_len': 102330, 'response_len': 3399, 'num_calls': 5}
+sf_bq390/2log.log: chat_session len: {'prompt_len': 202117, 'response_len': 4440, 'num_calls': 5}
+sf_bq452/0log.log: chat_session len: {'prompt_len': 30194, 'response_len': 14117, 'num_calls': 5}
+bq427/3log.log: chat_session len: {'prompt_len': 100717, 'response_len': 6307, 'num_calls': 4}
+bq360/4log.log: chat_session len: {'prompt_len': 83365, 'response_len': 11879, 'num_calls': 5}
+sf_bq452/1log.log: chat_session len: {'prompt_len': 29622, 'response_len': 17306, 'num_calls': 5}
+bq427/0log.log: chat_session len: {'prompt_len': 98034, 'response_len': 13547, 'num_calls': 5}
+Time for bq427: 4 min
+sf_bq422
+Table info len: 199704, return
+sf_bq452/6log.log: chat_session len: {'prompt_len': 29543, 'response_len': 14099, 'num_calls': 5}
+sf_bq390/0log.log: chat_session len: {'prompt_len': 202370, 'response_len': 3163, 'num_calls': 5}
+sf_bq390/3log.log: chat_session len: {'prompt_len': 202361, 'response_len': 4972, 'num_calls': 5}
+sf_bq390: Empty
+Time for sf_bq390: 5 min
+sf_bq295
+Table info len: 118624, return
+sf_bq452/7log.log: chat_session len: {'prompt_len': 30148, 'response_len': 28086, 'num_calls': 6}
+bq360/2log.log: chat_session len: {'prompt_len': 82951, 'response_len': 10392, 'num_calls': 5}
+sf_bq452/4log.log: chat_session len: {'prompt_len': 29699, 'response_len': 15019, 'num_calls': 5}
+bq360/0log.log: chat_session len: {'prompt_len': 83094, 'response_len': 6390, 'num_calls': 4}
+bq360/3log.log: chat_session len: {'prompt_len': 82659, 'response_len': 9764, 'num_calls': 3}
+##ERROR## WITH 
+    shk_films AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") = 'nm0010914'
+    ),
+    direct_co_actors AS (
+        SELECT DISTINCT TRIM("PID") AS pid 
+        FROM "M_Cast" 
+        WHERE "MID" IN (SELECT "MID" FROM shk_films) 
+          AND TRIM("PID") != 'nm0010914'
+    ),
+    films_with_direct_co_actors AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") IN (SELECT pid FROM direct_co_actors) 
+          AND "MID" NOT IN (SELECT "MID" FROM shk_films)
+    )
+SELECT COUNT(DISTINCT TRIM(p."PID")) 
+FROM "Person" p
+INNER JOIN "M_Cast" m ON TRIM(p."PID") = TRIM(m."PID")
+WHERE m."MID" IN (SELECT "MID" FROM films_with_direct_co_actors)
+  AND TRIM(p."PID") != 'nm0010914'
+  AND TRIM(m."PID") NOT IN (SELECT pid FROM direct_co_actors); Timed out
+bq360/6log.log: chat_session len: {'prompt_len': 83917, 'response_len': 12163, 'num_calls': 5}
+sf_bq295/0log.log: chat_session len: {'prompt_len': 120519, 'response_len': 651, 'num_calls': 1}
+ga007/6log.log: chat_session len: {'prompt_len': 21830, 'response_len': 1371, 'num_calls': 1}
+ga007/3log.log: chat_session len: {'prompt_len': 22504, 'response_len': 4096, 'num_calls': 3}
+sf_bq295/5log.log: chat_session len: {'prompt_len': 121428, 'response_len': 4156, 'num_calls': 5}
+sf_bq422/3log.log: chat_session len: {'prompt_len': 202427, 'response_len': 7979, 'num_calls': 3}
+sf_bq452/5log.log: chat_session len: {'prompt_len': 28495, 'response_len': 18221, 'num_calls': 5}
+sf_bq452: Empty
+Time for sf_bq452: 10 min
+sf_bq271
+bq360/1log.log: chat_session len: {'prompt_len': 83551, 'response_len': 10965, 'num_calls': 5}
+sf_bq422/4log.log: chat_session len: {'prompt_len': 202866, 'response_len': 10025, 'num_calls': 5}
+sf_bq295/7log.log: chat_session len: {'prompt_len': 121731, 'response_len': 3259, 'num_calls': 5}
+sf_bq295/6log.log: chat_session len: {'prompt_len': 121453, 'response_len': 3639, 'num_calls': 5}
+sf_bq295/2log.log: chat_session len: {'prompt_len': 121307, 'response_len': 3668, 'num_calls': 5}
+bq360/5log.log: chat_session len: {'prompt_len': 83143, 'response_len': 9422, 'num_calls': 5}
+sf_bq422/6log.log: chat_session len: {'prompt_len': 202200, 'response_len': 4324, 'num_calls': 2}
+ga007/7log.log: chat_session len: {'prompt_len': 22500, 'response_len': 4481, 'num_calls': 3}
+ga007/0log.log: chat_session len: {'prompt_len': 22813, 'response_len': 6044, 'num_calls': 4}
+sf_bq295/3log.log: chat_session len: {'prompt_len': 121426, 'response_len': 4465, 'num_calls': 5}
+sf_bq295/4log.log: chat_session len: {'prompt_len': 121440, 'response_len': 2938, 'num_calls': 5}
+sf_bq422/0log.log: chat_session len: {'prompt_len': 202862, 'response_len': 13918, 'num_calls': 5}
+ga007/5log.log: chat_session len: {'prompt_len': 23618, 'response_len': 10779, 'num_calls': 5}
+sf_bq422/5log.log: chat_session len: {'prompt_len': 202979, 'response_len': 16602, 'num_calls': 5}
+bq360/7log.log: chat_session len: {'prompt_len': 83579, 'response_len': 33309, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/bq360 Empty, return
+Time for bq360: 9 min
+sf_bq184
+Table info len: 204793, return
+sf_bq422/7log.log: chat_session len: {'prompt_len': 202888, 'response_len': 11553, 'num_calls': 5}
+ga007/4log.log: chat_session len: {'prompt_len': 23216, 'response_len': 8874, 'num_calls': 5}
+ga007/2log.log: chat_session len: {'prompt_len': 23246, 'response_len': 9659, 'num_calls': 5}
+sf_bq271/0log.log: chat_session len: {'prompt_len': 14890, 'response_len': 1108, 'num_calls': 1}
+sf_bq422/1log.log: chat_session len: {'prompt_len': 202886, 'response_len': 13946, 'num_calls': 5}
+max_try: 1, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 249578 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 1, code_blocks: []
+sf_bq271/3log.log: chat_session len: {'prompt_len': 15790, 'response_len': 8922, 'num_calls': 5}
+sf_bq422/2log.log: chat_session len: {'prompt_len': 202863, 'response_len': 17361, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq422 Empty, return
+Time for sf_bq422: 7 min
+sf_bq342
+Table info len: 204793, return
+##ERROR## WITH 
+    shk_films AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") = 'nm0785227'
+    ),
+    shk_co_actors AS (
+        SELECT DISTINCT TRIM("PID") AS pid 
+        FROM "M_Cast" 
+        WHERE "MID" IN (SELECT "MID" FROM shk_films) 
+          AND TRIM("PID") != 'nm0785227'
+    ),
+    candidate_films AS (
+        SELECT DISTINCT "MID" 
+        FROM "M_Cast" 
+        WHERE TRIM("PID") IN (SELECT pid FROM shk_co_actors) 
+          AND "MID" NOT IN (SELECT "MID" FROM shk_films)
+    )
+SELECT COUNT(DISTINCT TRIM(p."PID")) 
+FROM "Person" p
+INNER JOIN "M_Cast" m ON TRIM(p."PID") = TRIM(m."PID")
+WHERE m."MID" IN (SELECT "MID" FROM candidate_films)
+  AND TRIM(p."PID") != 'nm0785227'
+  AND TRIM(m."PID") NOT IN (SELECT pid FROM shk_co_actors); Timed out
+ga007/1log.log: chat_session len: {'prompt_len': 23278, 'response_len': 9553, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/ga007 Empty, return
+Time for ga007: 8 min
+local336
+sf_bq271/4log.log: chat_session len: {'prompt_len': 15822, 'response_len': 7429, 'num_calls': 5}
+local100/7log.log: chat_session len: {'prompt_len': 8116, 'response_len': 3781, 'num_calls': 4}
+sf_bq271/1log.log: chat_session len: {'prompt_len': 15835, 'response_len': 5842, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/local100 Empty, return
+Time for local100: 19 min
+sf_bq412
+sf_bq271/6log.log: chat_session len: {'prompt_len': 15892, 'response_len': 7824, 'num_calls': 5}
+sf_bq184/2log.log: chat_session len: {'prompt_len': 207937, 'response_len': 5268, 'num_calls': 5}
+sf_bq184/5log.log: chat_session len: {'prompt_len': 207900, 'response_len': 5411, 'num_calls': 5}
+sf_bq271/2log.log: chat_session len: {'prompt_len': 15245, 'response_len': 3752, 'num_calls': 3}
+sf_bq184/4log.log: chat_session len: {'prompt_len': 207900, 'response_len': 6514, 'num_calls': 5}
+sf_bq295/1log.log: chat_session len: {'prompt_len': 121580, 'response_len': 5221, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq295 Empty, return
+Time for sf_bq295: 8 min
+bq115
+bq038/4log.log: chat_session len: {'prompt_len': 88048, 'response_len': 8111, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/bq038 Empty, return
+Time for bq038: 50 min
+sf_bq371
+sf_bq342/5log.log: chat_session len: {'prompt_len': 207106, 'response_len': 2902, 'num_calls': 2}
+sf_bq342/3log.log: chat_session len: {'prompt_len': 207859, 'response_len': 5588, 'num_calls': 5}
+bq115/2log.log: chat_session len: {'prompt_len': 34362, 'response_len': 853, 'num_calls': 1}
+bq115/4log.log: chat_session len: {'prompt_len': 34362, 'response_len': 617, 'num_calls': 1}
+bq115/0log.log: chat_session len: {'prompt_len': 34362, 'response_len': 648, 'num_calls': 1}
+sf_bq184/7log.log: chat_session len: {'prompt_len': 208186, 'response_len': 6896, 'num_calls': 5}
+local336/1log.log: chat_session len: {'prompt_len': 18789, 'response_len': 1316, 'num_calls': 2}
+sf_bq342/0log.log: chat_session len: {'prompt_len': 207830, 'response_len': 5597, 'num_calls': 5}
+bq115/5log.log: chat_session len: {'prompt_len': 34362, 'response_len': 1254, 'num_calls': 1}
+local336/3log.log: chat_session len: {'prompt_len': 18631, 'response_len': 1488, 'num_calls': 1}
+sf_bq412/3log.log: chat_session len: {'prompt_len': 21123, 'response_len': 5538, 'num_calls': 5}
+sf_bq184/6log.log: chat_session len: {'prompt_len': 207913, 'response_len': 11660, 'num_calls': 5}
+sf_bq342/6log.log: chat_session len: {'prompt_len': 207861, 'response_len': 8414, 'num_calls': 5}
+sf_bq184/3log.log: chat_session len: {'prompt_len': 208077, 'response_len': 5411, 'num_calls': 5}
+local336/6log.log: chat_session len: {'prompt_len': 18631, 'response_len': 2557, 'num_calls': 1}
+sf_bq412/1log.log: chat_session len: {'prompt_len': 21106, 'response_len': 7805, 'num_calls': 5}
+sf_bq271/5log.log: chat_session len: {'prompt_len': 15798, 'response_len': 10686, 'num_calls': 5}
+local336/5log.log: chat_session len: {'prompt_len': 18631, 'response_len': 1156, 'num_calls': 1}
+bq115/3log.log: chat_session len: {'prompt_len': 34362, 'response_len': 808, 'num_calls': 1}
+sf_bq412/7log.log: chat_session len: {'prompt_len': 21098, 'response_len': 6739, 'num_calls': 5}
+sf_bq371/1log.log: chat_session len: {'prompt_len': 72165, 'response_len': 1255, 'num_calls': 1}
+sf_bq342/1log.log: chat_session len: {'prompt_len': 207822, 'response_len': 6546, 'num_calls': 5}
+sf_bq342/2log.log: chat_session len: {'prompt_len': 207912, 'response_len': 7747, 'num_calls': 5}
+sf_bq342/4log.log: chat_session len: {'prompt_len': 208094, 'response_len': 7056, 'num_calls': 6}
+sf_bq184/1log.log: chat_session len: {'prompt_len': 207852, 'response_len': 8630, 'num_calls': 6}
+sf_bq184: Empty
+Time for sf_bq184: 5 min
+sf_bq223
+sf_bq371/3log.log: chat_session len: {'prompt_len': 72165, 'response_len': 1086, 'num_calls': 1}
+local336/2log.log: chat_session len: {'prompt_len': 18790, 'response_len': 1850, 'num_calls': 2}
+bq115/7log.log: chat_session len: {'prompt_len': 34362, 'response_len': 594, 'num_calls': 1}
+bq115/6log.log: chat_session len: {'prompt_len': 35686, 'response_len': 4155, 'num_calls': 5}
+sf_bq371/7log.log: chat_session len: {'prompt_len': 72397, 'response_len': 1232, 'num_calls': 2}
+bq115/1log.log: chat_session len: {'prompt_len': 34362, 'response_len': 1158, 'num_calls': 1}
+output/solar-pro3-lite-log-20260218-082617/bq115 Empty, return
+Time for bq115: 2 min
+bq407
+Table info len: 751329, return
+sf_bq371/4log.log: chat_session len: {'prompt_len': 72391, 'response_len': 1982, 'num_calls': 2}
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+max_try: 2, exception: Error code: 400 - {'error': {'message': "This model's maximum context length is 131072 tokens, but your request contains 336406 tokens. Please shorten your input text or split it into multiple requests. For model-specific token limits, please refer to our API reference documentation (https://console.upstage.ai/api/chat)", 'type': 'invalid_request_error', 'param': None, 'code': 'context_length_exceeded'}}
+get_model_response() exit, max_try: 2, code_blocks: []
+bq407: Empty
+Time for bq407: 0 min
+sf_bq154
+Table info len: 102554, return
+sf_bq342/7log.log: chat_session len: {'prompt_len': 208105, 'response_len': 11681, 'num_calls': 6}
+output/solar-pro3-lite-log-20260218-082617/sf_bq342 Empty, return
+Time for sf_bq342: 4 min
+bq111
+sf_bq271/7log.log: chat_session len: {'prompt_len': 15486, 'response_len': 7549, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq271 Empty, return
+Time for sf_bq271: 9 min
+local286
+sf_bq412/0log.log: chat_session len: {'prompt_len': 20620, 'response_len': 4691, 'num_calls': 3}
+local336/0log.log: chat_session len: {'prompt_len': 18787, 'response_len': 4424, 'num_calls': 2}
+sf_bq412/5log.log: chat_session len: {'prompt_len': 21132, 'response_len': 6959, 'num_calls': 5}
+sf_bq412/6log.log: chat_session len: {'prompt_len': 21144, 'response_len': 7985, 'num_calls': 5}
+sf_bq371/6log.log: chat_session len: {'prompt_len': 73073, 'response_len': 4605, 'num_calls': 5}
+sf_bq412/4log.log: chat_session len: {'prompt_len': 21109, 'response_len': 7975, 'num_calls': 5}
+sf_bq371/0log.log: chat_session len: {'prompt_len': 73079, 'response_len': 6999, 'num_calls': 5}
+sf_bq371/2log.log: chat_session len: {'prompt_len': 73118, 'response_len': 3080, 'num_calls': 5}
+sf_bq371/5log.log: chat_session len: {'prompt_len': 73075, 'response_len': 3570, 'num_calls': 5}
+Time for sf_bq371: 5 min
+bq049
+local336/7log.log: chat_session len: {'prompt_len': 19249, 'response_len': 12002, 'num_calls': 5}
+local336/4log.log: chat_session len: {'prompt_len': 18943, 'response_len': 6640, 'num_calls': 3}
+output/solar-pro3-lite-log-20260218-082617/local336 Empty, return
+Time for local336: 8 min
+bq177
+Table info len: 200212, return
+local286/5log.log: chat_session len: {'prompt_len': 7260, 'response_len': 2044, 'num_calls': 1}
+local286/0log.log: chat_session len: {'prompt_len': 7260, 'response_len': 2266, 'num_calls': 1}
+local286/1log.log: chat_session len: {'prompt_len': 7260, 'response_len': 2815, 'num_calls': 1}
+bq049/2log.log: chat_session len: {'prompt_len': 10923, 'response_len': 1436, 'num_calls': 1}
+bq177/2log.log: chat_session len: {'prompt_len': 201503, 'response_len': 1584, 'num_calls': 1}
+sf_bq412/2log.log: chat_session len: {'prompt_len': 23884, 'response_len': 7839, 'num_calls': 5}
+output/solar-pro3-lite-log-20260218-082617/sf_bq412 Empty, return
+Time for sf_bq412: 8 min
+sf_bq350
+Table info len: 135412, return
+local286/6log.log: chat_session len: {'prompt_len': 7260, 'response_len': 2156, 'num_calls': 1}
+bq177/5log.log: chat_session len: {'prompt_len': 201503, 'response_len': 1921, 'num_calls': 1}
+bq177/4log.log: chat_session len: {'prompt_len': 201503, 'response_len': 3549, 'num_calls': 1}
+bq177/0log.log: chat_session len: {'prompt_len': 201503, 'response_len': 3687, 'num_calls': 1}
+local286/4log.log: chat_session len: {'prompt_len': 7584, 'response_len': 5223, 'num_calls': 3}
+bq049/3log.log: chat_session len: {'prompt_len': 11957, 'response_len': 7411, 'num_calls': 5}
+sf_bq350/3log.log: chat_session len: {'prompt_len': 138025, 'response_len': 2209, 'num_calls': 5}
+bq177/7log.log: chat_session len: {'prompt_len': 203387, 'response_len': 6610, 'num_calls': 5}
+bq049/0log.log: chat_session len: {'prompt_len': 10923, 'response_len': 1499, 'num_calls': 1}
+sf_bq223/3log.log: chat_session len: {'prompt_len': 29722, 'response_len': 4922, 'num_calls': 5}
+local286/7log.log: chat_session len: {'prompt_len': 7881, 'response_len': 12126, 'num_calls': 5}
+local286/3log.log: chat_session len: {'prompt_len': 7410, 'response_len': 4682, 'num_calls': 2}
+sf_bq350/6log.log: chat_session len: {'prompt_len': 137908, 'response_len': 3228, 'num_calls': 6}
+bq049/4log.log: chat_session len: {'prompt_len': 12141, 'response_len': 8037, 'num_calls': 5}
+sf_bq350/7log.log: chat_session len: {'prompt_len': 137416, 'response_len': 566, 'num_calls': 2}
+sf_bq223/5log.log: chat_session len: {'prompt_len': 29677, 'response_len': 7772, 'num_calls': 5}
+bq177/1log.log: chat_session len: {'prompt_len': 201934, 'response_len': 10629, 'num_calls': 2}

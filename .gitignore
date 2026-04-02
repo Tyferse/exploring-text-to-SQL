@@ -165,7 +165,7 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
 
 # Ruff stuff:
 .ruff_cache/
@@ -179,3 +179,45 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+.vscode
+.env
+*.zip
+/benchmarks/BIRD/__MACOSX
+/benchmarks/BIRD/bird_agents/finetuning
+/benchmarks/BIRD/dev
+/benchmarks/BIRD/train
+/results/logs/spider2-lite/reforce*
+/results/logs/spider2-snow/reforce
+/benchmarks/Spider2/spider2-lite/resource
+/benchmarks/Spider2/spider2-snow/resource
+
+/benchmarks/Spider2/methods/AutoLink/AutoLink
+/sqlenv
+bigquery_credential.json
+snowflake_credential.json
+
+/benchmarks/Spider2/spider2-lite/baselines/dinsql/DIN-SQL cost.py
+/benchmarks/Spider2/spider2-snow/baselines/dinsql/DIN-SQL cost.py
+/benchmarks/Spider2/methods/ReFoRCE/examples_*
+# /benchmarks/Spider2/methods/ReFoRCE/examples_snow
+/benchmarks/Spider2/methods/ReFoRCE/output
+/benchmarks/Spider2/methods/spider-agent-lite/examples
+/benchmarks/Spider2/methods/spider-agent-lite/output
+/benchmarks/Spider2/spider2-lite/baselines/dailsql/postprocessed_data/1112_spider2-lite_CTX-200
+/benchmarks/Spider2/spider2-lite/baselines/dailsql/third_party/stanford-corenlp-full-2018-10-05
+*.csv
+/benchmarks/Spider2/spider2-snow/baselines/dailsql/postprocessed_data/1112_spider2-lite_CTX-200
+/benchmarks/Spider2/spider2-snow/baselines/dailsql/preprocessed_data/spider2-lite
+/benchmarks/Spider2/spider2-snow/baselines/dailsql/third_party/stanford-corenlp-full-2018-10-05
+results/logs/spider2-snow/reforce_logs1.json
+results/logs/spider2-snow/reforce_logs2.json
+benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh
+benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh.1
+benchmarks/Spider2/methods/spider-agent-lite/Miniconda3-latest-Linux-x86_64.sh.2
+/benchmarks/Spider2/spider2-lite/baselines/dailsql/preprocessed_data/spider2-lite
+/benchmarks/Spider2/spider2-snow/baselines/dinsql/postprocessed_data/spider2-lite
+/benchmarks/Spider2/spider2-lite/baselines/dinsql/postprocessed_data/spider2-lite
+benchmarks/Spider2/spider2-lite/baselines/dinsql/preprocessed_data/spider2-lite/spider2-lite_preprocessed.json
+benchmarks/Spider2/spider2-snow/baselines/dinsql/preprocessed_data/spider2-lite/tables_preprocessed.json
+benchmarks/Spider2/spider2-lite/baselines/dinsql/preprocessed_data/spider2-lite/tables_preprocessed.json

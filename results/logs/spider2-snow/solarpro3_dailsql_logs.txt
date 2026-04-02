@@ -1,0 +1,1511 @@
+nohup: appending output to 'nohup.out'
+  0% 0/373 [00:00<?, ?it/s]>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+>>>model: solar-pro3
+100% 373/373 [27:08<00:00,  4.37s/it]    
+nohup: appending output to 'nohup.out'
+Evaluating SQL:   0%|          | 0/547 [00:00<?, ?it/s][sf003] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"GLOBAL_GOVERNMENT.CYBERSYN.AMERICAN_COMMUNITY_SURVEY_TIMESERIES"' does not exist or not authorized.
+[sf013] Error occurred while fetching data: 003030 (02000): SQL compilation error:
+Shared database is no longer available for use. It will need to be re-created if and when the publisher makes it available again.
+[sf009] Error occurred while fetching data: 003030 (02000): SQL compilation error:
+Shared database is no longer available for use. It will need to be re-created if and when the publisher makes it available again.
+[sf008] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"US_REAL_ESTATE.CYBERSYN.HOME_MORTGAGE_DISCLOSURE_ATTRIBUTES"' does not exist or not authorized.
+[sf010] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"US_REAL_ESTATE.CYBERSYN.FHFA_MORTGAGE_PERFORMANCE_TIMESERIES"' does not exist or not authorized.
+[sf011] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CENSUS_GALAXY__ZIP_CODE_TO_BLOCK_GROUP_SAMPLE.PUBLIC.FACT_CENSUSVALUES_ACS2021' does not exist or not authorized.
+[sf014] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'FACT_CENSUSVALUES_ACS2021_BYZIP' does not exist or not authorized.
+[sf012] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"WEATHER__ENVIRONMENT.CYBERSYN.FEMA_NATIONAL_FLOOD_INSURANCE_PROGRAM_CLAIM_INDEX"' does not exist or not authorized.
+Evaluating SQL:   0%|          | 1/547 [00:01<16:58,  1.87s/it][sf018] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 130
+invalid identifier 'CARRIER'
+[sf002] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 357
+invalid identifier 'B.VARIABLE'
+Evaluating SQL:   2%|1         | 9/547 [00:02<01:42,  5.26it/s][sf029] Error occurred while fetching data: 003030 (02000): SQL compilation error:
+Shared database is no longer available for use. It will need to be re-created if and when the publisher makes it available again.
+Evaluating SQL:   2%|2         | 11/547 [00:02<01:35,  5.58it/s][sf044] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"FINANCE__ECONOMICS.CYBERSYN.STOCK_PRICE_TIMESERIES"' does not exist or not authorized.
+Evaluating SQL:   2%|2         | 13/547 [00:02<01:22,  6.47it/s][sf_bq002] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq001] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq003] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq004] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf035] No data found for the specified query.
+Evaluating SQL:   3%|2         | 15/547 [00:02<01:18,  6.78it/s][sf_bq005] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   3%|3         | 19/547 [00:03<00:52, 10.03it/s][sf037] Error occurred while fetching data: 000939 (22023): SQL compilation error: error line 1 at position 914
+too many arguments for function [ST_MAKEPOINT(SYS_VW.LONGITUDE_1, SYS_VW.LATITUDE_0, 4326)] expected 2, got 3
+[sf_bq006] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq007] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf041] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 494
+invalid identifier 'ZONEID'
+Evaluating SQL:   4%|3         | 21/547 [00:03<00:52,  9.98it/s][sf_bq008] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   4%|4         | 23/547 [00:03<00:48, 10.88it/s][sf_bq009] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq010] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq011] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq014] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq012] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   5%|4         | 27/547 [00:03<00:43, 12.03it/s][sf_bq015] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq017] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   6%|5         | 31/547 [00:04<00:40, 12.79it/s][sf_bq018] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq019] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq020] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MNPR01_TRANSCRIPTOME_201703' does not exist or not authorized.
+Evaluating SQL:   6%|6         | 33/547 [00:04<00:53,  9.61it/s][sf_bq024] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq023] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'FEC_CONTRIBUTIONS' does not exist or not authorized.
+[sf_bq025] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq022] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   7%|6         | 36/547 [00:04<00:48, 10.60it/s][sf_bq026] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq027] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   7%|7         | 39/547 [00:04<00:45, 11.23it/s][sf_bq029] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq030] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq031] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   8%|7         | 42/547 [00:05<00:45, 11.10it/s][sf_bq021] No data found for the specified query.
+[sf_bq032] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq033] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   8%|8         | 44/547 [00:05<00:42, 11.71it/s][sf_bq034] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:   8%|8         | 46/547 [00:05<00:40, 12.40it/s][sf_bq035] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq036] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   9%|8         | 48/547 [00:05<00:39, 12.72it/s][sf_bq038] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:   9%|9         | 50/547 [00:05<00:38, 12.90it/s][sf_bq037] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq039] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  10%|9         | 52/547 [00:05<00:41, 12.05it/s][sf_bq040] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq041] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'USERS' does not exist or not authorized.
+[sf_bq042] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq043] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  10%|9         | 54/547 [00:06<00:44, 10.96it/s][sf_bq044] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"TCGA.TCGA_VERSIONED.TCGA_VERSIONED.SOMATIC_MUTATION_HG38_GDC_R10"' does not exist or not authorized.
+[sf_bq045] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  11%|#         | 58/547 [00:06<00:38, 12.69it/s][sf_bq046] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'TCGA_BIOCLIN_V0.GDC_METADATA.ANNOTATIONS' does not exist or not authorized.
+[sf_bq047] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  11%|#         | 60/547 [00:06<00:41, 11.70it/s][sf_bq048] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq049] Error occurred while fetching data: 002028 (42601): SQL compilation error:
+ambiguous column name 'zip_code'
+Evaluating SQL:  11%|#1        | 62/547 [00:06<00:40, 11.92it/s][sf_bq050] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq052] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq051] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  12%|#1        | 64/547 [00:06<00:42, 11.39it/s][sf_bq053] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq054] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  12%|#2        | 68/547 [00:07<00:34, 13.86it/s][sf_bq056] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq055] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'DAR_NON_INTERSECTIONAL_HIRING' does not exist or not authorized.
+[sf_bq057] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq058] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 457 unexpected '.'.
+syntax error line 1 at position 466 unexpected 'AS'.
+syntax error line 1 at position 497 unexpected '('.
+syntax error line 1 at position 543 unexpected '('.
+syntax error line 1 at position 587 unexpected '('.
+syntax error line 1 at position 627 unexpected '('.
+syntax error line 1 at position 876 unexpected ')'.
+[sf_bq016] No data found for the specified query.
+Evaluating SQL:  13%|#2        | 70/547 [00:07<00:45, 10.51it/s][sf_bq059] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq060] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq061] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq062] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  14%|#3        | 74/547 [00:07<00:38, 12.33it/s][sf_bq063] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 258 unexpected 'LATERAL'.
+syntax error line 1 at position 274 unexpected 'INPUT'.
+Evaluating SQL:  14%|#3        | 76/547 [00:07<00:34, 13.58it/s]
+[sf_bq064] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  14%|#4        | 78/547 [00:07<00:35, 13.18it/s][sf_bq065] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq066] Error occurred while fetching data: 002303 (0A000): SQL compilation error: error line 1 at position 743
+Cumulative window frame unsupported for function CORR
+[sf_bq068] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq067] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PERSON_2016' does not exist or not authorized.
+Evaluating SQL:  15%|#4        | 80/547 [00:08<00:42, 11.02it/s][sf_bq070] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq069] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 4,122 unexpected '<EOF>'.
+[sf_bq071] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  15%|#4        | 82/547 [00:08<00:39, 11.87it/s][sf_bq072] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq073] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  16%|#5        | 85/547 [00:08<00:37, 12.23it/s][sf_bq074] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACS_UNEMPLOYMENT_5YR' does not exist or not authorized.
+[sf_bq075] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 543
+invalid identifier '"report_year"'
+[sf_bq076] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  16%|#6        | 89/547 [00:09<00:42, 10.85it/s][sf_bq078] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq077] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  17%|#6        | 91/547 [00:09<00:42, 10.77it/s][sf_bq079] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq081] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq080] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  17%|#7        | 93/547 [00:09<00:40, 11.16it/s][sf_bq083] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq084] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  18%|#7        | 98/547 [00:09<00:32, 13.85it/s][sf_bq085] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq086] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq087] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 94 unexpected 'FILTER'.
+syntax error line 1 at position 101 unexpected '('.
+[sf_bq088] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  18%|#8        | 100/547 [00:10<00:42, 10.41it/s][sf_bq090] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq089] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  19%|#8        | 102/547 [00:10<00:40, 11.06it/s][sf_bq092] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq091] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq094] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 119 unexpected 'ORDER'.
+syntax error line 1 at position 144 unexpected ')'.
+Evaluating SQL:  19%|#9        | 104/547 [00:10<00:38, 11.59it/s][sf_bq093] Error occurred while fetching data: 002140 (42601): SQL compilation error:
+Unknown functions UNIX_TIMESTAMP, UNIX_TIMESTAMP
+Evaluating SQL:  19%|#9        | 106/547 [00:10<00:38, 11.47it/s][sf_bq095] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq097] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 41 unexpected '('.
+[sf_bq096] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  20%|##        | 110/547 [00:11<01:17,  5.66it/s][sf_bq098] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq100] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq102] No data found for the specified query.
+[sf_bq103] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.[sf_bq099] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+
+[sf_bq101] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  21%|##1       | 115/547 [00:11<00:47,  9.07it/s][sf_bq105] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,265 unexpected 'QUALIFY'.
+[sf_bq104] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  22%|##1       | 119/547 [00:12<00:45,  9.49it/s][sf_bq107] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 8 unexpected 'SELECT'.
+syntax error line 1 at position 20 unexpected '('.
+Evaluating SQL:  22%|##2       | 121/547 [00:12<00:55,  7.65it/s][sf_bq108] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACCIDENT_2015' does not exist or not authorized.
+[sf_bq109] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq113] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq110] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'COC_COUNTS' does not exist or not authorized.
+[sf_bq112] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq111] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,304 unexpected 'ELSE'.
+Evaluating SQL:  22%|##2       | 123/547 [00:12<01:00,  6.97it/s][sf_bq115] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq114] Error occurred while fetching data: 002140 (42601): SQL compilation error:
+Unknown function FROM_UNIXTIME
+[sf_bq116] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq117] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  23%|##3       | 128/547 [00:13<00:37, 11.31it/s][sf_bq118] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'DEATHRECORDS' does not exist or not authorized.
+Evaluating SQL:  24%|##4       | 132/547 [00:13<00:35, 11.78it/s][sf_bq119] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq120] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACS_2017_5YR' does not exist or not authorized.
+[sf_bq121] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'USERS' does not exist or not authorized.
+[sf_bq123] Error occurred while fetching data: 001002 (42601): syntax error line 1 at position 357 unexpected 'TOK_INTERVAL'.
+[sf_bq124] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 255
+invalid identifier 'CONDITION.SUBJECT'
+Evaluating SQL:  25%|##4       | 136/547 [00:14<00:46,  8.91it/s][sf_bq126] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq130] Error occurred while fetching data: 000008 (0A000): Actual statement count 2 did not match the desired statement count 1.
+[sf_bq128] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'PATENTSVIEW.PATENTS' does not exist or not authorized.
+[sf_bq131] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 285 unexpected 'LATERAL'.
+syntax error line 1 at position 695 unexpected ')'.
+[sf_bq135] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq127] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  26%|##5       | 142/547 [00:14<00:35, 11.56it/s][sf_bq136] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq137] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq143] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  26%|##6       | 144/547 [00:15<00:46,  8.66it/s][sf_bq144] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 87
+invalid identifier '"opponent_seed"'[sf_bq141] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 26
+invalid identifier 'CASE_BARCODE'
+
+Evaluating SQL:  27%|##6       | 146/547 [00:15<00:44,  9.01it/s][sf_bq147] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RNASEQ_HG38_GDC_R35' does not exist or not authorized.
+[sf_bq148] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RNASEQ_HG38_GDC_R39' does not exist or not authorized.
+[sf_bq151] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq150] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'TCGA_HG19_DATA_V0.TCGA_VERSIONED' does not exist or not authorized.
+[sf_bq152] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'COPY_NUMBER_SEGMENT_ALLELIC_HG38_GDC_R23' does not exist or not authorized.
+Evaluating SQL:  27%|##7       | 149/547 [00:15<00:41,  9.53it/s][sf_bq153] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'EBPP_ADJUSTPANCAN_ILLUMINAHISEQ_RNASEQV2_GENEXP_FILTERED' does not exist or not authorized.
+Evaluating SQL:  28%|##7       | 153/547 [00:15<00:33, 11.73it/s][sf_bq154] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+parse error line 1 at position 6 near '32'.
+syntax error line 1 at position 0 unexpected '``'.
+[sf_bq157] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'EBPP_ADJUSTPANCAN_ILLUMINAHISEQ_RNASEQV2_GENEXP_FILTERED' does not exist or not authorized.
+[sf_bq155] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'TCGA_HG38_DATA_V0.TCGA_VERSIONED' does not exist or not authorized.
+[sf_bq156] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'EBPP_ADJUSTPANCAN_ILLUMINAHISEQ_RNASEQV2_GENEXP_FILTERED' does not exist or not authorized.
+[sf_bq158] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 44 unexpected '('.
+Evaluating SQL:  29%|##8       | 157/547 [00:16<00:40,  9.67it/s][sf_bq162] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"imaging_level2_metadata_r5"' does not exist or not authorized.
+[sf_bq159] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MC3_MAF_V5_ONE_PER_TUMOR_SAMPLE' does not exist or not authorized.
+[sf_bq161] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'FILTERED_MC3_MAF_V5_ONE_PER_TUMOR_SAMPLE' does not exist or not authorized.
+[sf_bq163] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  29%|##9       | 160/547 [00:16<00:42,  9.12it/s][sf_bq164] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  30%|##9       | 163/547 [00:16<00:32, 11.66it/s][sf_bq166] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'COPY_NUMBER_SEGMENT_ALLELIC_HG38_GDC_R23' does not exist or not authorized.
+[sf_bq165] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq167] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq169] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq170] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 532
+invalid identifier 'O.CASE_ID'
+Evaluating SQL:  31%|###       | 168/547 [00:17<00:37, 10.04it/s][sf_bq171] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq175] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 920
+invalid identifier 'T."cytoband_name"'
+[sf_bq172] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq176] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CYTOBANDS_HG38' does not exist or not authorized.
+Evaluating SQL:  31%|###1      | 170/547 [00:17<00:47,  7.91it/s][sf_bq177] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  31%|###1      | 172/547 [00:17<00:42,  8.86it/s][sf_bq180] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq181] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq182] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq184] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  32%|###1      | 174/547 [00:18<00:40,  9.17it/s][sf_bq185] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  33%|###2      | 179/547 [00:18<00:30, 12.21it/s][sf_bq187] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 148 unexpected 'AS'.
+syntax error line 1 at position 171 unexpected '-'.
+syntax error line 1 at position 627 unexpected ')'.
+[sf_bq186] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq188] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq189] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  33%|###3      | 183/547 [00:19<00:37,  9.67it/s][sf_bq190] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq192] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq193] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq191] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq194] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  34%|###3      | 185/547 [00:19<00:44,  8.18it/s][sf_bq195] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  35%|###4      | 189/547 [00:19<00:35,  9.96it/s][sf_bq197] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq198] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq200] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 310 unexpected 't'.
+[sf_bq199] Error occurred while fetching data: 001038 (22023): SQL compilation error:
+Can not convert parameter '2021' of type [NUMBER(4,0)] into expected type [DATE]
+Evaluating SQL:  35%|###4      | 191/547 [00:20<00:46,  7.64it/s][sf_bq202] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CITIBIKE_TRIPS' does not exist or not authorized.
+Evaluating SQL:  35%|###5      | 192/547 [00:20<00:46,  7.63it/s][sf_bq203] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  35%|###5      | 193/547 [00:20<00:44,  7.99it/s][sf_bq204] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  36%|###5      | 195/547 [00:20<00:38,  9.13it/s][sf_bq208] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  36%|###6      | 197/547 [00:20<00:33, 10.41it/s][sf_bq210] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq209] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq207] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 798 unexpected 'ON'.
+syntax error line 1 at position 802 unexpected '"appl_no"'.
+syntax error line 1 at position 813 unexpected '"earliest_pub_no"'.
+[sf_bq211] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  37%|###6      | 201/547 [00:21<00:34,  9.98it/s][sf_bq212] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq213] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq214] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq215] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq217] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq216] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  37%|###7      | 203/547 [00:21<00:45,  7.50it/s][sf_bq218] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  37%|###7      | 205/547 [00:21<00:41,  8.32it/s][sf_bq219] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  38%|###8      | 208/547 [00:21<00:29, 11.38it/s][sf_bq220] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq222] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq221] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  39%|###8      | 212/547 [00:22<00:27, 12.00it/s][sf_bq223] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq224] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  39%|###9      | 214/547 [00:22<00:39,  8.46it/s][sf_bq225] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq227] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq228] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq226] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq229] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  39%|###9      | 216/547 [00:22<00:43,  7.60it/s][sf_bq230] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  40%|###9      | 218/547 [00:22<00:36,  9.08it/s][sf_bq232] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq234] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq233] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  40%|####      | 221/547 [00:23<00:30, 10.81it/s][sf_bq235] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  41%|####      | 224/547 [00:23<00:24, 13.43it/s][sf_bq236] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  41%|####1     | 226/547 [00:23<00:31, 10.20it/s][sf_bq246] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq247] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq249] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  42%|####1     | 228/547 [00:23<00:36,  8.69it/s][sf_bq248] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq250] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq251] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  42%|####2     | 230/547 [00:24<00:35,  8.99it/s][sf_bq252] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq253] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  43%|####2     | 233/547 [00:24<00:27, 11.32it/s][sf_bq254] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq256] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq255] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  43%|####2     | 235/547 [00:24<00:26, 11.82it/s][sf_bq258] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  43%|####3     | 237/547 [00:24<00:23, 13.02it/s][sf_bq259] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  44%|####3     | 239/547 [00:24<00:22, 13.85it/s][sf_bq260] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq261] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDER_ITEMS' does not exist or not authorized.
+[sf_bq263] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq262] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERS' does not exist or not authorized.
+Evaluating SQL:  44%|####4     | 241/547 [00:24<00:24, 12.29it/s][sf_bq264] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  44%|####4     | 243/547 [00:25<00:24, 12.37it/s][sf_bq265] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq266] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq268] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq269] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq270] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq271] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  45%|####4     | 246/547 [00:25<00:26, 11.44it/s][sf_bq272] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  46%|####5     | 250/547 [00:25<00:19, 14.99it/s][sf_bq273] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 52
+invalid identifier 'O.SHIPPED_AT'
+[sf_bq275] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq276] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  46%|####6     | 252/547 [00:25<00:21, 13.56it/s][sf_bq277] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq278] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  47%|####6     | 256/547 [00:25<00:20, 14.05it/s][sf_bq279] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq281] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq280] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq283] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq284] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq282] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  47%|####7     | 258/547 [00:26<00:23, 12.18it/s][sf_bq285] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  48%|####7     | 261/547 [00:26<00:20, 13.79it/s][sf_bq286] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq287] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACS_EMPLOYMENT' does not exist or not authorized.
+[sf_bq288] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq289] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  48%|####8     | 264/547 [00:26<00:18, 15.04it/s][sf_bq290] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  49%|####9     | 269/547 [00:26<00:15, 17.80it/s][sf_bq291] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq293] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq292] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq294] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  50%|####9     | 271/547 [00:26<00:20, 13.71it/s][sf_bq295] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq300] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq301] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  50%|####9     | 273/547 [00:27<00:20, 13.64it/s][sf_bq302] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  50%|#####     | 275/547 [00:27<00:18, 14.87it/s][sf_bq304] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 1,648
+invalid identifier 'Q."tags"'
+[sf_bq303] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq306] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'POSTS_ANSWERS' does not exist or not authorized.
+[sf_bq305] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 21
+invalid identifier 'A.OWNER_USER_ID'
+Evaluating SQL:  51%|#####     | 277/547 [00:27<00:18, 14.52it/s][sf_bq307] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'BADGES' does not exist or not authorized.
+Evaluating SQL:  51%|#####1    | 279/547 [00:27<00:17, 14.96it/s][sf_bq308] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq309] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  52%|#####1    | 282/547 [00:27<00:17, 14.89it/s][sf_bq310] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq320] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq321] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq323] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq324] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  52%|#####2    | 285/547 [00:27<00:19, 13.16it/s][sf_bq325] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'DISEASE_VARIANT_GENE' does not exist or not authorized.
+[sf_bq326] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq327] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  53%|#####2    | 289/547 [00:28<00:15, 16.19it/s][sf_bq328] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  53%|#####3    | 291/547 [00:28<00:16, 15.37it/s][sf_bq331] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq330] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  54%|#####3    | 293/547 [00:28<00:18, 13.61it/s][sf_bq334] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  54%|#####3    | 295/547 [00:28<00:19, 12.94it/s][sf_bq335] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq338] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CENSUS_DATA' does not exist or not authorized.
+[sf_bq339] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq340] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  54%|#####4    | 297/547 [00:28<00:23, 10.71it/s][sf_bq341] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq342] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  55%|#####4    | 299/547 [00:29<00:20, 12.28it/s][sf_bq346] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 372 unexpected 'CROSS'.
+[sf_bq345] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  55%|#####5    | 301/547 [00:29<00:21, 11.47it/s][sf_bq347] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 69
+invalid identifier '"SOPInstanceUID"'
+Evaluating SQL:  56%|#####5    | 304/547 [00:29<00:20, 12.13it/s][sf_bq348] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq349] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq350] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  56%|#####5    | 306/547 [00:29<00:23, 10.31it/s][sf_bq352] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"commute"' does not exist or not authorized.
+[sf_bq354] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  56%|#####6    | 308/547 [00:29<00:23, 10.06it/s][sf_bq355] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  57%|#####6    | 310/547 [00:30<00:20, 11.67it/s][sf_bq362] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq359] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq358] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq363] Error occurred while fetching data: 002140 (42601): SQL compilation error:
+Unknown function FORMAT_NUMBER
+[sf_bq356] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq357] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  57%|#####7    | 312/547 [00:30<00:33,  6.92it/s][sf_bq371] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SALES_INVOICELINES' does not exist or not authorized.
+[sf_bq366] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 245
+invalid identifier 'V.LABELANNOTATIONS'
+[sf_bq370] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SALES_ORDERS' does not exist or not authorized.
+[sf_bq361] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  58%|#####8    | 319/547 [00:30<00:16, 13.65it/s][sf_bq360] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 1,622
+invalid identifier 'N.NPI'
+[sf_bq372] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  59%|#####9    | 323/547 [00:31<00:19, 11.68it/s][sf_bq373] Error occurred while fetching data: 002028 (42601): SQL compilation error:
+ambiguous column name 'CustomerID'
+[sf_bq379] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq376] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq377] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq374] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  59%|#####9    | 325/547 [00:31<00:23,  9.37it/s][sf_bq375] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq383] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq380] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq390] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  60%|#####9    | 328/547 [00:31<00:18, 11.65it/s][sf_bq389] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  60%|######    | 330/547 [00:31<00:17, 12.58it/s][sf_bq391] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 108 unexpected ','.
+syntax error line 1 at position 118 unexpected 'FLATTEN'.
+syntax error line 1 at position 126 unexpected 'INPUT'.
+syntax error line 1 at position 141 unexpected 'f'.
+[sf_bq392] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  61%|######1   | 336/547 [00:32<00:15, 13.96it/s][sf_bq394] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq393] Error occurred while fetching data: 002140 (42601): SQL compilation error:
+Unknown function UNIX_TIMESTAMP
+Evaluating SQL:  62%|######1   | 338/547 [00:33<00:35,  5.93it/s][sf_bq395] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'HOMELESS_COUNTS' does not exist or not authorized.
+[sf_bq397] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq403] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq400] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq396] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq406] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'DAR_NON_INTERSECTIONAL_REPRESENTATION' does not exist or not authorized.
+[sf_bq399] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq398] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  62%|######2   | 340/547 [00:33<00:31,  6.60it/s][sf_bq402] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq407] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CENSUS_2020' does not exist or not authorized.
+Evaluating SQL:  64%|######3   | 348/547 [00:33<00:16, 12.16it/s][sf_bq410] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq411] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq412] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  64%|######3   | 350/547 [00:34<00:19, 10.21it/s][sf_bq413] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 209
+invalid identifier 'G.ID'
+[sf_bq417] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq416] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq414] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  64%|######4   | 352/547 [00:34<00:21,  9.28it/s][sf_bq415] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 187 unexpected ')'.
+syntax error line 1 at position 408 unexpected ')'.
+syntax error line 1 at position 639 unexpected ')'.
+syntax error line 1 at position 853 unexpected ')'.
+[sf_bq418] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq420] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq419] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  65%|######4   | 354/547 [00:34<00:18, 10.52it/s][sf_bq421] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  65%|######5   | 356/547 [00:34<00:16, 11.51it/s][sf_bq422] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq423] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  66%|######5   | 361/547 [00:34<00:14, 13.17it/s][sf_bq424] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq425] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"EBI_CHEMBL.EBI_CHEMBL.EBI_CHEMBL.PRODUCTS_23"' does not exist or not authorized.
+Evaluating SQL:  66%|######6   | 363/547 [00:35<00:17, 10.63it/s][sf_bq427] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MBB_PBP_SR' does not exist or not authorized.
+[sf_bq426] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+[sf_bq428] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MBB_PBP_SR' does not exist or not authorized.
+[sf_bq441] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACCIDENT_2015' does not exist or not authorized.
+[sf_bq430] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ACTIVITIES_29' does not exist or not authorized.
+[sf_bq432] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 30 unexpected 'SELECT'.
+syntax error line 1 at position 41 unexpected '('.
+[sf_bq429] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  67%|######6   | 365/547 [00:35<00:22,  8.19it/s][sf_bq442] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq444] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  67%|######7   | 368/547 [00:35<00:17, 10.20it/s][sf_bq445] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  68%|######8   | 373/547 [00:36<00:13, 12.93it/s][sf_bq450] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 2,014 unexpected 'AS'.
+syntax error line 1 at position 2,024 unexpected ')'.
+[sf_bq451] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,965 unexpected 'start'.
+syntax error line 1 at position 1,971 unexpected 'NOT'.
+syntax error line 1 at position 1,975 unexpected 'BETWEEN'.
+syntax error line 1 at position 2,007 unexpected 'start'.
+syntax error line 1 at position 2,099 unexpected ')'.
+syntax error line 1 at position 2,105 unexpected 'CROSS'.
+Evaluating SQL:  69%|######8   | 375/547 [00:36<00:16, 10.36it/s][sf_bq452] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 49 unexpected 'start'.
+syntax error line 1 at position 54 unexpected ','.
+syntax error line 1 at position 57 unexpected '.'.
+syntax error line 1 at position 64 unexpected '.'.
+syntax error line 1 at position 88 unexpected 'WHEN'.
+syntax error line 1 at position 99 unexpected ':'.
+syntax error line 1 at position 166 unexpected 'THEN'.
+[sf_bq453] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 365 unexpected '('.
+[sf_bq455] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 1,464
+invalid identifier 'DSL."max_TotalPixelMatrixRows"'
+[sf_bq454] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"_1000_GENOMES._1000_GENOMES._1000_GENOMES.VARIANTS"' does not exist or not authorized.
+Evaluating SQL:  69%|######8   | 377/547 [00:36<00:19,  8.54it/s][sf_bq456] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  69%|######9   | 380/547 [00:36<00:15, 10.66it/s][sf_bq459] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 70 unexpected '<'.
+[sf_bq460] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,828 unexpected 'TABLE'.
+syntax error line 1 at position 1,833 unexpected '('.
+[sf_bq458] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 43 unexpected '('.
+syntax error line 1 at position 44 unexpected '['.
+syntax error line 1 at position 1,309 unexpected 'AS'.
+[sf_bq457] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_bq461] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 6 unexpected '<EOF>'.
+Evaluating SQL:  70%|######9   | 382/547 [00:37<00:17,  9.69it/s][sf_ga001] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 76 unexpected '%'.
+[sf_bq462] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MBB_GAMES_SR' does not exist or not authorized.
+Evaluating SQL:  71%|#######   | 387/547 [00:37<00:12, 12.37it/s][sf_ga002] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 10,151 unexpected 'FLATTEN'.
+syntax error line 1 at position 10,159 unexpected 'input'.
+syntax error line 1 at position 10,184 unexpected 'f'.
+[sf_ga003] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  71%|#######1  | 389/547 [00:37<00:15,  9.88it/s][sf_ga004] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga006] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga007] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  71%|#######1  | 391/547 [00:38<00:17,  8.98it/s][sf_ga010] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  72%|#######1  | 393/547 [00:38<00:15,  9.73it/s][sf_ga008] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga011] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'GA4.GA4_OBFUSCATED_SAMPLE_ECOMMERCE."EVENTS_202012%"' does not exist or not authorized.
+[sf_ga012] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga013] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 5,627 unexpected 'LATERAL'.
+syntax error line 1 at position 5,643 unexpected 'input'.
+syntax error line 1 at position 5,670 unexpected 'f'.
+Evaluating SQL:  72%|#######2  | 395/547 [00:38<00:15,  9.54it/s][sf_ga014] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 5,121 unexpected 'LATERAL'.
+syntax error line 1 at position 5,137 unexpected 'input'.
+syntax error line 1 at position 5,162 unexpected 'AS'.
+[sf_ga005] Error occurred while fetching data: 001789 (42601): SQL compilation error:
+invalid number of result columns for set operator input branches, expected 19, got 16 in branch 2
+Evaluating SQL:  73%|#######2  | 398/547 [00:38<00:14, 10.58it/s][sf_ga017] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga018] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga019] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'EVENTS_20180705' does not exist or not authorized.
+Evaluating SQL:  73%|#######3  | 400/547 [00:38<00:14, 10.33it/s][sf_ga020] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga032] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  73%|#######3  | 402/547 [00:39<00:26,  5.55it/s][sf_ga030] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 58 unexpected '%'.
+[sf_ga021] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_ga031] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  74%|#######4  | 405/547 [00:40<00:20,  6.86it/s][sf_local002] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERS' does not exist or not authorized.
+[sf_ga028] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 64 unexpected '%'.
+syntax error line 1 at position 123 unexpected '%'.
+syntax error line 1 at position 182 unexpected '%'.
+syntax error line 1 at position 241 unexpected '%'.
+syntax error line 1 at position 300 unexpected '%'.
+[sf_ga022] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 16,963 unexpected 'TIME'.
+syntax error line 1 at position 17,069 unexpected '"event_timestamp"'.
+syntax error line 1 at position 17,088 unexpected 'AT'.
+[sf_ga025] Error occurred while fetching data: 001789 (42601): SQL compilation error:
+Evaluating SQL:  75%|#######4  | 408/547 [00:40<00:18,  7.39it/s]
+Evaluating SQL:  75%|#######5  | 412/547 [00:40<00:14,  9.42it/s][sf_local007] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local003] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,174 unexpected '('.
+syntax error line 1 at position 1,175 unexpected 'WHERE'.
+syntax error line 1 at position 1,252 unexpected ')'.
+[sf_local004] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local008] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  76%|#######5  | 414/547 [00:40<00:15,  8.44it/s][sf_local009] Error occurred while fetching data: 002140 (42601): SQL compilation error:
+Unknown functions ST_GEOGRAPHYPOINT, ST_GEOGRAPHYPOINT
+[sf_local010] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 392 unexpected ''$.en''.
+syntax error line 1 at position 432 unexpected ''$.en''.
+Evaluating SQL:  76%|#######6  | 416/547 [00:41<00:14,  9.09it/s][sf_local017] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 615 unexpected 'ORDER'.
+syntax error line 1 at position 634 unexpected 'AS'.
+[sf_local019] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local020] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  76%|#######6  | 418/547 [00:41<00:17,  7.32it/s][sf_local018] No data found for the specified query.
+Evaluating SQL:  77%|#######6  | 421/547 [00:41<00:14,  8.80it/s][sf_local021] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local024] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local023] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  77%|#######7  | 423/547 [00:42<00:15,  7.93it/s][sf_local025] Error occurred while fetching data: 000008 (0A000): Actual statement count 2 did not match the desired statement count 1.
+Evaluating SQL:  78%|#######7  | 424/547 [00:42<00:15,  8.06it/s][sf_local026] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  78%|#######7  | 426/547 [00:42<00:14,  8.19it/s][sf_local028] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+[sf_local029] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+[sf_local030] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+Evaluating SQL:  78%|#######8  | 429/547 [00:42<00:12,  9.56it/s][sf_local031] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+[sf_local032] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+Evaluating SQL:  79%|#######8  | 432/547 [00:43<00:10, 10.65it/s][sf_local034] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+[sf_local035] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'OLIST_GEOLOCATION' does not exist or not authorized.
+[sf_local037] Error occurred while fetching data: 002003 (02000): SQL compilation error:
+Schema 'BRAZILIAN_E_COMMERCE.E_COMMERCE' does not exist or not authorized.
+Evaluating SQL:  80%|#######9  | 437/547 [00:43<00:09, 12.17it/s][sf_local039] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local038] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 188
+invalid identifier 'C."film_id"'
+[sf_local040] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local049] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 393 unexpected '_000_000_000'.
+syntax error line 1 at position 442 unexpected ')'.
+[sf_local041] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'TREES' does not exist or not authorized.
+Evaluating SQL:  80%|########  | 439/547 [00:43<00:11,  9.30it/s][sf_local050] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local054] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  81%|########  | 442/547 [00:43<00:10, 10.27it/s][sf_local055] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 1,029
+invalid identifier 'T."ArtistId"'
+[sf_local056] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PAYMENT' does not exist or not authorized.
+[sf_local058] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 84 unexpected '('.
+syntax error line 1 at position 85 unexpected 'WHERE'.
+syntax error line 1 at position 115 unexpected 'AS'.
+Evaluating SQL:  81%|########1 | 444/547 [00:44<00:09, 10.30it/s][sf_local059] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'HARDWARE_FACT_SALES_MONTHLY' does not exist or not authorized.
+Evaluating SQL:  82%|########1 | 448/547 [00:44<00:07, 12.64it/s][sf_local062] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SALES' does not exist or not authorized.
+[sf_local061] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SALES' does not exist or not authorized.
+[sf_local060] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CUSTOMERS' does not exist or not authorized.
+[sf_local063] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'COUNTRIES' does not exist or not authorized.
+[sf_local064] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 553 unexpected '('.
+syntax error line 1 at position 554 unexpected 'WHERE'.
+syntax error line 1 at position 585 unexpected 'AS'.
+Evaluating SQL:  82%|########2 | 450/547 [00:44<00:11,  8.79it/s][sf_local065] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local066] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  83%|########2 | 453/547 [00:45<00:09, 10.09it/s][sf_local067] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SALES' does not exist or not authorized.
+[sf_local070] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,436 unexpected 'UNION'.
+[sf_local068] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local071] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  83%|########3 | 456/547 [00:45<00:09,  9.82it/s][sf_local072] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,504 unexpected '('.
+syntax error line 1 at position 1,505 unexpected 'WHERE'.
+syntax error line 1 at position 1,528 unexpected 'AS'.
+Evaluating SQL:  84%|########3 | 459/547 [00:45<00:08, 10.97it/s][sf_local074] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CUSTOMER_TRANSACTIONS' does not exist or not authorized.
+[sf_local075] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SHOPPING_CART_EVENTS' does not exist or not authorized.
+[sf_local073] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,027 unexpected 'JOIN'.
+syntax error line 1 at position 1,115 unexpected 'TRIM'.
+syntax error line 1 at position 1,130 unexpected ')'.
+Evaluating SQL:  84%|########4 | 461/547 [00:45<00:09,  9.32it/s][sf_local081] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERS' does not exist or not authorized.
+[sf_local078] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 384 unexpected 'UNION'.
+[sf_local077] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 770 unexpected '2'.
+syntax error line 1 at position 779 unexpected 'PRECEDING'.
+[sf_local097] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MOVIE' does not exist or not authorized.
+[sf_local085] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERS' does not exist or not authorized.
+[sf_local096] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  85%|########5 | 467/547 [00:46<00:07, 11.11it/s][sf_local099] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PERSON' does not exist or not authorized.
+[sf_local100] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PERSON' does not exist or not authorized.
+[sf_local114] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'WEB_ORDERS' does not exist or not authorized.
+[sf_local128] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'BOWLER_SCORES' does not exist or not authorized.
+Evaluating SQL:  86%|########6 | 472/547 [00:46<00:06, 10.77it/s][sf_local130] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'STUDENT_SCHEDULES' does not exist or not authorized.
+[sf_local132] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ENTERTAINER_STYLES' does not exist or not authorized.
+[sf_local131] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local152] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  87%|########6 | 474/547 [00:47<00:07,  9.27it/s][sf_local133] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local141] Error occurred while fetching data: 002016 (22000): SQL compilation error:
+Function EXTRACT does not support VARCHAR(16777216) argument type
+[sf_local098] Error occurred while fetching data: 100038 (22018): Numeric value 'I 2009' is not recognized
+Evaluating SQL:  88%|########7 | 480/547 [00:47<00:04, 14.29it/s][sf_local156] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'BITCOIN_TRANSACTIONS' does not exist or not authorized.
+[sf_local157] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'BITCOIN_PRICES' does not exist or not authorized.
+[sf_local163] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'UNIVERSITY_FACULTY' does not exist or not authorized.
+[sf_local167] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'LEGISLATORS' does not exist or not authorized.
+Evaluating SQL:  88%|########8 | 482/547 [00:47<00:06,  9.71it/s][sf_local168] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local169] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local170] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'LEGISLATORS_TERMS' does not exist or not authorized.
+[sf_local171] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'LEGISLATORS_TERMS' does not exist or not authorized.
+Evaluating SQL:  89%|########8 | 485/547 [00:48<00:06,  9.08it/s][sf_local194] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PAYMENT' does not exist or not authorized.
+[sf_local195] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"film_actor"' does not exist or not authorized.
+Evaluating SQL:  89%|########9 | 488/547 [00:48<00:05, 11.40it/s][sf_local196] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CUSTOMER' does not exist or not authorized.
+Evaluating SQL:  90%|########9 | 490/547 [00:48<00:05, 10.87it/s][sf_local198] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local197] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PAYMENT' does not exist or not authorized.
+[sf_local199] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RENTAL' does not exist or not authorized.
+Evaluating SQL:  90%|########9 | 492/547 [00:48<00:05, 10.12it/s][sf_local202] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local209] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERS' does not exist or not authorized.
+[sf_local201] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local210] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  90%|######### | 495/547 [00:49<00:05,  8.68it/s][sf_local212] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local218] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'MATCH' does not exist or not authorized.
+[sf_local219] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 56
+invalid identifier '"team_api_id"'
+[sf_local220] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local228] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object '"IPL.IPL.IPL.BATSMAN_SCORED"' does not exist or not authorized.
+Evaluating SQL:  92%|#########1| 502/547 [00:49<00:04, 10.54it/s][sf_local230] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local229] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local253] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  92%|#########2| 504/547 [00:50<00:04,  8.73it/s][sf_local244] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  93%|#########2| 508/547 [00:50<00:03, 10.22it/s][sf_local259] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 2,175 unexpected '('.
+syntax error line 1 at position 2,176 unexpected 'WHERE'.
+syntax error line 1 at position 2,199 unexpected 'AS'.
+[sf_local262] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'SOLUTION' does not exist or not authorized.
+[sf_local258] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local263] Error occurred while fetching data: 000008 (0A000): Actual statement count 2 did not match the desired statement count 1.
+Evaluating SQL:  93%|#########3| 510/547 [00:50<00:04,  8.54it/s][sf_local264] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  94%|#########3| 512/547 [00:51<00:03,  8.95it/s][sf_local269] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PACKAGING' does not exist or not authorized.
+[sf_local272] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'ORDERLINES' does not exist or not authorized.
+[sf_local270] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PACKAGING_RELATIONS' does not exist or not authorized.
+[sf_local277] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,656 unexpected '<EOF>'.
+Evaluating SQL:  94%|#########3| 514/547 [00:51<00:06,  5.17it/s][sf_local274] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PICKING_LINE' does not exist or not authorized.
+Evaluating SQL:  94%|#########4| 516/547 [00:52<00:04,  6.32it/s][sf_local275] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  95%|#########4| 517/547 [00:52<00:04,  6.59it/s][sf_local279] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'PRODUCT_MINIMUMS' does not exist or not authorized.
+[sf_local284] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local273] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'INVENTORY' does not exist or not authorized.
+Evaluating SQL:  95%|#########5| 521/547 [00:52<00:02,  8.86it/s][sf_local285] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local297] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local286] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 1,015 unexpected 'or'.
+syntax error line 1 at position 1,014 unexpected '('.
+syntax error line 1 at position 1,015 unexpected 'or'.
+syntax error line 1 at position 1,038 unexpected 'AS'.
+Evaluating SQL:  96%|#########5| 525/547 [00:52<00:02,  9.53it/s][sf_local299] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local298] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CUSTOMER_TRANSACTIONS' does not exist or not authorized.
+Evaluating SQL:  96%|#########6| 527/547 [00:53<00:02,  9.00it/s][sf_local300] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local301] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  97%|#########6| 529/547 [00:53<00:01, 10.40it/s][sf_local302] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'CLEANED_WEEKLY_SALES' does not exist or not authorized.
+[sf_local309] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  97%|#########7| 531/547 [00:53<00:01,  9.62it/s][sf_local310] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local329] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local311] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RESULTS' does not exist or not authorized.
+Evaluating SQL:  98%|#########7| 534/547 [00:53<00:01,  8.62it/s][sf_local330] Error occurred while fetching data: 000008 (0A000): Actual statement count 2 did not match the desired statement count 1.
+[sf_local331] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  98%|#########7| 535/547 [00:54<00:01,  7.86it/s][sf_local335] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  98%|#########8| 537/547 [00:54<00:01,  9.43it/s][sf_local354] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+[sf_local355] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RACES' does not exist or not authorized.
+Evaluating SQL:  99%|#########8| 539/547 [00:54<00:00, 10.34it/s][sf_local344] Error occurred while fetching data: 002003 (42S02): SQL compilation error:
+Object 'RACES_EXT' does not exist or not authorized.
+[sf_local356] Error occurred while fetching data: 000904 (42000): SQL compilation error: error line 1 at position 411
+invalid identifier 'LC."prev_driver_id"'
+[sf_local358] Error occurred while fetching data: 002043 (02000): SQL compilation error:
+Object does not exist, or operation cannot be performed.
+Evaluating SQL:  99%|#########8| 541/547 [00:54<00:00,  6.24it/s][sf_local360] Error occurred while fetching data: 001003 (42000): SQL compilation error:
+syntax error line 1 at position 385 unexpected '('.
+syntax error line 1 at position 386 unexpected 'WHERE'.
+syntax error line 1 at position 426 unexpected 'AS'.
+Evaluating SQL: 100%|##########| 547/547 [01:04<00:00,  8.44it/s]
+{'sf003': 0, 'sf010': 0, 'sf008': 0, 'sf013': 0, 'sf014': 0, 'sf011': 0, 'sf012': 0, 'sf009': 0, 'sf002': 0, 'sf018': 0, 'sf006': 0, 'sf001': 0, 'sf029': 0, 'sf044': 0, 'sf_bq001': 0, 'sf_bq002': 0, 'sf_bq003': 0, 'sf_bq004': 0, 'sf035': 0, 'sf_bq005': 0, 'sf037': 0, 'sf_bq006': 0, 'sf_bq007': 0, 'sf041': 0, 'sf_bq009': 0, 'sf_bq008': 0, 'sf_bq011': 0, 'sf_bq010': 0, 'sf_bq012': 0, 'sf_bq014': 0, 'sf_bq015': 0, 'sf_bq017': 0, 'sf_bq018': 0, 'sf_bq019': 0, 'sf_bq020': 0, 'sf_bq023': 0, 'sf_bq025': 0, 'sf_bq024': 0, 'sf_bq022': 0, 'sf_bq026': 0, 'sf_bq027': 0, 'sf_bq029': 0, 'sf_bq030': 0, 'sf_bq031': 0, 'sf_bq021': 0, 'sf_bq032': 0, 'sf_bq033': 0, 'sf_bq035': 0, 'sf_bq034': 0, 'sf_bq036': 0, 'sf_bq038': 0, 'sf_bq037': 0, 'sf_bq039': 0, 'sf_bq040': 0, 'sf_bq041': 0, 'sf_bq042': 0, 'sf_bq043': 0, 'sf_bq044': 0, 'sf_bq045': 0, 'sf_bq046': 0, 'sf_bq047': 0, 'sf_bq048': 0, 'sf_bq049': 0, 'sf_bq050': 0, 'sf_bq052': 0, 'sf_bq051': 0, 'sf_bq054': 0, 'sf_bq053': 0, 'sf_bq056': 0, 'sf_bq055': 0, 'sf_bq057': 0, 'sf_bq058': 0, 'sf_bq016': 0, 'sf_bq059': 0, 'sf_bq060': 0, 'sf_bq061': 0, 'sf_bq062': 0, 'sf_bq063': 0, 'sf_bq064': 0, 'sf_bq065': 0, 'sf_bq066': 0, 'sf_bq068': 0, 'sf_bq067': 0, 'sf_bq070': 0, 'sf_bq071': 0, 'sf_bq069': 0, 'sf_bq072': 0, 'sf_bq073': 0, 'sf_bq074': 0, 'sf_bq075': 0, 'sf_bq076': 0, 'sf_bq078': 0, 'sf_bq077': 0, 'sf_bq079': 0, 'sf_bq081': 0, 'sf_bq080': 0, 'sf_bq083': 0, 'sf_bq084': 0, 'sf_bq085': 0, 'sf_bq086': 0, 'sf_bq087': 0, 'sf_bq088': 0, 'sf_bq090': 0, 'sf_bq089': 0, 'sf_bq091': 0, 'sf_bq094': 0, 'sf_bq092': 0, 'sf_bq095': 0, 'sf_bq093': 0, 'sf_bq096': 0, 'sf_bq028': 0, 'sf_bq098': 0, 'sf_bq102': 0, 'sf_bq101': 0, 'sf_bq103': 0, 'sf_bq100': 0, 'sf_bq099': 0, 'sf_bq097': 0, 'sf_bq105': 0, 'sf_bq104': 0, 'sf_bq107': 0, 'sf_bq108': 0, 'sf_bq109': 0, 'sf_bq110': 0, 'sf_bq112': 0, 'sf_bq111': 0, 'sf_bq113': 0, 'sf_bq115': 0, 'sf_bq114': 0, 'sf_bq116': 0, 'sf_bq117': 0, 'sf_bq118': 0, 'sf_bq120': 0, 'sf_bq119': 0, 'sf_bq121': 0, 'sf_bq124': 0, 'sf_bq123': 0, 'sf_bq130': 0, 'sf_bq126': 0, 'sf_bq131': 0, 'sf_bq128': 0, 'sf_bq127': 0, 'sf_bq135': 0, 'sf_bq136': 0, 'sf_bq137': 0, 'sf_bq143': 0, 'sf_bq144': 0, 'sf_bq141': 0, 'sf_bq148': 0, 'sf_bq147': 0, 'sf_bq151': 0, 'sf_bq150': 0, 'sf_bq152': 0, 'sf_bq153': 0, 'sf_bq154': 0, 'sf_bq157': 0, 'sf_bq156': 0, 'sf_bq155': 0, 'sf_bq158': 0, 'sf_bq162': 0, 'sf_bq161': 0, 'sf_bq159': 0, 'sf_bq163': 0, 'sf_bq164': 0, 'sf_bq165': 0, 'sf_bq166': 0, 'sf_bq167': 0, 'sf_bq169': 0, 'sf_bq170': 0, 'sf_bq171': 0, 'sf_bq172': 0, 'sf_bq175': 0, 'sf_bq176': 0, 'sf_bq177': 0, 'sf_bq181': 0, 'sf_bq180': 0, 'sf_bq182': 0, 'sf_bq184': 0, 'sf_bq185': 0, 'sf_bq187': 0, 'sf_bq186': 0, 'sf040': 0, 'sf_bq188': 0, 'sf_bq189': 0, 'sf_bq190': 0, 'sf_bq192': 0, 'sf_bq191': 0, 'sf_bq193': 0, 'sf_bq194': 0, 'sf_bq195': 0, 'sf_bq197': 0, 'sf_bq198': 0, 'sf_bq200': 0, 'sf_bq199': 0, 'sf_bq202': 0, 'sf_bq203': 0, 'sf_bq204': 0, 'sf_bq208': 0, 'sf_bq209': 0, 'sf_bq210': 0, 'sf_bq207': 0, 'sf_bq211': 0, 'sf_bq212': 0, 'sf_bq213': 0, 'sf_bq214': 0, 'sf_bq215': 0, 'sf_bq217': 0, 'sf_bq216': 0, 'sf_bq218': 0, 'sf_bq219': 0, 'sf_bq220': 0, 'sf_bq222': 0, 'sf_bq221': 0, 'sf_bq224': 0, 'sf_bq223': 0, 'sf_bq225': 0, 'sf_bq228': 0, 'sf_bq227': 0, 'sf_bq226': 0, 'sf_bq229': 0, 'sf_bq232': 0, 'sf_bq230': 0, 'sf_bq160': 0, 'sf_bq234': 0, 'sf_bq233': 0, 'sf_bq235': 0, 'sf_bq236': 0, 'sf_bq246': 0, 'sf_bq249': 0, 'sf_bq247': 0, 'sf_bq248': 0, 'sf_bq250': 0, 'sf_bq251': 0, 'sf_bq252': 0, 'sf_bq253': 0, 'sf_bq254': 0, 'sf_bq256': 0, 'sf_bq255': 0, 'sf_bq258': 0, 'sf_bq260': 0, 'sf_bq259': 0, 'sf_bq261': 0, 'sf_bq263': 0, 'sf_bq262': 0, 'sf_bq264': 0, 'sf_bq265': 0, 'sf_bq268': 0, 'sf_bq266': 0, 'sf_bq269': 0, 'sf_bq271': 0, 'sf_bq270': 0, 'sf_bq273': 0, 'sf_bq272': 0, 'sf_bq275': 0, 'sf_bq276': 0, 'sf_bq278': 0, 'sf_bq277': 0, 'sf_bq279': 0, 'sf_bq280': 0, 'sf_bq281': 0, 'sf_bq283': 0, 'sf_bq282': 0, 'sf_bq284': 0, 'sf_bq285': 0, 'sf_bq286': 0, 'sf_bq288': 0, 'sf_bq287': 0, 'sf_bq289': 0, 'sf_bq290': 0, 'sf_bq291': 0, 'sf_bq293': 0, 'sf_bq292': 0, 'sf_bq294': 0, 'sf_bq300': 0, 'sf_bq295': 0, 'sf_bq301': 0, 'sf_bq302': 0, 'sf_bq304': 0, 'sf_bq306': 0, 'sf_bq303': 0, 'sf_bq305': 0, 'sf_bq307': 0, 'sf_bq308': 0, 'sf_bq309': 0, 'sf_bq320': 0, 'sf_bq310': 0, 'sf_bq321': 0, 'sf_bq323': 0, 'sf_bq324': 0, 'sf_bq325': 0, 'sf_bq326': 0, 'sf_bq327': 0, 'sf_bq328': 0, 'sf_bq330': 0, 'sf_bq331': 0, 'sf_bq334': 0, 'sf_bq335': 0, 'sf_bq338': 0, 'sf_bq340': 0, 'sf_bq339': 0, 'sf_bq342': 0, 'sf_bq341': 0, 'sf_bq346': 0, 'sf_bq345': 0, 'sf_bq347': 0, 'sf_bq349': 0, 'sf_bq348': 0, 'sf_bq350': 0, 'sf_bq333': 0, 'sf_bq354': 0, 'sf_bq352': 0, 'sf_bq355': 0, 'sf_bq362': 0, 'sf_bq357': 0, 'sf_bq358': 0, 'sf_bq359': 0, 'sf_bq363': 0, 'sf_bq356': 0, 'sf_bq371': 0, 'sf_bq366': 0, 'sf_bq370': 0, 'sf_bq361': 0, 'sf_bq360': 0, 'sf_bq372': 0, 'sf_bq373': 0, 'sf_bq376': 0, 'sf_bq377': 0, 'sf_bq379': 0, 'sf_bq374': 0, 'sf_bq375': 0, 'sf_bq383': 0, 'sf_bq380': 0, 'sf_bq390': 0, 'sf_bq389': 0, 'sf_bq391': 0, 'sf_bq392': 0, 'sf_bq394': 0, 'sf_bq393': 0, 'sf_bq395': 0, 'sf_bq397': 0, 'sf_bq396': 0, 'sf_bq406': 0, 'sf_bq403': 0, 'sf_bq400': 0, 'sf_bq398': 0, 'sf_bq402': 0, 'sf_bq399': 0, 'sf_bq407': 0, 'sf_bq410': 0, 'sf_bq411': 0, 'sf_bq412': 0, 'sf_bq413': 0, 'sf_bq414': 0, 'sf_bq417': 0, 'sf_bq416': 0, 'sf_bq418': 0, 'sf_bq415': 0, 'sf_bq419': 0, 'sf_bq421': 0, 'sf_bq420': 0, 'sf_bq422': 0, 'sf_bq423': 0, 'sf_bq424': 0, 'sf_bq425': 0, 'sf_bq426': 0, 'sf_bq427': 0, 'sf_bq428': 0, 'sf_bq441': 0, 'sf_bq429': 0, 'sf_bq430': 0, 'sf_bq442': 0, 'sf_bq432': 0, 'sf_bq444': 0, 'sf_bq445': 0, 'sf_bq450': 0, 'sf_bq451': 0, 'sf_bq452': 0, 'sf_bq455': 0, 'sf_bq453': 0, 'sf_bq454': 0, 'sf_bq456': 0, 'sf_bq458': 0, 'sf_bq459': 0, 'sf_bq460': 0, 'sf_bq457': 0, 'sf_bq461': 0, 'sf_ga001': 0, 'sf_bq462': 0, 'sf_ga002': 0, 'sf_ga003': 0, 'sf_ga004': 0, 'sf_ga006': 0, 'sf_ga007': 0, 'sf_ga011': 0, 'sf_ga010': 0, 'sf_ga008': 0, 'sf_ga012': 0, 'sf_ga013': 0, 'sf_ga014': 0, 'sf_ga005': 0, 'sf_ga017': 0, 'sf_ga018': 0, 'sf_ga019': 0, 'sf_ga020': 0, 'sf_ga032': 0, 'sf_ga021': 0, 'sf_ga030': 0, 'sf_ga022': 0, 'sf_ga028': 0, 'sf_local002': 0, 'sf_ga031': 0, 'sf_ga025': 0, 'sf_local003': 0, 'sf_local007': 0, 'sf_local004': 0, 'sf_local008': 0, 'sf_local009': 0, 'sf_local010': 0, 'sf_local019': 0, 'sf_local017': 0, 'sf_local020': 0, 'sf_local018': 0, 'sf_local021': 0, 'sf_local023': 0, 'sf_local024': 0, 'sf_local025': 0, 'sf_local015': 0, 'sf_local026': 0, 'sf_local029': 0, 'sf_local028': 0, 'sf_local030': 0, 'sf_local031': 0, 'sf_local032': 0, 'sf_local022': 0, 'sf_local034': 0, 'sf_local035': 0, 'sf_local037': 0, 'sf_local040': 0, 'sf_local039': 0, 'sf_local038': 0, 'sf_local049': 0, 'sf_local041': 0, 'sf_local050': 0, 'sf_local054': 0, 'sf_local056': 0, 'sf_local055': 0, 'sf_local058': 0, 'sf_local059': 0, 'sf_local062': 0, 'sf_local061': 0, 'sf_local060': 0, 'sf_local063': 0, 'sf_local064': 0, 'sf_local065': 0, 'sf_local066': 0, 'sf_local067': 0, 'sf_local068': 0, 'sf_local070': 0, 'sf_local071': 0, 'sf_local072': 0, 'sf_local074': 0, 'sf_local073': 0, 'sf_local075': 0, 'sf_local081': 0, 'sf_local077': 0, 'sf_local078': 0, 'sf_local097': 0, 'sf_local085': 0, 'sf_local096': 0, 'sf_local099': 0, 'sf_local114': 0, 'sf_local128': 0, 'sf_local100': 0, 'sf_local130': 0, 'sf_local131': 0, 'sf_local132': 0, 'sf_local152': 0, 'sf_local141': 0, 'sf_local133': 0, 'sf_local098': 0, 'sf_local156': 0, 'sf_local157': 0, 'sf_local167': 0, 'sf_local163': 0, 'sf_local168': 0, 'sf_local169': 0, 'sf_local171': 0, 'sf_local170': 0, 'sf_local194': 0, 'sf_local195': 0, 'sf_local196': 0, 'sf_local198': 0, 'sf_local197': 0, 'sf_local199': 0, 'sf_local209': 0, 'sf_local202': 0, 'sf_local201': 0, 'sf_local210': 0, 'sf_local212': 0, 'sf_local219': 0, 'sf_local218': 0, 'sf_local220': 0, 'sf_local228': 0, 'sf_local230': 0, 'sf_local229': 0, 'sf_local221': 0, 'sf_local253': 0, 'sf_local244': 0, 'sf_local259': 0, 'sf_local258': 0, 'sf_local262': 0, 'sf_local263': 0, 'sf_local264': 0, 'sf_local269': 0, 'sf_local272': 0, 'sf_local270': 0, 'sf_local277': 0, 'sf_local274': 0, 'sf_local275': 0, 'sf_local279': 0, 'sf_local284': 0, 'sf_local273': 0, 'sf_local285': 0, 'sf_local297': 0, 'sf_local286': 0, 'sf_local283': 1, 'sf_local193': 1, 'sf_local299': 0, 'sf_local298': 0, 'sf_local301': 0, 'sf_local300': 0, 'sf_local302': 0, 'sf_local309': 0, 'sf_local310': 0, 'sf_local311': 0, 'sf_local329': 0, 'sf_local330': 0, 'sf_local331': 0, 'sf_local335': 0, 'sf_local354': 0, 'sf_local344': 0, 'sf_local356': 0, 'sf_local355': 0, 'sf_local358': 0, 'sf_local360': 0, 'sf_local336': 0, 'sf_ga009': 0}
+Final score: 0.003656307129798903, Correct examples: 2, Total examples: 547
+Real score: 0.003656307129798903, Correct examples: 2, Total examples: 547
+Execution results saved to: /content/ttsql/benchmarks/Spider2/spider2-snow/baselines/dailsql/postprocessed_data/1112_spider2-snow_CTX-200/RESULTS_MODEL-solar-pro3-SQL-postprocessed_csv
+Correct IDs saved to: /content/ttsql/benchmarks/Spider2/spider2-snow/baselines/dailsql/postprocessed_data/1112_spider2-snow_CTX-200/RESULTS_MODEL-solar-pro3-SQL-postprocessed.csv
