@@ -2,12 +2,13 @@ from datetime import datetime
 import os
 import json
 import multiprocessing as mp
+import time
 from retrieve_topk_schema import get_next_k_results
 from utils import *
 import transformers
 from tqdm import tqdm
 from config import *
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
 import glob
 import numpy as np
 import threading
@@ -279,11 +280,16 @@ def process_instance_batch(batch_instances, log_path):
             if is_finished or is_error:
                 break
 
-            response = client.chat.completions.create(
-                # model="deepseek-chat",
-                model="stepfun/step-3.5-flash:free",
-                messages=messages,
-            )
+            try:
+                response = client.chat.completions.create(
+                    # model="deepseek-chat",
+                    model="stepfun/step-3.5-flash:free",
+                    messages=messages
+                )
+            except RateLimitError:
+                time.sleep(5)
+                continue
+
             model_output = response.choices[0].message.content
 
             all_model_output += (f"{datetime.now().isoformat(sep=' ')} | Turn {i}\n" +
@@ -378,6 +384,8 @@ def process_instance_batch(batch_instances, log_path):
 
             messages.append({"role": "assistant", "content": model_output})
             messages.append({"role": "user", "content": func_messages})
+
+            time.sleep(4)
 
         each_candidates[instance_id] = {
             "question": question,
@@ -491,5 +499,5 @@ if __name__ == "__main__":
     parser.add_argument('--log_path', type=str, default="log_v3_topn100")
     args = parser.parse_args()
     print("Starting schema completion...")
-    complete_schema(args.log_path, num_threads=4)
+    complete_schema(args.log_path, num_threads=2)
     print("Schema completion finished.")

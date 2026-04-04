@@ -1,7 +1,7 @@
 from google.oauth2 import service_account
 from google.cloud import bigquery
 
-credential_path = '../benchmarks\Spider2\methods\AutoLink\\run\\bigquery_credentials\\bigquery_credential_sup.json' # path/to/your/keyfile.json
+credential_path = '../benchmarks\Spider2\methods\AutoLink\\run\\bigquery_credentials\\bigquery_credential.json' # path/to/your/keyfile.json
 credentials = service_account.Credentials.from_service_account_file(credential_path)
 client = bigquery.Client(credentials=credentials)
 

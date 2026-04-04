@@ -1,6 +1,7 @@
 import os
 import json
 import multiprocessing as mp
+import time
 from tqdm import tqdm
 import faiss
 import numpy as np
@@ -8,6 +9,7 @@ from sentence_transformers import SentenceTransformer
 from utils import *
 import argparse
 from datetime import datetime
+import gc
 
 def sliding_window_table_match(metadata_table: str, target_table: str) -> bool:
     metadata_parts = metadata_table.lower().split('.')
@@ -97,6 +99,9 @@ def _retrieve_with_device_filtered(question: str, db_name: str, embed_path: str,
             })
             if len(filtered_results) >= top_k:
                 break
+    
+    del index
+    gc.collect()
     
     return filtered_results, len(metadata_mapping)
 
@@ -225,7 +230,7 @@ def process_batch_with_device(batch_items, device_id, top_k, log_dir, log_time=F
     for instance_id, item in tqdm(batch_items.items(), desc=f"GPU {device_id} - 进程 {os.getpid()}"):
         if log_time:
             log_file = open(f"pre_logs/retrive_logs/{instance_id}.log", 'w', encoding='utf-8')
-            log_file.write(datetime.now().isoformat(sep=" ") + " | begin | " +  instance_id + "\n")
+            log_file.write(datetime.now().isoformat(sep=" ") + " | begin\n")
         
         question = item["question"]
         db_name = item["db_name"]
@@ -279,7 +284,10 @@ def process_batch_with_device(batch_items, device_id, top_k, log_dir, log_time=F
         }
 
         if log_time:
-            log_file.write(datetime.now().isoformat(sep=" ") + " | end | " + instance_id + "\n")
+            log_file.write(datetime.now().isoformat(sep=" ") + " | end")
+            log_file.close()
+        
+        time.sleep(5)
 
     return batch_results
 
