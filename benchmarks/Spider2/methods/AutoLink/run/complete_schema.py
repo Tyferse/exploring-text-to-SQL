@@ -283,10 +283,11 @@ def process_instance_batch(batch_instances, log_path):
             try:
                 response = client.chat.completions.create(
                     # model="deepseek-chat",
-                    model="stepfun/step-3.5-flash:free",
+                    model="z-ai/glm-4.5-air:free",
                     messages=messages
                 )
-            except RateLimitError:
+            except RateLimitError as e:
+                print(e)
                 time.sleep(5)
                 continue
 

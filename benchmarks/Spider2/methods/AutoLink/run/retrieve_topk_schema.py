@@ -229,7 +229,7 @@ def process_batch_with_device(batch_items, device_id, top_k, log_dir, log_time=F
     
     for instance_id, item in tqdm(batch_items.items(), desc=f"GPU {device_id} - 进程 {os.getpid()}"):
         if log_time:
-            log_file = open(f"pre_logs/retrive_logs/{instance_id}.log", 'w', encoding='utf-8')
+            log_file = open(f"pre_logs/retrieve_logs/{instance_id}.log", 'w', encoding='utf-8')
             log_file.write(datetime.now().isoformat(sep=" ") + " | begin\n")
         
         question = item["question"]
@@ -384,6 +384,6 @@ if __name__ == "__main__":
     parser.add_argument('--top_n', type=int, default=100)
     args = parser.parse_args()
 
-    os.makedirs("pre_logs/retrive_logs", exist_ok=True)
+    os.makedirs("pre_logs/retrieve_logs", exist_ok=True)
     
     retrieve(args.log_path, top_n=args.top_n, log_time=True)
