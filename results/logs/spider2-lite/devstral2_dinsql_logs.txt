@@ -3732,7 +3732,8 @@ Job ID: 1d9fffff-0a83-4590-acae-83185c647894
 [bq025] GB processed: 0.11141 GB
 [bq025] Total GB processed: 0.78596 GB
 [bq053] GB processed: 0.02918 GB
-[bq053] Total GB processed: 0.81514 GB[bq102] Error occurred while fetching data: 400 Syntax error: Unexpected identifier "The" at [1:1]; reason: invalidQuery, location: query, message: Syntax error: Unexpected identifier "The" at [1:1]
+[bq053] Total GB processed: 0.81514 GB
+[bq102] Error occurred while fetching data: 400 Syntax error: Unexpected identifier "The" at [1:1]; reason: invalidQuery, location: query, message: Syntax error: Unexpected identifier "The" at [1:1]
 
 Location: US
 Job ID: edf6f7db-5adf-4826-a6c1-e4bec55e6d7a
@@ -3768,7 +3769,8 @@ Evaluating SQL:  10%|9         | 53/547 [00:08<01:38,  5.04it/s]
 [bq076] GB processed: 0.22171 GB
 [bq076] Total GB processed: 1.03728 GB
 [bq060] Total GB processed: 0.81557 GB
-[bq077] GB processed: 0.22171 GB[bq108] Error occurred while fetching data: 400 Table "accident_2015" must be qualified with a dataset (e.g. dataset.table).; reason: invalid, location: accident_2015, message: Table "accident_2015" must be qualified with a dataset (e.g. dataset.table).
+[bq077] GB processed: 0.22171 GB
+[bq108] Error occurred while fetching data: 400 Table "accident_2015" must be qualified with a dataset (e.g. dataset.table).; reason: invalid, location: accident_2015, message: Table "accident_2015" must be qualified with a dataset (e.g. dataset.table).
 
 Location: US
 Job ID: 0365da35-b11e-4464-aeaa-03575383647b
@@ -4225,7 +4227,8 @@ Job ID: 7a200cdc-f2ac-4fa3-812e-b6fd1d6d0a84
 
 [bq301] GB processed: 3.67193 GB
 [bq301] Total GB processed: 275.01682 GB
-[bq229] Total GB processed: 271.34489 GB[bq383] Error occurred while fetching data: 400 Queries in UNION ALL have mismatched column count; query 1 has 8 columns, query 4 has 10 columns at [1:847]; reason: invalidQuery, location: query, message: Queries in UNION ALL have mismatched column count; query 1 has 8 columns, query 4 has 10 columns at [1:847]
+[bq229] Total GB processed: 271.34489 GB
+[bq383] Error occurred while fetching data: 400 Queries in UNION ALL have mismatched column count; query 1 has 8 columns, query 4 has 10 columns at [1:847]; reason: invalidQuery, location: query, message: Queries in UNION ALL have mismatched column count; query 1 has 8 columns, query 4 has 10 columns at [1:847]
 
 Location: US
 Job ID: db40d5c5-972c-4b68-99a3-4b6983bc0a5f

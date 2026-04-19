@@ -3148,7 +3148,8 @@ Evaluating SQL:   6%|6         | 35/547 [00:05<01:12,  7.04it/s]
 Location: US
 Job ID: c38f1376-efd9-4f04-a696-a3e2a416e208
 
-[bq040] GB processed: 0.00000 GB[bq067] Error occurred while fetching data: 400 Syntax error: Expected ")" but got identifier "FROMbigquery" at [1:373]; reason: invalidQuery, location: query, message: Syntax error: Expected ")" but got identifier "FROMbigquery" at [1:373]
+[bq040] GB processed: 0.00000 GB
+[bq067] Error occurred while fetching data: 400 Syntax error: Expected ")" but got identifier "FROMbigquery" at [1:373]; reason: invalidQuery, location: query, message: Syntax error: Expected ")" but got identifier "FROMbigquery" at [1:373]
 
 Location: US
 Job ID: 317637df-5c0b-423e-a5f0-a9bd8420b976
@@ -3982,7 +3983,8 @@ Evaluating SQL:  30%|##9       | 164/547 [00:30<01:53,  3.38it/s]
 Location: US
 Job ID: 35da719f-73a8-41b3-8f1b-3fdbd34d705d
 
-Evaluating SQL:  32%|###1      | 173/547 [00:30<00:30, 12.34it/s][ga003] Error occurred while fetching data: 400 No matching signature for function JSON_EXTRACT
+Evaluating SQL:  32%|###1      | 173/547 [00:30<00:30, 12.34it/s]
+[ga003] Error occurred while fetching data: 400 No matching signature for function JSON_EXTRACT
   Argument types: ARRAY<STRUCT<key STRING, value STRUCT<string_value STRING, int_value INT64, float_value FLOAT64, ...>>>, STRING
   Signature: JSON_EXTRACT(STRING, STRING)
     Argument 1: Unable to coerce type ARRAY<STRUCT<key STRING, value STRUCT<string_value STRING, int_value INT64, float_value FLOAT64, ...>>> to expected type STRING
@@ -4068,13 +4070,15 @@ Location: US
 Job ID: 001d96a7-031f-425e-b59f-0380517f61b6
 Evaluating SQL:  32%|###2      | 177/547 [00:31<00:49,  7.52it/s]
 
-Evaluating SQL:  33%|###2      | 179/547 [00:31<00:45,  8.17it/s][ga011] Error occurred while fetching data: 400 Field name app_name does not exist in STRUCT<id STRING, version STRING, install_store STRING, ...> at [1:3372]; reason: invalidQuery, location: query, message: Field name app_name does not exist in STRUCT<id STRING, version STRING, install_store STRING, ...> at [1:3372]
+Evaluating SQL:  33%|###2      | 179/547 [00:31<00:45,  8.17it/s]
+[ga011] Error occurred while fetching data: 400 Field name app_name does not exist in STRUCT<id STRING, version STRING, install_store STRING, ...> at [1:3372]; reason: invalidQuery, location: query, message: Field name app_name does not exist in STRUCT<id STRING, version STRING, install_store STRING, ...> at [1:3372]
 
 Location: US
 Job ID: 4e458402-dd71-415b-a3f5-b8b4f3e07a6b
 
 [bq442] GB processed: 0.00000 GB
-[bq442] Total GB processed: 0.00000 GB[ga010] Error occurred while fetching data: 400 Syntax error: Expected ")" but got end of script at [1:9226]; reason: invalidQuery, location: query, message: Syntax error: Expected ")" but got end of script at [1:9226]
+[bq442] Total GB processed: 0.00000 GB
+[ga010] Error occurred while fetching data: 400 Syntax error: Expected ")" but got end of script at [1:9226]; reason: invalidQuery, location: query, message: Syntax error: Expected ")" but got end of script at [1:9226]
 
 Location: US
 Job ID: df852b57-37ce-41ca-a987-d0d7ccd7b7c2
@@ -4089,7 +4093,8 @@ Evaluating SQL:  33%|###3      | 182/547 [00:31<00:50,  7.19it/s]
 Location: US
 Job ID: 4a8a82a9-b02d-4869-857b-f4769d052f5a
 
-Evaluating SQL:  34%|###3      | 184/547 [00:32<01:15,  4.80it/s][ga014] Error occurred while fetching data: 400 Unrecognized name: event_name; Did you mean event_params? at [1:3766]; reason: invalidQuery, location: query, message: Unrecognized name: event_name; Did you mean event_params? at [1:3766]
+Evaluating SQL:  34%|###3      | 184/547 [00:32<01:15,  4.80it/s]
+[ga014] Error occurred while fetching data: 400 Unrecognized name: event_name; Did you mean event_params? at [1:3766]; reason: invalidQuery, location: query, message: Unrecognized name: event_name; Did you mean event_params? at [1:3766]
 
 Location: US
 Job ID: 9042161f-5c30-4dab-9323-618ecd456747
@@ -4145,7 +4150,8 @@ Job ID: d072b772-880e-4b49-8abd-118111a8ee43
 Location: US
 Job ID: 6ad05382-b0e6-4c53-ad6f-273b39daec53
 
-Evaluating SQL:  36%|###5      | 195/547 [00:32<00:20, 17.01it/s][ga019] Error occurred while fetching data: 400 Function not found: DATEDIFF; Did you mean date_diff? at [1:10765]; reason: invalidQuery, location: query, message: Function not found: DATEDIFF; Did you mean date_diff? at [1:10765]
+Evaluating SQL:  36%|###5      | 195/547 [00:32<00:20, 17.01it/s]
+[ga019] Error occurred while fetching data: 400 Function not found: DATEDIFF; Did you mean date_diff? at [1:10765]; reason: invalidQuery, location: query, message: Function not found: DATEDIFF; Did you mean date_diff? at [1:10765]
 
 Location: US
 Job ID: ea8d8ecc-a716-4476-b3e6-75f3d4bebd07
@@ -4177,7 +4183,8 @@ Job ID: 18c67ff8-15ea-4d1e-8235-eee98cc59ef1
 Location: US
 Job ID: 994c2eb7-e3e0-4740-8ddd-8af8172b39f3
 
-Evaluating SQL:  37%|###6      | 200/547 [00:32<00:17, 20.10it/s][ga025] Error occurred while fetching data: 400 Column 14 in UNION ALL has incompatible types: STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_... at [1:110]; reason: invalidQuery, location: query, message: Column 14 in UNION ALL has incompatible types: STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_... at [1:110]
+Evaluating SQL:  37%|###6      | 200/547 [00:32<00:17, 20.10it/s]
+[ga025] Error occurred while fetching data: 400 Column 14 in UNION ALL has incompatible types: STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_... at [1:110]; reason: invalidQuery, location: query, message: Column 14 in UNION ALL has incompatible types: STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...>, STRUCT<category STRING, mobile_brand_... at [1:110]
 
 Location: US
 Job ID: 62a85c3c-522b-410e-8b05-68f206a42972
@@ -4198,7 +4205,8 @@ Job ID: fcc77297-9851-4271-b973-14a2b18d214c
 Location: US
 Job ID: 0818ffc0-6a32-4a57-ac22-59cccb49d0c6
 
-Evaluating SQL:  37%|###7      | 203/547 [00:33<00:19, 17.20it/s][ga028] Error occurred while fetching data: 400 No matching signature for function DATE
+Evaluating SQL:  37%|###7      | 203/547 [00:33<00:19, 17.20it/s]
+[ga028] Error occurred while fetching data: 400 No matching signature for function DATE
   Argument types: INT64
   Signature: DATE(TIMESTAMP, [STRING])
     Argument 1: Unable to coerce type INT64 to expected type TIMESTAMP
