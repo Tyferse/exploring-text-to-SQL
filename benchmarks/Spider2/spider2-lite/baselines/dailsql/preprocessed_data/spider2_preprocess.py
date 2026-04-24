@@ -197,5 +197,9 @@ if __name__ == '__main__':
     parser.add_argument('--dev', default='spider2_dev', type=str, help='the name of dev file')
     args = parser.parse_args()
 
+    from datetime import datetime
+
+    print(start := datetime.now())    
     process_table_json(args, proj_dir)
     process_dev_json(args, proj_dir)
+    print(f"Preprocessing has ended for {datetime.now() - start}")

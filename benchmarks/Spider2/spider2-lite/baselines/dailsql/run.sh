@@ -19,8 +19,8 @@ COMMENT=1112
 # cd ${script_dir}  
 python preprocessed_data/spider2_preprocess.py --dev $DEV
 
-cd third_party/stanford-corenlp-full-2018-10-05
-nohup java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer & cd ../../
+# cd third_party/stanford-corenlp-full-2018-10-05
+# nohup java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer & cd ../../
 
 # step2. run DAIL-SQL
 python data_preprocess.py --dev $DEV 

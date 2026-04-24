@@ -101,7 +101,7 @@ def load_tables(paths):
     eval_foreign_key_maps = {}
 
     for path in paths:
-        schema_dicts = json.load(open(path))
+        schema_dicts = json.load(open(path, encoding='utf-8'))
         for schema_dict in schema_dicts:
             tables = tuple(
                 Table(

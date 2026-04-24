@@ -225,3 +225,5 @@ benchmarks/Spider2/spider2-lite/baselines/dinsql/preprocessed_data/spider2-lite/
 benchmarks/Spider2/spider2-snow/baselines/dinsql/preprocessed_data/spider2-lite/tables_preprocessed.json
 benchmarks/Spider2/spider2-lite/baselines/dinsql/preprocessed_data/spider2-lite/tables_preprocessed.json
 /benchmarks/Spider2/methods/AutoLink/run/log_v3_topn100
+*.bkp
+*.drawio
