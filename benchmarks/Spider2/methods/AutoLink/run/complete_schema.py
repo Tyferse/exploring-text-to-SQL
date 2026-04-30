@@ -8,7 +8,7 @@ from utils import *
 import transformers
 from tqdm import tqdm
 from config import *
-from openai import OpenAI, RateLimitError
+from openai import OpenAI, RateLimitError, APITimeoutError
 import glob
 import numpy as np
 import threading
@@ -283,15 +283,21 @@ def process_instance_batch(batch_instances, log_path):
             try:
                 response = client.chat.completions.create(
                     # model="deepseek-chat",
-                    model="z-ai/glm-4.5-air:free",
+                    model="tencent/hy3-preview:free",
                     messages=messages
                 )
             except RateLimitError as e:
                 print(e)
                 time.sleep(5)
                 continue
+            except APITimeoutError:
+                time.sleep(5)
 
             model_output = response.choices[0].message.content
+
+            if model_output is None:
+                time.sleep(5)
+                continue
 
             all_model_output += (f"{datetime.now().isoformat(sep=' ')} | Turn {i}\n" +
                                  # "=============MODEL REASONING=============" +
