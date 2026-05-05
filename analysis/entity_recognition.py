@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from typing import Optional, Union, List, Tuple, Dict
 
 
@@ -27,7 +28,8 @@ error_categories = {
             ("Aggregate functions with", "cannot be used with arguments of type"),
             "Aggregations of aggregations are not allowed", "Cannot GROUP BY literal values",
             ("Expressions of type", "cannot be used as GROUP BY keys"),
-
+            "aggregate function calls cannot be nested",
+            "window function calls cannot be nested",
         ],
         "Некорректное планирование": [
             "No data found for the specified query",
@@ -62,7 +64,7 @@ error_categories = {
             "circular reference",
             "Cannot access field", "near \"months_for_customer\": syntax error",
             "Wildcard matched incompatible partitioning/clustering tables",
-            "near \"AS\"",
+            "near \"AS\"", "ORDER BY term does not match any column"
         ],
         "Нераспознанное имя": [
             "Unrecognized name: ",
@@ -108,15 +110,13 @@ error_categories = {
             "concatenated string literals must be separated by whitespace or comments", "Bad int64 value",
             "ORDER BY key must be numeric in a RANGE-based window", ("does not support the", "date part when the argument is", "type"),
             "A valid date part name is required but found", "in arguments is not supported on scalar functions",
-            "Illegal escape sequence", "produced too many elements", "ORDER BY term does not match any column in the result set",
+            "Illegal escape sequence", "produced too many elements",
             "Bad input format model", ("String", "is too long and would be truncated"), 
 
             "unexpected", "syntax error"
         ]
     }
 }
-
-
 
 column_patterns = [
     r"column\s+['\"]?(\w+)['\"]?\s+(?:not found|does not exist|is ambiguous)",
@@ -168,6 +168,11 @@ syntax_patterns = [
     r"near\s+\"(\w+)\"",
     r"unrecognized token:\s*['\"]?(\w+)['\"]?",
     r"(\w+)\s+clause should come after",
+    r'near\s+"(\w+)"\s*:\s*syntax error',
+    r'syntax error at or near\s+"(\w+)"',
+    r'parse error.*?near\s+"(\w+)"',
+    r'invalid syntax.*?near\s+"(\w+)"',
+    r'syntax error.*?at\s+"(\w+)"',
 ]
 
 
@@ -184,7 +189,7 @@ def extract_entity(error_message: str, error_patterns: Dict = None) -> Optional[
     """
     
     if error_patterns is None:
-        error_patterns = get_error_categories()
+        error_patterns = deepcopy(error_categories)
     
     # Нормализуем сообщение об ошибке
     normalized_message = normalize_error_message(error_message)
@@ -301,7 +306,7 @@ def extract_entity_from_context(error_message: str, error_categories: Dict) -> O
     return extract_quoted_entity(error_message)
 
 
-def classify_error(error_message: str, error_categories: Dict = None) -> Tuple[Optional[str], Optional[str]]:
+def classify_error(error_message: str, error_cats: Dict = None) -> Tuple[Optional[str], Optional[str]]:
     """
     Классифицирует ошибку на основе шаблонов.
     
@@ -313,14 +318,14 @@ def classify_error(error_message: str, error_categories: Dict = None) -> Tuple[O
     Returns:
         Кортеж (категория, подкатегория) или (None, None)
     """
-    if error_categories is None:
-        error_categories = get_error_categories()
+    if error_cats is None:
+        error_cats = deepcopy(error_categories)
     
     # Нормализуем сообщение
     normalized = error_message.lower()
     
     # Проходим по всем категориям и подкатегориям
-    for category, subcategories in error_categories.items():
+    for category, subcategories in error_cats.items():
         if isinstance(subcategories, dict):
             for subcategory, patterns in subcategories.items():
                 if isinstance(patterns, list):

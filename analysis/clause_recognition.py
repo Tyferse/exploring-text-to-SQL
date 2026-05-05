@@ -4,6 +4,39 @@ from sqlglot import exp
 from entity_recognition import extract_entity
 
 
+explicit_groupped_patterns = {
+    'FROM': [
+        
+    ],
+    'JOIN': [
+        (r"Column\s+['\"]?(\w+)['\"]?\s+in.*?clause not found on left side of join", 1),
+        (r"near\s+\"()\"", 1),
+        (r"unexpected\s+'(\w+)'", 1),
+        "JOIN cannot be used without a condition",
+    ],
+    'WHERE': [],
+    'GROUP BY': [],
+    'HAVING': [],
+    'SELECT': [],
+    'WINDOW': [
+        (r"misuse of(?: aliased)? window function:\s*(\w+)", 1),
+        (r"(\w+)\s+is not supported for window functions", 1),
+        (r"window function.*?(\w+)\s+is not", 1),
+        (r"(\w+)\s+cannot be used as a window function", 1),
+        "ORDER BY key must be numeric in a RANGE-based window",
+    ],
+    'ORDER BY': [
+        "ORDER BY term does not match any column"
+    ],
+    'LIMIT': [],
+    'UNION': [],
+    'INTERSECT': [],
+    'EXCEPT': [],
+    'WITH': [],
+    'SET': []
+}
+
+
 def find_error_operator(sql, error_message=None, error_position=None, dialect=None):
     """
     Определяет оператор SQL запроса, в котором произошла ошибка.
@@ -17,12 +50,20 @@ def find_error_operator(sql, error_message=None, error_position=None, dialect=No
     Returns:
         str: Название оператора (SELECT, FROM, JOIN, WHERE, и т.д.)
     """
-    
+    global explicit_groupped_patterns
+
     # Если есть позиция ошибки, определяем по позиции напрямую из текста
     if error_position:
         error_line, error_col = error_position
         return find_operator_by_position(sql, error_line, error_col)
     
+    # Проверяем некоторые известные явные паттерны
+    for group in explicit_groupped_patterns:
+        for pattern in explicit_groupped_patterns[group]:
+            if ((isinstance(pattern, tuple) and re.match(pattern[0], error_message)) 
+                or (isinstance(pattern, str) and pattern in error_message)):
+                return group
+
     # Нормализуем диалект для парсинга
     dialect_map = {
         'sqlite': 'sqlite',
@@ -44,7 +85,6 @@ def find_error_operator(sql, error_message=None, error_position=None, dialect=No
     if error_message:
         # Пытаемся извлечь имя сущности из сообщения об ошибке
         entity_name = extract_entity(error_message)
-        print(entity_name)
         if entity_name:
             return find_operator_by_logical_order(tree, entity_name)
     
@@ -199,47 +239,108 @@ def find_operator_by_logical_order(tree, entity_name):
         # Для не-SELECT запросов тоже пробуем
         queries_to_check.append(("Query", tree))
     
-    found_in_select_general = None
-    
+     # Ищем в логическом порядке только среди основных операторов
+    found_operators = []
     for query_name, query in queries_to_check:
         for op_type in operator_priority:
             if _check_entity_in_operator(query, entity_name, op_type):
-                result = f"{op_type} ({query_name})"
-                if op_type == 'SELECT':
-                    found_in_select_general = result
-                else:
-                    return result
+                found_operators.append((op_type, query_name))
     
-    if found_in_select_general:
-        return found_in_select_general
+    # Анализируем найденные операторы
+    if not found_operators:
+        # Сущность не найдена в запросе
+        return "UNKNOWN"
     
-    return "SELECT (Main query)"
+    # Если нашли только в SELECT, нужно дополнительно проверить контекст
+    if len(found_operators) == 1 and found_operators[0][0] == 'SELECT':
+        op_type, query_name = found_operators[0]
+        if _is_meaningful_select_context(entity_name, tree):
+            return f"{op_type} ({query_name})"
+        else:
+            # Недостаточно контекста для определения
+            return "UNKNOWN"
+    
+    # Возвращаем первый найденный оператор по логическому порядку
+    # (не SELECT, если есть другие)
+    for op_type, query_name in found_operators:
+        if op_type != 'SELECT':
+            return f"{op_type} ({query_name})"
+    
+    # Если только SELECT, возвращаем его
+    if found_operators:
+        return f"SELECT ({found_operators[0][1]})"
+    
+    return "UNKNOWN"
+
+
+def _is_meaningful_select_context(entity_name: str, tree) -> bool:
+    """
+    Проверяет, действительно ли сущность в SELECT имеет значимый контекст.
+    """
+    entity_name_lower = entity_name.lower()
+    # Проверяем, не является ли сущность алиасом таблицы
+    try:
+        for node in tree.walk():
+            if isinstance(node, exp.TableAlias):
+                if hasattr(node, 'name') and node.name and node.name.lower() == entity_name_lower:
+                    return False  # Это алиас, контекст неоднозначен
+    except Exception:
+        pass
+    
+    # Проверяем, используется ли сущность в значимом контексте
+    try:
+        for node in tree.walk():
+            if isinstance(node, exp.Select) and 'expressions' in node.args:
+                for expr in node.args['expressions']:
+                    # Проверяем, является ли выражение простым именем столбца
+                    if isinstance(expr, exp.Column):
+                        if expr.name and expr.name.lower() == entity_name_lower:
+                            # Проверяем, есть ли у столбца таблица
+                            if hasattr(expr, 'table') and expr.table:
+                                return True  # Уточненный столбец
+                            else:
+                                return False  # Просто имя, может быть алиасом
+                    
+                    # Проверяем, является ли выражение функцией
+                    if isinstance(expr, (exp.Anonymous, exp.Func)):
+                        if _entity_in_subtree(expr, entity_name):
+                            return True  # Используется в функции
+                    
+                    # Проверяем арифметические выражения
+                    if isinstance(expr, exp.Binary):
+                        if _entity_in_subtree(expr, entity_name):
+                            return True  # Используется в выражении
+    except Exception:
+        pass
+
+    return False
 
 
 def _check_entity_in_operator(query, entity_name, search_op_type):
     """Проверяет, используется ли сущность в определенном типе оператора"""
     try:
         for node in query.walk():
-            if search_op_type == 'FROM' and isinstance(node, exp.From):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'JOIN' and isinstance(node, exp.Join):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'WHERE' and isinstance(node, exp.Where):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'GROUP BY' and isinstance(node, exp.Group):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'HAVING' and isinstance(node, exp.Having):
-                return _entity_in_subtree(node, entity_name)
+            if (
+                search_op_type == 'FROM' and isinstance(node, exp.From)
+                or search_op_type == 'JOIN' and isinstance(node, exp.Join)
+                or search_op_type == 'WHERE' and isinstance(node, exp.Where)
+                or search_op_type == 'GROUP BY' and isinstance(node, exp.Group)
+                or search_op_type == 'HAVING' and isinstance(node, exp.Having)
+            ):
+                if _entity_in_subtree(expr, entity_name):
+                    return True
             elif search_op_type == 'SELECT' and isinstance(node, exp.Select):
                 if 'expressions' in node.args:
                     for expr in node.args['expressions']:
-                        return _entity_in_subtree(expr, entity_name)
-            elif search_op_type == 'WINDOW' and isinstance(node, exp.Window):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'ORDER BY' and isinstance(node, exp.Order):
-                return _entity_in_subtree(node, entity_name)
-            elif search_op_type == 'LIMIT' and isinstance(node, exp.Limit):
-                return _entity_in_subtree(node, entity_name)
+                        if _entity_in_subtree(expr, entity_name):
+                            return True
+            elif (
+                search_op_type == 'WINDOW' and isinstance(node, exp.Window)
+                or search_op_type == 'ORDER BY' and isinstance(node, exp.Order)
+                or search_op_type == 'LIMIT' and isinstance(node, exp.Limit)
+            ):
+                if _entity_in_subtree(expr, entity_name):
+                    return True
     except Exception:
         pass
     
@@ -252,8 +353,16 @@ def _entity_in_subtree(node, entity_name):
     
     try:
         for subnode in node.walk():
-            if isinstance(subnode, (exp.Column, exp.Table, exp.Anonymous, exp.Var, exp.Identifier)):
+            if isinstance(subnode, (exp.Column, exp.Table, exp.TableAlias, exp.Anonymous, exp.Var, exp.Identifier)):
                 if hasattr(subnode, 'name') and subnode.name and subnode.name.lower() == entity_name_lower:
+                    return True
+            elif isinstance(subnode, exp.Func):
+                # Для стандартных функций
+                if hasattr(subnode, 'sql_name'):
+                    func_name = subnode.sql_name()
+                    if func_name and func_name.lower() == entity_name_lower:
+                        return True
+                elif hasattr(subnode, 'name') and subnode.name and subnode.name.lower() == entity_name_lower:
                     return True
     except Exception:
         pass
@@ -354,3 +463,13 @@ LIMIT 5;"""
     result_pos = find_error_operator(sql, error_position=(53, 45), dialect='sqlite')
     print(f"\nПозиция ошибки: строка 53, столбец 45")
     print(f"Оператор: {result_pos}")
+
+
+    tests = [
+        ("WITH driver_season AS (  SELECT d.driver_id,         d.forename,         d.surname,         rg.year,         MIN(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS first_round,         MAX(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS last_round,         COUNT(DISTINCT rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS round_cnt,         FIRST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC) AS first_constructor,         LAST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_constructor  FROM drivers d  JOIN results r ON d.driver_id = r.driver_id  JOIN races rg ON r.race_id = rg.race_id  WHERE rg.year BETWEEN 1950 AND 1959 ) SELECT DISTINCT forename, surname, year FROM driver_season WHERE first_round < last_round   AND first_constructor = last_constructor   AND round_cnt >= 2;", 
+        "DISTINCT is not supported for window functions"),
+        ("WITH cutoff_weeks AS (   SELECT 2018 AS year, DATE '2018-06-11' AS cutoff_week_start UNION ALL   SELECT 2019, DATE '2019-06-10' UNION ALL   SELECT 2020, DATE '2020-06-08' ), leading_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS leading_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start - INTERVAL '28 days' AND cw.cutoff_week_start - INTERVAL '7 days'   GROUP BY cw.year ), following_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS following_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start + INTERVAL '7 days' AND cw.cutoff_week_start + INTERVAL '28 days'   GROUP BY cw.year ) SELECT    lw.year,   lw.leading_sales,   fw.following_sales,   ( (fw.following_sales - lw.leading_sales) / NULLIF(lw.leading_sales, 0) ) * 100 AS pct_change FROM leading_weeks lw JOIN following_weeks fw ON lw.year = fw.year ORDER BY lw.year;", 
+        "near \"AS\": syntax error")
+    ]
+    for sql, msg in tests:
+        print(find_error_operator(sql, error_message=msg, dialect='sqlite'))
