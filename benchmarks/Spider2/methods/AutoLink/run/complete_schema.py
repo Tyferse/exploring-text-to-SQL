@@ -143,7 +143,7 @@ def sql_execution(instance_id, sql, db_name):
             cursor.close()
             conn.close()
     elif instance_id.startswith("local"):
-        db_path = f"..\..\..\spider2-lite\evaluation_suite\\resource/databases/spider2-localdb/{db_name}.sqlite"
+        db_path = f"..\..\..\spider2-lite\\resource\databases\spider2-localdb\{db_name}.sqlite"
         conn = sqlite3.connect(db_path)
         try:
             df = pd.read_sql_query(sql, conn)
@@ -152,7 +152,8 @@ def sql_execution(instance_id, sql, db_name):
             else:
                 return "success", df
         except Exception as e:
-            return "error", f"Error occurred while fetching data: {e}"
+            print(db_name, e)
+            return "error", f"Error occurred while fetching data for: {e}"
         finally:
             conn.close()
 

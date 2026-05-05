@@ -11,7 +11,7 @@ client = bigquery.Client(credentials=credentials)
 # client = bigquery.Client()
 
 # Perform a sample query.
-sql_query = 'SELECT name FROM `bigquery-public-data.usa_names.usa_1910_2013` WHERE state = "TX" LIMIT 10'
+sql_query = 'SELECT name FROM `bigquery-public-data.usa_names.usa_1910_2013` WHERE state = "TX" LIMIT 5'
 query_job = client.query(sql_query)  # API request
 rows = query_job.result()  # Waits for query to finish
 

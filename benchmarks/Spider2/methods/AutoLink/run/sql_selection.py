@@ -171,7 +171,7 @@ def model_vote(instance_id, tied_clusters, args, schema, question):
         prompt = prompt.replace("{re2}", str(b['df'].iloc[:min(len(b['df']), args.max_rows)])[:args.max_chars])
 
         resp = client.chat.completions.create(
-            model="stepfun/step-3.5-flash:free",
+            model="tencent/hy3-preview:free",
             messages=[{"role": "user", "content": prompt}]
         )
 

@@ -211,7 +211,7 @@ class SQLReviser:
             while True:
                 try:
                     response = self.client.chat.completions.create(
-                        model="stepfun/step-3.5-flash:free",
+                        model="tencent/hy3-preview:free",
                         messages=messages,
                     )
                     reasoning_content = response.choices[0].message.reasoning_content

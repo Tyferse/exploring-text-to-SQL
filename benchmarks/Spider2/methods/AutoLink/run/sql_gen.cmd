@@ -17,7 +17,7 @@ set TASK=r1_lite
 
 echo Запуск sql_generation.py...
 python sql_generation.py ^
-  --num_workers 4 ^
+  --num_workers 2 ^
   --num_candidates %NUM_CANDIDATES% ^
   --data_file %DATA_FILE% ^
   --schema_dir %SCHEMA_DIR% ^
@@ -44,7 +44,7 @@ if %errorlevel% neq 0 (
 
 echo Запуск sql_revise.py...
 python sql_revise.py ^
-  --num_workers 4 ^
+  --num_workers 2 ^
   --num_candidates %NUM_CANDIDATES% ^
   --data_file %DATA_FILE% ^
   --schema_dir %SCHEMA_DIR% ^
