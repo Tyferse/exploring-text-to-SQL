@@ -5,31 +5,38 @@ from entity_recognition import extract_entity
 
 
 explicit_groupped_patterns = {
-    'FROM': [
-        
-    ],
+    'FROM': [],
     'JOIN': [
-        (r"Column\s+['\"]?(\w+)['\"]?\s+in.*?clause not found on left side of join", 1),
-        (r"near\s+\"()\"", 1),
-        (r"unexpected\s+'(\w+)'", 1),
+        r"Column\s+['\"]?([\w\.]+)['\"]?\s+in.*?clause not found on left side of join",
+        r"near\s+\"([\w\.]+)\"",
+        r"unexpected\s+'([\w\.]+)'",
+        r"called with * syntax or a join predicate",
         "JOIN cannot be used without a condition",
+        "Correlated subqueries",
+        "Unsupported subquery with table in join predicate",
     ],
     'WHERE': [],
-    'GROUP BY': [],
+    'GROUP BY': [
+        ("Expressions of type", "cannot be used as GROUP BY keys"),
+        "Cannot GROUP BY literal values",
+    ],
     'HAVING': [],
     'SELECT': [],
     'WINDOW': [
-        (r"misuse of(?: aliased)? window function:\s*(\w+)", 1),
-        (r"(\w+)\s+is not supported for window functions", 1),
-        (r"window function.*?(\w+)\s+is not", 1),
-        (r"(\w+)\s+cannot be used as a window function", 1),
+        r"misuse of(?: aliased)? window function:\s*(\w+)",
+        r"(\w+)\s+is not supported for window functions",
+        r"window function.*?(\w+)\s+is not",
+        r"(\w+)\s+cannot be used as a window function",
         "ORDER BY key must be numeric in a RANGE-based window",
+        "window function calls cannot be nested",
     ],
     'ORDER BY': [
-        "ORDER BY term does not match any column"
+        "ORDER BY term does not match any column",
     ],
     'LIMIT': [],
-    'UNION': [],
+    'UNION': [
+        "BY clause should come after UNION ALL",
+    ],
     'INTERSECT': [],
     'EXCEPT': [],
     'WITH': [],
@@ -60,8 +67,9 @@ def find_error_operator(sql, error_message=None, error_position=None, dialect=No
     # Проверяем некоторые известные явные паттерны
     for group in explicit_groupped_patterns:
         for pattern in explicit_groupped_patterns[group]:
-            if ((isinstance(pattern, tuple) and re.match(pattern[0], error_message)) 
-                or (isinstance(pattern, str) and pattern in error_message)):
+            if isinstance(pattern, tuple) and all(part in error_message for part in pattern):
+                return group
+            elif isinstance(pattern, str) and ((pattern in error_message) or re.match(pattern, error_message)):
                 return group
 
     # Нормализуем диалект для парсинга
@@ -310,9 +318,47 @@ def _is_meaningful_select_context(entity_name: str, tree) -> bool:
                     if isinstance(expr, exp.Binary):
                         if _entity_in_subtree(expr, entity_name):
                             return True  # Используется в выражении
+                    
+                    # Проверяем CASE выражения
+                    if isinstance(expr, exp.Case):
+                        if _check_case_expression(expr, entity_name):
+                            return True
+
     except Exception:
         pass
 
+    return False
+
+
+def _check_case_expression(case_node, entity_name):
+    """
+    Проверяет CASE выражение на наличие сущности.
+    """
+    try:
+        # Проверяем условия WHEN
+        if 'ifs' in case_node.args:
+            for if_clause in case_node.args['ifs']:
+                if isinstance(if_clause, exp.If):
+                    # Проверяем условие и результат
+                    if hasattr(if_clause, 'args'):
+                        for arg in if_clause.args.values():
+                            if _entity_in_subtree(arg, entity_name):
+                                return True
+        
+        # Проверяем ELSE
+        if 'default' in case_node.args:
+            default = case_node.args['default']
+            if default and _entity_in_subtree(default, entity_name):
+                return True
+        
+        # Рекурсивно проверяем все подузлы
+        for child in case_node.walk():
+            if isinstance(child, (exp.Anonymous, exp.Func)):
+                if hasattr(child, 'name') and child.name and child.name.lower() == entity_name.lower():
+                    return True
+    except Exception:
+        pass
+    
     return False
 
 
@@ -349,12 +395,33 @@ def _check_entity_in_operator(query, entity_name, search_op_type):
 
 def _entity_in_subtree(node, entity_name):
     """Проверяет, есть ли ссылка на сущность в поддереве"""
-    entity_name_lower = entity_name.lower()
-    
+    entity_name_lower = entity_name.lower().replace('\"', '')
     try:
         for subnode in node.walk():
-            if isinstance(subnode, (exp.Column, exp.Table, exp.TableAlias, exp.Anonymous, exp.Var, exp.Identifier)):
-                if hasattr(subnode, 'name') and subnode.name and subnode.name.lower() == entity_name_lower:
+            if isinstance(subnode, exp.Column):
+                # if subnode.table:
+                #     print('.'.join([subnode.table, subnode.name]).lower(), "|", entity_name_lower)
+                if (
+                    subnode.name and subnode.name.lower() == entity_name_lower 
+                    or (subnode.table
+                        and '.'.join([subnode.table, subnode.name]).lower() == entity_name_lower)
+                    or (subnode.db and subnode.table
+                        and '.'.join([subnode.db, subnode.table, subnode.name]).lower() == entity_name_lower)
+                    or (subnode.catalog and subnode.db and subnode.table
+                        and '.'.join([subnode.catalog, subnode.db, subnode.table, subnode.name]).lower() == entity_name_lower)
+                    ):
+                    return True
+            elif isinstance(subnode, exp.Table):
+                if (
+                    subnode.name and subnode.name.lower() == entity_name_lower 
+                    or (subnode.db
+                        and '.'.join([subnode.db, subnode.name]).lower() == entity_name_lower)
+                    or (subnode.catalog and subnode.db
+                        and '.'.join([subnode.catalog, subnode.db, subnode.name]).lower() == entity_name_lower)
+                    ):
+                    return True
+            elif isinstance(subnode, (exp.TableAlias, exp.Anonymous, exp.Var, exp.Identifier)):
+                if subnode.name and subnode.name.lower() == entity_name_lower:
                     return True
             elif isinstance(subnode, exp.Func):
                 # Для стандартных функций
@@ -362,9 +429,10 @@ def _entity_in_subtree(node, entity_name):
                     func_name = subnode.sql_name()
                     if func_name and func_name.lower() == entity_name_lower:
                         return True
-                elif hasattr(subnode, 'name') and subnode.name and subnode.name.lower() == entity_name_lower:
+                elif subnode.name and subnode.name.lower() == entity_name_lower:
                     return True
-    except Exception:
+    except Exception as e:
+        print(e)
         pass
     
     return False
@@ -454,22 +522,36 @@ LIMIT 5;"""
     
     
     # Тест с ошибкой "no such function: GREATEST"
-    error_msg = "no such function: GREATEST"
-    result = find_error_operator(sql, error_message=error_msg, dialect='sqlite')
-    print(f"Ошибка: {error_msg}")
-    print(f"Оператор: {result}")
+    # error_msg = "no such function: GREATEST"
+    # result = find_error_operator(sql, error_message=error_msg, dialect='sqlite')
+    # print(f"Ошибка: {error_msg}")
+    # print(f"Оператор: {result}")
     
-    # Тест с позицией ошибки (строка 53, столбец 45 - где LEAST/GREATEST)
-    result_pos = find_error_operator(sql, error_position=(53, 45), dialect='sqlite')
-    print(f"\nПозиция ошибки: строка 53, столбец 45")
-    print(f"Оператор: {result_pos}")
+    # # Тест с позицией ошибки (строка 53, столбец 45 - где LEAST/GREATEST)
+    # result_pos = find_error_operator(sql, error_position=(53, 45), dialect='sqlite')
+    # print(f"\nПозиция ошибки: строка 53, столбец 45")
+    # print(f"Оператор: {result_pos}")
 
 
     tests = [
-        ("WITH driver_season AS (  SELECT d.driver_id,         d.forename,         d.surname,         rg.year,         MIN(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS first_round,         MAX(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS last_round,         COUNT(DISTINCT rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS round_cnt,         FIRST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC) AS first_constructor,         LAST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_constructor  FROM drivers d  JOIN results r ON d.driver_id = r.driver_id  JOIN races rg ON r.race_id = rg.race_id  WHERE rg.year BETWEEN 1950 AND 1959 ) SELECT DISTINCT forename, surname, year FROM driver_season WHERE first_round < last_round   AND first_constructor = last_constructor   AND round_cnt >= 2;", 
-        "DISTINCT is not supported for window functions"),
-        ("WITH cutoff_weeks AS (   SELECT 2018 AS year, DATE '2018-06-11' AS cutoff_week_start UNION ALL   SELECT 2019, DATE '2019-06-10' UNION ALL   SELECT 2020, DATE '2020-06-08' ), leading_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS leading_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start - INTERVAL '28 days' AND cw.cutoff_week_start - INTERVAL '7 days'   GROUP BY cw.year ), following_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS following_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start + INTERVAL '7 days' AND cw.cutoff_week_start + INTERVAL '28 days'   GROUP BY cw.year ) SELECT    lw.year,   lw.leading_sales,   fw.following_sales,   ( (fw.following_sales - lw.leading_sales) / NULLIF(lw.leading_sales, 0) ) * 100 AS pct_change FROM leading_weeks lw JOIN following_weeks fw ON lw.year = fw.year ORDER BY lw.year;", 
-        "near \"AS\": syntax error")
+        # ("WITH driver_season AS (  SELECT d.driver_id,         d.forename,         d.surname,         rg.year,         MIN(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS first_round,         MAX(rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS last_round,         COUNT(DISTINCT rg.round) OVER (PARTITION BY r.driver_id, rg.year) AS round_cnt,         FIRST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC) AS first_constructor,         LAST_VALUE(r.constructor_id) OVER (PARTITION BY r.driver_id, rg.year ORDER BY rg.round ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_constructor  FROM drivers d  JOIN results r ON d.driver_id = r.driver_id  JOIN races rg ON r.race_id = rg.race_id  WHERE rg.year BETWEEN 1950 AND 1959 ) SELECT DISTINCT forename, surname, year FROM driver_season WHERE first_round < last_round   AND first_constructor = last_constructor   AND round_cnt >= 2;", 
+        # "DISTINCT is not supported for window functions"),
+        # ("WITH cutoff_weeks AS (   SELECT 2018 AS year, DATE '2018-06-11' AS cutoff_week_start UNION ALL   SELECT 2019, DATE '2019-06-10' UNION ALL   SELECT 2020, DATE '2020-06-08' ), leading_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS leading_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start - INTERVAL '28 days' AND cw.cutoff_week_start - INTERVAL '7 days'   GROUP BY cw.year ), following_weeks AS (   SELECT      cw.year,     SUM(ws.sales) AS following_sales   FROM cutoff_weeks cw   JOIN weekly_sales ws      ON EXTRACT(YEAR FROM ws.week_date) = cw.year     AND ws.week_date BETWEEN cw.cutoff_week_start + INTERVAL '7 days' AND cw.cutoff_week_start + INTERVAL '28 days'   GROUP BY cw.year ) SELECT    lw.year,   lw.leading_sales,   fw.following_sales,   ( (fw.following_sales - lw.leading_sales) / NULLIF(lw.leading_sales, 0) ) * 100 AS pct_change FROM leading_weeks lw JOIN following_weeks fw ON lw.year = fw.year ORDER BY lw.year;", 
+        # "near \"AS\": syntax error")
+        ("""WITH stopwords_cte AS ( SELECT ARRAY_CONSTRUCT( 'a','about','above','after','again','against','ain','all','am','an','and','any','are','aren','arent','as','at','be','because','been','before','being','below','between','both','but','by','can','couldn','couldnt','d','did','didn','didnt','do','does','doesn','doesnt','doing','don','dont','down','during','each','few','for','from','further','had','hadn','hadnt','has','hasn','hasnt','have','haven','havent','having','he','her','here','hers','herself','him','himself','his','how','i','if','in','into','is','isn','isnt','it','its','itself','just','ll','m','ma','me','mightn','mightnt','more','most','mustn','mustnt','my','myself','needn','neednt','no','nor','not','now','o','of','off','on','once','only','or','other','our','ours','ourselves','out','over','own','re','s','same','shan','shant','she','shes','should','shouldn','shouldnt','shouldve','so','some','such','t','than','that','thatll','the','their','theirs','them','themselves','then','there','these','they','this','those','through','to','too','under','until','up','ve','very','was','wasn','wasnt','we','were','weren','werent','what','when','where','which','while','who','whom','why','will','with','won','wont','wouldn','wouldnt','y','you','youd','youll','your','youre','yours','yourself','yourselves','youve' ) AS stop_array ), tokenized_cte AS ( SELECT "id", "title", "date", REGEXP_EXTRACT_ALL("body", '[a-zA-Z0-9]+') AS tokens FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE WHERE "body" IS NOT NULL ), words_cte AS ( SELECT t.id, t.title, t.date, f.value AS word_original, LOWER(TRIM(f.value)) AS word_lower FROM tokenized_cte t, LATERAL FLATTEN(input => t.tokens) AS f WHERE TRIM(f.value) != '' AND NOT EXISTS ( SELECT 1 FROM TABLE(FLATTEN(INPUT => (SELECT stop_array FROM stopwords_cte))) s WHERE s.value = LOWER(TRIM(f.value)) ) ), joined_cte AS ( SELECT w.id, w.title, w.date, w.word_lower, g.vector AS glove_vector, wf.frequency AS frequency FROM words_cte w JOIN WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS g ON LOWER(g."word") = w.word_lower JOIN WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES wf ON LOWER(wf."word") = w.word_lower ), weighted_elements AS ( SELECT j.id, j.title, j.date, f.seq AS vector_index, f.value AS vec_value, j.frequency, f.value / POWER(j.frequency, 0.4) AS weighted_value FROM joined_cte j, LATERAL FLATTEN(input => j.glove_vector) AS f ), article_vectors AS ( SELECT id, title, date, vector_index, SUM(weighted_value) AS vector_value FROM weighted_elements GROUP BY id, title, date, vector_index ), norms AS ( SELECT id, SQRT(SUM(vector_value * vector_value)) AS norm FROM article_vectors GROUP BY id ), target_vector AS ( SELECT id, vector_index, vector_value FROM article_vectors WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' ), dot_products AS ( SELECT v2.id, SUM(v1.vector_value * v2.vector_value) AS dot_product FROM target_vector v1 JOIN article_vectors v2 ON v1.vector_index = v2.vector_index WHERE v2.id != '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' GROUP BY v2.id ), similarity AS ( SELECT dp.id, dp.dot_product, n2.norm AS article_norm, (SELECT norm FROM norms WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373') AS target_norm FROM dot_products dp JOIN norms n2 ON dp.id = n2.id ), article_metadata AS ( SELECT DISTINCT "id" AS id, "title" AS title, "date" AS date FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE ) SELECT a.id, a.date, a.title, ROUND(s.dot_product / (s.article_norm * s.target_norm), 4) AS cosine_similarity FROM similarity s JOIN article_metadata a ON s.id = a.id ORDER BY cosine_similarity DESC LIMIT 10;""", 
+         "invalid identifier 'T.ID'"),
+        ("""WITH stopwords_cte AS ( SELECT ARRAY_CONSTRUCT( 'a', 'about', 'above', 'after', 'again', 'against', 'ain', 'all', 'am', 'an', 'and', 'any', 'are', 'aren', 'arent', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can', 'couldn', 'couldnt', 'd', 'did', 'didn', 'didnt', 'do', 'does', 'doesn', 'doesnt', 'doing', 'don', 'dont', 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', 'hadn', 'hadnt', 'has', 'hasn', 'hasnt', 'have', 'haven', 'havent', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in', 'into', 'is', 'isn', 'isnt', 'it', 'its', 'itself', 'just', 'll', 'm', 'ma', 'me', 'mightn', 'mightnt', 'more', 'most', 'mustn', 'mustnt', 'my', 'myself', 'needn', 'neednt', 'no', 'nor', 'not', 'now', 'o', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan', 'shant', 'she', 'shes', 'should', 'shouldn', 'shouldnt', 'shouldve', 'so', 'some', 'such', 't', 'than', 'that', 'thatll', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 've', 'very', 'was', 'wasn', 'wasnt', 'we', 'were', 'weren', 'werent', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'won', 'wont', 'wouldn', 'wouldnt', 'y', 'you', 'youd', 'youll', 'your', 'youre', 'yours', 'yourself', 'yourselves', 'youve' ) AS stop_array ), tokenized_cte AS ( SELECT "id", "title", "date", REGEXP_EXTRACT_ALL("body", '[a-zA-Z0-9]+') AS tokens FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE WHERE "body" IS NOT NULL ), words_cte AS ( SELECT t.id, t.title, t.date, f.value AS word_original, LOWER(TRIM(f.value)) AS word_lower FROM tokenized_cte t, LATERAL FLATTEN(input => t.tokens) AS f WHERE TRIM(f.value) != '' AND NOT ARRAY_CONTAINS(LOWER(TRIM(f.value)), (SELECT stop_array FROM stopwords_cte)) ), joined_cte AS ( SELECT w.id, w.title, w.date, w.word_lower, g.vector AS glove_vector, wf.frequency FROM words_cte w JOIN WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS g ON LOWER(g.word) = w.word_lower JOIN WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES wf ON LOWER(wf.word) = w.word_lower ), weighted_elements AS ( SELECT j.id, j.title, j.date, f.idx AS vector_index, f.val AS vec_value, j.frequency, f.val / POWER(j.frequency, 0.4) AS weighted_value FROM joined_cte j, LATERAL FLATTEN(input => j.glove_vector) AS f(seq, idx, val) ), article_vectors AS ( SELECT id, title, date, vector_index, SUM(weighted_value) AS vector_value FROM weighted_elements GROUP BY id, title, date, vector_index ), norms AS ( SELECT id, SQRT(SUM(vector_value * vector_value)) AS norm FROM article_vectors GROUP BY id ), target_vector AS ( SELECT id, vector_index, vector_value FROM article_vectors WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' ), dot_products AS ( SELECT v2.id, SUM(v1.vector_value * v2.vector_value) AS dot_product FROM target_vector v1 JOIN article_vectors v2 ON v1.vector_index = v2.vector_index WHERE v2.id != '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' GROUP BY v2.id ), similarity AS ( SELECT dp.id, dp.dot_product, n2.norm AS article_norm, nt.norm AS target_norm FROM dot_products dp JOIN norms n2 ON dp.id = n2.id CROSS JOIN (SELECT norm FROM norms WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373') AS nt ), article_metadata AS ( SELECT DISTINCT id, title, date FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE ) SELECT a.id, a.date, a.title, ROUND(s.dot_product / (s.article_norm * s.target_norm), 4) AS cosine_similarity FROM similarity s JOIN article_metadata a ON s.id = a.id ORDER BY cosine_similarity DESC LIMIT 10;""", 
+         "invalid identifier 'T.ID'"),
+        (""" WITH ref_id AS ( SELECT '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' AS ref_id ), stopwords_array AS ( SELECT ARRAY_CONSTRUCT( 'a', 'about', 'above', 'after', 'again', 'against', 'ain', 'all', 'am', 'an', 'and', 'any', 'are', 'aren', 'arent', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can', 'couldn', 'couldnt', 'd', 'did', 'didn', 'didnt', 'do', 'does', 'doesn', 'doesnt', 'doing', 'don', 'dont', 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', 'hadn', 'hadnt', 'has', 'hasn', 'hasnt', 'have', 'haven', 'havent', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in', 'into', 'is', 'isn', 'isnt', 'it', 'its', 'itself', 'just', 'll', 'm', 'ma', 'me', 'mightn', 'mightnt', 'more', 'most', 'mustn', 'mustnt', 'my', 'myself', 'needn', 'neednt', 'no', 'nor', 'not', 'now', 'o', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan', 'shant', 'she', 'shes', 'should', 'shouldn', 'shouldnt', 'shouldve', 'so', 'some', 'such', 't', 'than', 'that', 'thatll', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 've', 'very', 'was', 'wasn', 'wasnt', 'we', 'were', 'weren', 'werent', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'won', 'wont', 'wouldn', 'wouldnt', 'y', 'you', 'youd', 'youll', 'your', 'youre', 'yours', 'yourself', 'yourselves', 'youve' ) AS stopwords ), tokenized AS ( SELECT n."id", n."title", n."date", LOWER(f.value) AS word FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE n, LATERAL FLATTEN(REGEXP_EXTRACT_ALL( REGEXP_REPLACE(n."body", 'вЂ™|''s(\\W)', '\\1'), '((?:\\d+(?:,\\d+)*(?:\\.\\d+)?)+|(?:[\\w])+)' )) f WHERE LOWER(f.value) NOT IN (SELECT VALUE FROM stopwords_array, LATERAL FLATTEN(stopwords)) ), glove_lower AS ( SELECT LOWER("word") AS word, PARSE_JSON(TO_VARCHAR("vector")) AS vector FROM WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS ), wf_lower AS ( SELECT LOWER("word") AS word, "frequency" AS frequency FROM WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES ), joined AS ( SELECT t."id", t."title", t."date", t.word, g.vector, wf.frequency FROM tokenized t LEFT JOIN glove_lower g ON t.word = g.word LEFT JOIN wf_lower wf ON t.word = wf.word WHERE g.vector IS NOT NULL AND wf.frequency IS NOT NULL ), weighted_vectors AS ( SELECT id, title, date, word, vector, frequency, 1 / POWER(frequency, 0.4) AS weight FROM joined ), expanded AS ( SELECT id, title, date, f.index AS dim, f.value * weight AS weighted_value FROM weighted_vectors, LATERAL FLATTEN(vector) f ), aggregated AS ( SELECT id, title, date, dim, SUM(weighted_value) AS agg_value FROM expanded GROUP BY id, title, date, dim ), norms AS ( SELECT id, SQRT(SUM(agg_value * agg_value)) AS norm FROM aggregated GROUP BY id HAVING norm > 0 ), ref_aggregated AS ( SELECT dim, agg_value FROM aggregated WHERE id = (SELECT ref_id FROM ref_id) ), ref_norm_value AS ( SELECT norm FROM norms WHERE id = (SELECT ref_id FROM ref_id) ), similarity_raw AS ( SELECT a."id", a."date", a."title", COALESCE(SUM(a.agg_value * r.agg_value), 0) / (n_a.norm * (SELECT norm FROM ref_norm_value)) AS cosine_similarity_raw FROM aggregated a JOIN norms n_a ON a."id" = n_a."id" LEFT JOIN ref_aggregated r ON a.dim = r.dim WHERE a."id" != (SELECT ref_id FROM ref_id) GROUP BY a."id", a."date", a."title", n_a.norm ) SELECT "id", "date", "title", ROUND(cosine_similarity_raw, 4) AS cosine_similarity FROM similarity_raw ORDER BY cosine_similarity_raw DESC LIMIT 10;""", 
+         "invalid identifier 'ID'"),
+        ("""WITH stopwords_list AS ( SELECT ARRAY_CONSTRUCT( 'a','about','above','after','again','against','ain','all','am','an','and','any','are','aren','arent','as','at','be','because','been','before','being','below','between','both','but','by','can','couldn','couldnt','d','did','didn','didnt','do','does','doesn','doesnt','doing','don','dont','down','during','each','few','for','from','further','had','hadn','hadnt','has','hasn','hasnt','have','haven','havent','having','he','her','here','hers','herself','him','himself','his','how','i','if','in','into','is','isn','isnt','it','its','itself','just','ll','m','ma','me','mightn','mightnt','more','most','mustn','mustnt','my','myself','needn','neednt','no','nor','not','now','o','of','off','on','once','only','or','other','our','ours','ourselves','out','over','own','re','s','same','shan','shant','she','shes','should','shouldn','shouldnt','shouldve','so','some','such','t','than','that','thatll','the','their','theirs','them','themselves','then','there','these','they','this','those','through','to','too','under','until','up','ve','very','was','wasn','wasnt','we','were','weren','werent','what','when','where','which','while','who','whom','why','will','with','won','wont','wouldn','wouldnt','y','you','youd','youll','your','youre','yours','yourself','yourselves','youve' ) AS stopwords ), cleaned_articles AS ( SELECT "id", REGEXP_REPLACE( REGEXP_REPLACE("body", 'вЂ™', ''), '''s(\\W)', '\\1' ) AS cleaned_text FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE WHERE "body" IS NOT NULL ), tokenized AS ( SELECT c."id", LOWER(f.value) AS word FROM cleaned_articles c, LATERAL FLATTEN(input => REGEXP_EXTRACT_ALL(c.cleaned_text, '((?:\\d+(?:,\\d+)*(?:\\.\\d+)?)+|(?:[\\w])+)')) f WHERE f.value IS NOT NULL ), filtered_tokens AS ( SELECT "id", word FROM tokenized WHERE word NOT IN (SELECT VALUE FROM stopwords_list, LATERAL FLATTEN(stopwords)) AND word != '' ), token_counts AS ( SELECT "id", word, COUNT(*) AS word_count FROM filtered_tokens GROUP BY "id", word ), word_vectors_weighted AS ( SELECT tc."id", f."index" AS dimension, SUM( (1 / POWER(fr.frequency, 0.4)) * tc.word_count * f.value ) AS weighted_sum FROM token_counts tc JOIN WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS gv ON tc.word = gv."word" JOIN WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES fr ON tc.word = fr."word" CROSS JOIN LATERAL FLATTEN(input => gv."vector") f GROUP BY tc."id", f."index" ), article_norms AS ( SELECT "id", SQRT(SUM(POWER(weighted_sum, 2))) AS norm FROM word_vectors_weighted GROUP BY "id" HAVING norm > 0 ), target_norm AS ( SELECT norm FROM article_norms WHERE "id" = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' ), similarities AS ( SELECT a."id", COALESCE(SUM(a.weighted_sum * t.weighted_sum), 0) / (an.norm * tn.norm) AS cosine_similarity FROM word_vectors_weighted a LEFT JOIN word_vectors_weighted t ON a.dimension = t.dimension AND t."id" = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' JOIN article_norms an ON a."id" = an."id" CROSS JOIN target_norm tn WHERE a."id" != '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' GROUP BY a."id", an.norm, tn.norm ) SELECT n."id", n."date", n."title", ROUND(s.cosine_similarity, 4) AS cosine_similarity FROM similarities s JOIN WORD_VECTORS_US.WORD_VECTORS_US.NATURE n ON s."id" = n."id" ORDER BY s.cosine_similarity DESC LIMIT 10; """, 
+         "invalid identifier 'F.\"index\"'"),
+        ("""WITH stopwords_cte AS ( SELECT ARRAY_CONSTRUCT( 'a','about','above','after','again','against','ain','all','am','an','and','any','are','aren','arent','as','at','be','because','been','before','being','below','between','both','but','by','can','couldn','couldnt','d','did','didn','didnt','do','does','doesn','doesnt','doing','don','dont','down','during','each','few','for','from','further','had','hadn','hadnt','has','hasn','hasnt','have','haven','havent','having','he','her','here','hers','herself','him','himself','his','how','i','if','in','into','is','isn','isnt','it','its','itself','just','ll','m','ma','me','mightn','mightnt','more','most','mustn','mustnt','my','myself','needn','neednt','no','nor','not','now','o','of','off','on','once','only','or','other','our','ours','ourselves','out','over','own','re','s','same','shan','shant','she','shes','should','shouldn','shouldnt','shouldve','so','some','such','t','than','that','thatll','the','their','theirs','them','themselves','then','there','these','they','this','those','through','to','too','under','until','up','ve','very','was','wasn','wasnt','we','were','weren','werent','what','when','where','which','while','who','whom','why','will','with','won','wont','wouldn','wouldnt','y','you','youd','youll','your','youre','yours','yourself','yourselves','youve' ) AS stop_array ), tokenized_cte AS ( SELECT "id", "title", "date", REGEXP_EXTRACT_ALL("body", '[a-zA-Z0-9]+') AS tokens FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE WHERE "body" IS NOT NULL ), words_cte AS ( SELECT t.id, t.title, t.date, f.value AS word_original, LOWER(TRIM(f.value)) AS word_lower FROM tokenized_cte t, LATERAL FLATTEN(input => t.tokens) AS f WHERE TRIM(f.value) != '' AND NOT EXISTS ( SELECT 1 FROM TABLE(FLATTEN(INPUT => (SELECT stop_array FROM stopwords_cte))) s WHERE s.value = LOWER(TRIM(f.value)) ) ), joined_cte AS ( SELECT w.id, w.title, w.date, w.word_lower, g.vector AS glove_vector, wf.frequency AS frequency FROM words_cte w JOIN WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS g ON LOWER(g."word") = w.word_lower JOIN WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES wf ON LOWER(wf."word") = w.word_lower ), weighted_elements AS ( SELECT j.id, j.title, j.date, f.seq AS vector_index, f.value AS vec_value, j.frequency, f.value / POWER(j.frequency, 0.4) AS weighted_value FROM joined_cte j, LATERAL FLATTEN(input => j.glove_vector) AS f ), article_vectors AS ( SELECT id, title, date, vector_index, SUM(weighted_value) AS vector_value FROM weighted_elements GROUP BY id, title, date, vector_index ), norms AS ( SELECT id, SQRT(SUM(vector_value * vector_value)) AS norm FROM article_vectors GROUP BY id ), target_vector AS ( SELECT id, vector_index, vector_value FROM article_vectors WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' ), dot_products AS ( SELECT v2.id, SUM(v1.vector_value * v2.vector_value) AS dot_product FROM target_vector v1 JOIN article_vectors v2 ON v1.vector_index = v2.vector_index WHERE v2.id != '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' GROUP BY v2.id ), similarity AS ( SELECT dp.id, dp.dot_product, n2.norm AS article_norm, (SELECT norm FROM norms WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373') AS target_norm FROM dot_products dp JOIN norms n2 ON dp.id = n2.id ), article_metadata AS ( SELECT DISTINCT "id" AS id, "title" AS title, "date" AS date FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE ) SELECT a.id, a.date, a.title, ROUND(s.dot_product / (s.article_norm * s.target_norm), 4) AS cosine_similarity FROM similarity s JOIN article_metadata a ON s.id = a.id ORDER BY cosine_similarity DESC LIMIT 10; """,
+         "invalid identifier 'T.ID'")
+         
     ]
     for sql, msg in tests:
         print(find_error_operator(sql, error_message=msg, dialect='sqlite'))
+    
+    print(find_error_operator("""WITH stopwords_cte AS ( SELECT ARRAY_CONSTRUCT( 'a','about','above','after','again','against','ain','all','am','an','and','any','are','aren','arent','as','at','be','because','been','before','being','below','between','both','but','by','can','couldn','couldnt','d','did','didn','didnt','do','does','doesn','doesnt','doing','don','dont','down','during','each','few','for','from','further','had','hadn','hadnt','has','hasn','hasnt','have','haven','havent','having','he','her','here','hers','herself','him','himself','his','how','i','if','in','into','is','isn','isnt','it','its','itself','just','ll','m','ma','me','mightn','mightnt','more','most','mustn','mustnt','my','myself','needn','neednt','no','nor','not','now','o','of','off','on','once','only','or','other','our','ours','ourselves','out','over','own','re','s','same','shan','shant','she','shes','should','shouldn','shouldnt','shouldve','so','some','such','t','than','that','thatll','the','their','theirs','them','themselves','then','there','these','they','this','those','through','to','too','under','until','up','ve','very','was','wasn','wasnt','we','were','weren','werent','what','when','where','which','while','who','whom','why','will','with','won','wont','wouldn','wouldnt','y','you','youd','youll','your','youre','yours','yourself','yourselves','youve' ) AS stop_array ), tokenized_cte AS ( SELECT "id", "title", "date", REGEXP_EXTRACT_ALL("body", '[a-zA-Z0-9]+') AS tokens FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE WHERE "body" IS NOT NULL ), words_cte AS ( SELECT t.id, t.title, t.date, f.value AS word_original, LOWER(TRIM(f.value)) AS word_lower FROM tokenized_cte t, LATERAL FLATTEN(input => t.tokens) AS f WHERE TRIM(f.value) != '' AND NOT EXISTS ( SELECT 1 FROM TABLE(FLATTEN(INPUT => (SELECT stop_array FROM stopwords_cte))) s WHERE s.value = LOWER(TRIM(f.value)) ) ), joined_cte AS ( SELECT w.id, w.title, w.date, w.word_lower, g.vector AS glove_vector, wf.frequency AS frequency FROM words_cte w JOIN WORD_VECTORS_US.WORD_VECTORS_US.GLOVE_VECTORS g ON LOWER(g."word") = w.word_lower JOIN WORD_VECTORS_US.WORD_VECTORS_US.WORD_FREQUENCIES wf ON LOWER(wf."word") = w.word_lower ), weighted_elements AS ( SELECT j.id, j.title, j.date, f.seq AS vector_index, f.value AS vec_value, j.frequency, f.value / POWER(j.frequency, 0.4) AS weighted_value FROM joined_cte j, LATERAL FLATTEN(input => j.glove_vector) AS f ), article_vectors AS ( SELECT id, title, date, vector_index, SUM(weighted_value) AS vector_value FROM weighted_elements GROUP BY id, title, date, vector_index ), norms AS ( SELECT id, SQRT(SUM(vector_value * vector_value)) AS norm FROM article_vectors GROUP BY id ), target_vector AS ( SELECT id, vector_index, vector_value FROM article_vectors WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' ), dot_products AS ( SELECT v2.id, SUM(v1.vector_value * v2.vector_value) AS dot_product FROM target_vector v1 JOIN article_vectors v2 ON v1.vector_index = v2.vector_index WHERE v2.id != '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373' GROUP BY v2.id ), similarity AS ( SELECT dp.id, dp.dot_product, n2.norm AS article_norm, (SELECT norm FROM norms WHERE id = '8a78ef2d-d5f7-4d2d-9b47-5adb25cbd373') AS target_norm FROM dot_products dp JOIN norms n2 ON dp.id = n2.id ), article_metadata AS ( SELECT DISTINCT "id" AS id, "title" AS title, "date" AS date FROM WORD_VECTORS_US.WORD_VECTORS_US.NATURE ) SELECT a.id, a.date, a.title, ROUND(s.dot_product / (s.article_norm * s.target_norm), 4) AS cosine_similarity FROM similarity s JOIN article_metadata a ON s.id = a.id ORDER BY cosine_similarity DESC LIMIT 10; """,
+                    error_message="invalid identifier 'T.ID'"))
