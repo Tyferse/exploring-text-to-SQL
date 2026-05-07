@@ -381,7 +381,7 @@ def generate_schema_prompt(log_path: str, is_initial: bool = False, log_time=Tru
             if instance_id in spider2_data:
                 ek_file = spider2_data[instance_id].get("external_knowledge", "")
                 if ek_file:
-                    ek_path = os.path.join("resource", "documents", ek_file)
+                    ek_path = os.path.join("..", "..", "..", "spider2-lite", "resource", "documents", ek_file)
                     if os.path.exists(ek_path):
                         with open(ek_path, "r", encoding="utf-8") as ef:
                             ek_content = ef.read()

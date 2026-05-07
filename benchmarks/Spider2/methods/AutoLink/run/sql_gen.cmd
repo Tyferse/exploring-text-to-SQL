@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /f "tokens=1,* delims==" %%a in (..\..\..\..\.env) do (
+for /f "tokens=1,* delims==" %%a in (..\..\..\..\..\.env) do (
     set %%a=%%b
 )
 
-set OPENAI_API_KEY=$OPENROUTER_API_KEY$
+set OPENAI_API_KEY=%OPENROUTER_API_KEY%
 set OPENAI_BASE_URL=https://openrouter.ai/api/v1
 
 set LOG_PATH=log_v3_topn100
@@ -16,13 +16,13 @@ set SCHEMA_DIR=%LOG_PATH%\final_schema_prompts
 set TASK=r1_lite
 
 echo Запуск sql_generation.py...
-python sql_generation.py ^
-  --num_workers 2 ^
-  --num_candidates %NUM_CANDIDATES% ^
-  --data_file %DATA_FILE% ^
-  --schema_dir %SCHEMA_DIR% ^
-  --log_path %LOG_PATH% ^
-  --task %TASK%
+@REM python sql_generation.py ^
+@REM   --num_workers 32 ^
+@REM   --num_candidates %NUM_CANDIDATES% ^
+@REM   --data_file %DATA_FILE% ^
+@REM   --schema_dir %SCHEMA_DIR% ^
+@REM   --log_path %LOG_PATH% ^
+@REM   --task %TASK%
 
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении sql_generation.py
@@ -44,7 +44,7 @@ if %errorlevel% neq 0 (
 
 echo Запуск sql_revise.py...
 python sql_revise.py ^
-  --num_workers 2 ^
+  --num_workers 32 ^
   --num_candidates %NUM_CANDIDATES% ^
   --data_file %DATA_FILE% ^
   --schema_dir %SCHEMA_DIR% ^

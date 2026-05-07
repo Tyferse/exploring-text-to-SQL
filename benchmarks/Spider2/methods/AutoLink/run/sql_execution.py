@@ -50,7 +50,7 @@ def query_database_pandas(db_path, is_save, query, id, candidate_idx, log_path, 
 
 def snowflake_query_data(sql_query, is_save, id, candidate_idx, log_path, task):
     try:
-        snowflake_credential = json.load(open('snowflake_credential.json'))
+        snowflake_credential = json.load(open('snowflake_credential/snowflake_credential.json'))
         conn = snowflake.connector.connect(
             **snowflake_credential
         )
@@ -167,7 +167,7 @@ def execute_sql(candidate_idx, log_path, task, data_file, max_workers=4):
         q_dict = json.load(f)
 
     tasks = []
-    filenames = sorted(item for item in os.listdir(folder_path) if item.endswith('.sql'))
+    filenames = sorted(item for item in os.listdir(folder_path) if item.endswith('.sql') and "time" not in item)
     
     for filename in filenames:
         id = filename.split('.sql')[0]
@@ -181,7 +181,7 @@ def execute_sql(candidate_idx, log_path, task, data_file, max_workers=4):
         
         with open(file_path, 'r', encoding='utf-8') as f:
             sql_query = f.read()
-        
+            
         db = q_dict.get(id).get('db_name', None)
         if db:
             tasks.append((sql_query, id, db))

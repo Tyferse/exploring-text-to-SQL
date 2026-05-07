@@ -4,6 +4,7 @@ import time
 import threading
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 from typing import Dict, List, Tuple
 from openai import OpenAI
 from config import *
@@ -65,9 +66,10 @@ class SQLGenerator:
             try:
                 response = self.client.chat.completions.create(
                     model="tencent/hy3-preview:free",
-                    messages=messages
+                    messages=messages,
+                    extra_body={"reasoning": {"enabled": True}}
                 )
-                reasoning_content = response.choices[0].message.reasoning_content
+                reasoning_content = response.choices[0].message.reasoning_details
                 model_output = response.choices[0].message.content
 
                 return {
@@ -83,7 +85,8 @@ class SQLGenerator:
                 )
                 print(
                     f"[Retry {attempt}] API call failed for {instance_id}, "
-                    f"retrying in {delay}s"
+                    f"retrying in {delay}s",
+                    " "*4, e
                 )
                 time.sleep(delay)
 
@@ -110,13 +113,18 @@ def run_task(
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = f.read()
 
+    start_time = datetime.now()
     result = generator.generate(instance_id, data[instance_id], schema)
+    end_time = datetime.now()
 
     os.makedirs(f"{log_path}/sql_gen/{task}_sql_generation_{candidate_idx}", exist_ok=True)
     os.makedirs(f"{log_path}/sql_gen/{task}_reasoning_{candidate_idx}", exist_ok=True)
 
     with open(f"{log_path}/sql_gen/{task}_sql_generation_{candidate_idx}/{instance_id}.txt", "w", encoding="utf-8") as f:
         f.write(result["output"])
+    
+    with open(f"{log_path}/sql_gen/{task}_sql_generation_{candidate_idx}/{instance_id}_time.txt", "w", encoding="utf-8") as f:
+        f.write(str(start_time) + '\n' + str(end_time))
 
     with open(f"{log_path}/sql_gen/{task}_reasoning_{candidate_idx}/{instance_id}.txt", "w", encoding="utf-8") as f:
         f.write(result["think"])
@@ -126,7 +134,7 @@ def sql_clean(log_path: str, task: str, candidate_idx: int):
     out_dir = f"{log_path}/sql_gen/{task}_sql_{candidate_idx}"
     os.makedirs(out_dir, exist_ok=True)
 
-    for name in os.listdir(in_dir):
+    for name in [file for file in os.listdir(in_dir) if "time" not in file]:
         if not name.endswith(".txt"):
             continue
         iid = name[:-4]
@@ -136,6 +144,12 @@ def sql_clean(log_path: str, task: str, candidate_idx: int):
         start = content.rfind("```sql", 0, end)
         if start != -1 and end != -1 and end > start:
             sql = content[start + 6:end].strip()
+            # Если перед SQL ещё сгенерирован текст, то считаем его рассуждением и записываем в reasoning
+            with open(f"{log_path}/sql_gen/{task}_reasoning_{candidate_idx}/{name}", 'r', encoding='utf-8') as f:
+                reasoning_text = f.read()
+
+            with open(f"{log_path}/sql_gen/{task}_reasoning_{candidate_idx}/{name}", 'w', encoding='utf-8') as f:
+                f.write(reasoning_text + ('\n\n' if reasoning_text else "") + content[:start].strip())
         else:
             sql = content.strip()
         with open(f"{out_dir}/{iid}.sql", "w", encoding="utf-8") as f:

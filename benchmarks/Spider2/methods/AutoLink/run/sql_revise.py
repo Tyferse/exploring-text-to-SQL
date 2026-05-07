@@ -213,8 +213,9 @@ class SQLReviser:
                     response = self.client.chat.completions.create(
                         model="tencent/hy3-preview:free",
                         messages=messages,
+                        extra_body={"reasoning": {"enabled": True}}
                     )
-                    reasoning_content = response.choices[0].message.reasoning_content
+                    reasoning_content = response.choices[0].message.reasoning_details
                     model_output = response.choices[0].message.content
                     if model_output:
                         break
