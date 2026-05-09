@@ -3,6 +3,8 @@ import os
 import pandas as pd
 import json
 import math
+import random
+from datetime import datetime
 from openai import OpenAI
 import itertools
 from config import *
@@ -25,7 +27,7 @@ def read_sql(path):
 
 def read_csv_safe(path):
     try:
-        return pd.read_csv(path)
+        return pd.read_csv(path, encoding='utf-8')
     except:
         return None
 
@@ -152,6 +154,7 @@ def model_vote(instance_id, tied_clusters, args, schema, question):
 
     for c in candidates:
         scores[c["cid"]] = 0
+
     if instance_id.startswith("bq"):
         dialect = "BigQuery"
     elif instance_id.startswith("ga"):
@@ -160,7 +163,9 @@ def model_vote(instance_id, tied_clusters, args, schema, question):
         dialect = "snowflake"
     else:
         dialect = "SQLite"
-        
+    
+    msgs = []
+
     for a, b in itertools.combinations(candidates, 2):
         prompt = SQL_SELECTION.replace("{Database_Schema}", schema)
         prompt = prompt.replace("{Question}", question)
@@ -170,19 +175,25 @@ def model_vote(instance_id, tied_clusters, args, schema, question):
         prompt = prompt.replace("{re1}", str(a['df'].iloc[:min(len(a['df']), args.max_rows)])[:args.max_chars])
         prompt = prompt.replace("{re2}", str(b['df'].iloc[:min(len(b['df']), args.max_rows)])[:args.max_chars])
 
+        msgs.append({"role": "user", "content": prompt, "end_time": str(datetime.now())})
         resp = client.chat.completions.create(
             model="tencent/hy3-preview:free",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        out = resp.choices[0].message.content.lower()
+        try:
+            out = resp.choices[0].message.content.lower()
+            msgs.append({"role": "assistant", "content": out, "end_time": str(datetime.now())})
+        except TypeError:
+            return random.choice(candidates)
+
         if "sql1" in out:
             scores[a["cid"]] += 1
         elif "sql2" in out:
             scores[b["cid"]] += 1
 
     best = max(scores.items(), key=lambda x: x[1])[0]
-    return next(c for c in candidates if c["cid"] == best)
+    return next(c for c in candidates if c["cid"] == best), msgs
 
 def dump_final_selection(instance_id, selected, args):
     base_dir = f"{args.log_path}/sql_selection/final/{instance_id}"
@@ -190,7 +201,7 @@ def dump_final_selection(instance_id, selected, args):
 
     with open(os.path.join(base_dir, "selected.sql"), "w", encoding="utf-8") as f:
         f.write(selected["sql"])
-
+    
     if selected["status"] == "success" and selected["df"] is not None:
         selected["df"].to_csv(
             os.path.join(base_dir, "result.csv"),
@@ -199,10 +210,14 @@ def dump_final_selection(instance_id, selected, args):
         )
     else:
         with open(os.path.join(base_dir, "error.txt"), "w", encoding="utf-8") as f:
-            f.write(selected.get("error", "Unknown execution error"))
+            try:
+                f.write(selected.get("error", "Unknown execution error"))
+            except TypeError:
+                f.write("Unknown execution error")
 
 def process_instance(name, args, lock):
     instance_id = name.replace(".txt", "")
+    start_time = datetime.now()
     candidates = build_candidates(instance_id, args)
     clusters = cluster_by_execution(candidates)
     if not clusters:
@@ -211,7 +226,7 @@ def process_instance(name, args, lock):
         fallback["fallback"] = "all_failed"
 
         with lock:
-            with open(f"{args.log_path}/sql_selection/selected.jsonl", "a") as f:
+            with open(f"{args.log_path}/sql_selection/selected.jsonl", "a", encoding='utf-8') as f:
                 f.write(json.dumps({
                     "instance_id": instance_id,
                     "candidate": fallback["cid"],
@@ -220,20 +235,24 @@ def process_instance(name, args, lock):
                 }) + "\n")
 
         dump_final_selection(instance_id, fallback, args)
+        with open(os.path.join(f"{args.log_path}/sql_selection/final/{instance_id}", "time.txt"), "w", encoding="utf-8") as f:
+            f.write(str(start_time) + "\n" + str(datetime.now()))
+
         return
 
     selected = select_by_consistency(clusters)
 
+    messages = None
     if isinstance(selected, list):
-        with open(f"{args.log_path}/final_schema_prompts/{instance_id}.txt", "r") as f:
+        with open(f"{args.log_path}/final_schema_prompts/{instance_id}.txt", "r", encoding='utf-8') as f:
             schema = f.read()
-        with open("spider2_data.json", "r") as f:
+        with open("spider2_data.json", "r", encoding='utf-8') as f:
             spider2 = json.load(f)
         question = spider2[instance_id]["question"]
-        selected = model_vote(instance_id, selected, args, schema, question)
+        selected, messages = model_vote(instance_id, selected, args, schema, question)
 
     with lock:
-        with open(f"{args.log_path}/sql_selection/selected.jsonl", "a") as f:
+        with open(f"{args.log_path}/sql_selection/selected.jsonl", "a", encoding='utf-8') as f:
             f.write(json.dumps({
                 "instance_id": instance_id,
                 "candidate": selected["cid"],
@@ -241,12 +260,22 @@ def process_instance(name, args, lock):
             }) + "\n")
 
     dump_final_selection(instance_id, selected, args)
-        
+    with open(os.path.join(f"{args.log_path}/sql_selection/final/{instance_id}", "time.txt"), "w", encoding="utf-8") as f:
+        f.write(str(start_time) + "\n" + str(datetime.now()))
+    
+    if messages:
+        with open(os.path.join(f"{args.log_path}/sql_selection/final/{instance_id}", "model_vote.json"), "w", encoding="utf-8") as f:
+            json.dump(messages, f)
+    
 def main():
     args = parse_args()
     os.makedirs(f"{args.log_path}/sql_selection", exist_ok=True)
 
-    instance_ids = os.listdir(f"{args.log_path}/final_schema_prompts")
+    # Обрабатываем оставшиеся примеры
+    instance_ids = [
+        file for file in os.listdir(f"{args.log_path}/final_schema_prompts") 
+        if not os.path.exists(f"{args.log_path}/sql_selection/final/{file.replace('.txt', '')}/selected.sql")
+    ]
     lock = threading.Lock()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
@@ -255,6 +284,6 @@ def main():
             for future in concurrent.futures.as_completed(futures):
                 future.result()  # To raise any exceptions
                 pbar.update(1)
-        
+
 if __name__ == "__main__":
     main()

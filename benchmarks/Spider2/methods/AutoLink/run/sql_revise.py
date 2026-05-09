@@ -7,6 +7,7 @@ import sqlite3
 import pandas as pd
 import numpy as np
 import glob
+from datetime import datetime
 from typing import Dict, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
@@ -205,9 +206,11 @@ class SQLReviser:
             .replace("{SQL_TYPE}", dialect)
         )
 
+        timings = []
         messages = [{"role": "user", "content": prompt}]
 
         for attempt in range(Config.REVISE_NUM_ATTEMPTS):
+            timings.append(datetime.now())
             while True:
                 try:
                     response = self.client.chat.completions.create(
@@ -231,15 +234,16 @@ class SQLReviser:
                 print(f"parse sql error: {instance_id}")
                 sql = model_output.strip()
             exec_status, exec_result = thread_safe_sql_execution(instance_id, sql, db_name)
+            timings.append(datetime.now())
             if exec_status == "success":
-                return sql, exec_result, exec_status, messages
+                return sql, exec_result, exec_status, messages, timings
             else:
                 if "Quota" in exec_result:
                     print(f"Quota exceeded for {instance_id}, skipping...")
                     break
                 messages.append({"role": "user", "content": "Execution error:\n" + exec_result + "\nPlease revise the SQL again."})
                 continue
-        return sql, exec_result, exec_status, messages
+        return sql, exec_result, exec_status, messages, timings
 
 
 def collect_tasks(schema_dir, log_path, task, num_candidates):
@@ -265,19 +269,25 @@ def run_task(reviser, data, schema_dir, log_path, task, instance_id, cid):
         print(f"[SKIP] missing sql or err: {instance_id} cid={cid}")
         return
 
-    sql = open(sql_path).read()
-    execution = open(err_path).read()
+    sql = open(sql_path, encoding='utf-8').read()
+    execution = open(err_path, encoding='utf-8').read()
 
-    new_sql, df, exec_status, messages = reviser.revise(instance_id, data[instance_id], schema, sql, execution)
+    new_sql, df, exec_status, messages, timings = reviser.revise(instance_id, data[instance_id], schema, sql, execution)
     out_dir = f"{log_path}/sql_revise/{task}_sql_{cid}"
     out_dir_me = f"{log_path}/sql_revise/{task}_messages_{cid}"
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(out_dir_me, exist_ok=True)
     
     with open(f"{out_dir_me}/{instance_id}.json", "w", encoding="utf-8") as f:
+        for i in range(len(messages)):
+            try:
+                messages[i]['end_time'] = str(timings[i])
+            except IndexError:
+                break
+
         json.dump(messages, f, ensure_ascii=False, indent=2)
     
-    open(f"{out_dir}/{instance_id}.sql", "w").write(new_sql)
+    open(f"{out_dir}/{instance_id}.sql", "w", encoding='utf-8').write(new_sql)
     if exec_status == "error" or exec_status == "empty":
         with open(f"{out_dir}/{instance_id}.txt", "w", encoding="utf-8") as f:
             f.write(df)

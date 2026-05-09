@@ -38,17 +38,17 @@ REM Set up
 @REM     powershell -Command "Expand-Archive -Path '../../spider2-lite/resource/local_sqlite.zip' -DestinationPath '../../spider2-lite/resource/databases/spider2-localdb' -Force"
 @REM )
 
-@REM python spider_agent_setup_%TASK%.py --example_folder examples_%TASK%
+python spider_agent_setup_%TASK%.py --example_folder examples_%TASK%
 
 REM Reconstruct data
-@REM python reconstruct_data.py ^
-@REM     --example_folder examples_%TASK% ^
-@REM     --add_description ^
-@REM     --add_sample_rows ^
-@REM     --rm_digits ^
-@REM     --make_folder ^
-@REM     --clear_long_eg_des
-@REM exit /b 1
+python reconstruct_data.py ^
+    --example_folder examples_%TASK% ^
+    --add_description ^
+    --add_sample_rows ^
+    --rm_digits ^
+    --make_folder ^
+    --clear_long_eg_des
+exit /b 1
 
 echo Number of prompts.txt files in examples_%TASK% larger than 200KB before reducing:
 powershell -Command "Get-ChildItem -Path examples_%TASK% -Recurse -Filter 'prompts.txt' | Where-Object { $_.Length -gt 200000 } | Measure-Object | Select-Object -ExpandProperty Count"
@@ -111,14 +111,14 @@ if "%AZURE%"=="true" (
     set CMD2=%CMD2% --azure
 )
 
-@REM %CMD1%
+%CMD1%
 echo Evaluation for Step 1
-@REM python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
+python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
 @REM exit /b 1
 
-@REM %CMD2%
+%CMD2%
 echo Evaluation for Step 2
-@REM python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
+python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
 @REM exit /b 1
 
 
@@ -134,7 +134,7 @@ python run.py ^
     --num_workers %NUM_WORKERS%
 
 echo Evaluation for Step 3
-@REM python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
+python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
 @REM exit /b 1
 
 REM Step 4: Random vote final_choose
@@ -150,7 +150,7 @@ python run.py ^
     --num_workers %NUM_WORKERS%
 
 echo Evaluation for Step 4
-@REM python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
+python eval.py --log_folder %OUTPUT_PATH% --task %TASK%
 @REM exit /b 1
 
 REM Final evaluation and get files for submission

@@ -16,13 +16,13 @@ set SCHEMA_DIR=%LOG_PATH%\final_schema_prompts
 set TASK=r1_lite
 
 echo Запуск sql_generation.py...
-@REM python sql_generation.py ^
-@REM   --num_workers 32 ^
-@REM   --num_candidates %NUM_CANDIDATES% ^
-@REM   --data_file %DATA_FILE% ^
-@REM   --schema_dir %SCHEMA_DIR% ^
-@REM   --log_path %LOG_PATH% ^
-@REM   --task %TASK%
+python sql_generation.py ^
+  --num_workers 32 ^
+  --num_candidates %NUM_CANDIDATES% ^
+  --data_file %DATA_FILE% ^
+  --schema_dir %SCHEMA_DIR% ^
+  --log_path %LOG_PATH% ^
+  --task %TASK%
 
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении sql_generation.py
@@ -44,7 +44,7 @@ if %errorlevel% neq 0 (
 
 echo Запуск sql_revise.py...
 python sql_revise.py ^
-  --num_workers 32 ^
+  --num_workers 42 ^
   --num_candidates %NUM_CANDIDATES% ^
   --data_file %DATA_FILE% ^
   --schema_dir %SCHEMA_DIR% ^
@@ -60,7 +60,7 @@ echo Запуск sql_selection.py...
 python sql_selection.py ^
   --log_path %LOG_PATH% ^
   --num_candidates %NUM_CANDIDATES% ^
-  --workers 4 ^
+  --workers 36 ^
   --task %TASK%
 
 if %errorlevel% neq 0 (

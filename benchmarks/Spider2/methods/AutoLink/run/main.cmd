@@ -12,39 +12,39 @@ set LOG_PATH=log_v3_topn100
 set TOP_N=100
 
 echo Запуск generate_docs.py...
-@REM python generate_docs.py
+python generate_docs.py
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении generate_docs.py
   exit /b %errorlevel%
 )
 
 echo Запуск embedding_docs.py...
-@REM python embedding_docs.py
+python embedding_docs.py
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении embedding_docs.py
   exit /b %errorlevel%
 )
 
 echo Запуск retrieve_topk_schema.py...
-@REM python retrieve_topk_schema.py --log_path %LOG_PATH% --top_n %TOP_N%
+python retrieve_topk_schema.py --log_path %LOG_PATH% --top_n %TOP_N%
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении retrieve_topk_schema.py
   exit /b %errorlevel%
 )
 
 echo Запуск add_id.py...
-@REM python add_id.py --log_path %LOG_PATH%
+python add_id.py --log_path %LOG_PATH%
 if %errorlevel% neq 0 (
   echo Ошибка при выполнении add_id.py
   exit /b %errorlevel%
 )
 
 echo Запуск generate_schema.py (initial)...
-@REM python generate_schema.py --log_path %LOG_PATH% --is_initial
-@REM if %errorlevel% neq 0 (
-@REM   echo Ошибка при выполнении generate_schema.py (initial)
-@REM   exit /b %errorlevel%
-@REM )
+python generate_schema.py --log_path %LOG_PATH% --is_initial
+if %errorlevel% neq 0 (
+  echo Ошибка при выполнении generate_schema.py (initial)
+  exit /b %errorlevel%
+)
 
 echo Запуск complete_schema.py...
 python complete_schema.py --log_path %LOG_PATH%
