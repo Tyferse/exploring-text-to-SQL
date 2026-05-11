@@ -14,6 +14,7 @@ explicit_groupped_patterns = {
         "JOIN cannot be used without a condition",
         "Correlated subqueries",
         "Unsupported subquery with table in join predicate",
+        r"lateral table function called with [\w\s]+ syntax or a join predicate",
     ],
     'WHERE': [],
     'GROUP BY': [
@@ -69,8 +70,9 @@ def find_error_operator(sql: str, error_message: str = None, error_position: tup
         for pattern in explicit_groupped_patterns[group]:
             if isinstance(pattern, tuple) and all(part in error_message for part in pattern):
                 return group
-            elif isinstance(pattern, str) and ((pattern in error_message) or re.match(pattern, error_message)):
-                return group
+            elif isinstance(pattern, str):
+                if pattern in error_message or re.match(pattern, error_message):
+                    return group
 
     # Нормализуем диалект для парсинга
     dialect_map = {

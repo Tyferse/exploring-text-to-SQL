@@ -30,6 +30,7 @@ error_categories = {
             ("Expressions of type", "cannot be used as GROUP BY keys"),
             "aggregate function calls cannot be nested",
             "window function calls cannot be nested", 
+            "No matching signature for aggregate function",
         ],
         "Некорректное планирование": [
             "No data found for the specified query",
@@ -40,7 +41,7 @@ error_categories = {
             "Single-row subquery returns more than one row",
             "near \"GROUP\"", "unexpected 'UNION'",
             ("Subquery of type", "must have only one output column"),
-            "near \"UNION\"",
+            "near \"UNION\"", "Unsupported subquery type cannot be evaluated"
         ]
     }, 
     "Неверное следование схеме": {
@@ -66,6 +67,7 @@ error_categories = {
             "Wildcard matched incompatible partitioning/clustering tables",
             "near \"AS\"", "ORDER BY term does not match any column",
             "invalid identifier '",
+            ("Schema","does not exist or not authorized."),
         ],
         "Нераспознанное имя": [
             "Unrecognized name: ",
@@ -114,8 +116,11 @@ error_categories = {
             "concatenated string literals must be separated by whitespace or comments", "Bad int64 value",
             "ORDER BY key must be numeric in a RANGE-based window", ("does not support the", "date part when the argument is", "type"),
             "A valid date part name is required but found", "in arguments is not supported on scalar functions",
-            "Illegal escape sequence", "produced too many elements",
-            "Bad input format model", ("String", "is too long and would be truncated"), 
+            "Illegal escape sequence", "produced too many elements", "Invalid JSON path syntax", "Bad input format model", 
+            ("String", "is too long and would be truncated"), ("Numeric value", "is not recognized"),
+            ("Function", "cannot be used with arguments of types"), ("invalid type", "for parameter"),
+            "Invalid argument types for function", ("Array position in", "must be coercible to", "type, but has type"),
+            
 
             "Unsupported feature", "invalid identifier", "unexpected", "syntax error"
         ]
@@ -134,6 +139,7 @@ column_patterns = [
     r"ambiguous column name:?\s*['\"]?([\w\.\:]+)['\"]?",
     r"near\s+\"([\w\.\:]+)\"",  # Может быть именем столбца
     r"invalid identifier\s+[\`\'\"]([\w\.\:\"]+)[\`\'\"]",
+    r"Schema\s+['\"]?([\w\.\:]+)['\"]?\s+does not exist or not authorized"
 ]
 
 table_patterns = [
@@ -185,6 +191,7 @@ syntax_patterns = [
     r'(?:Numeric value|Timestamp|Date|String)\s*[\'"]?([^\'"]+?)[\'"]?\s*(?:is not recognized|is too long)',
     r"Can't parse\s+'([^']+)'\s+as\s+(?:date|timestamp|number)\s+with\s+format",
     r"Invalid extraction path\s+'([^']+)'",
+    r"invalid type\s+'([^']+)'\s+for parameter"
 ]
 
 
