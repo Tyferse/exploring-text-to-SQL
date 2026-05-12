@@ -498,7 +498,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run evaluations for NLP models.")
     parser.add_argument("--mode", type=str, choices=["sql", "exec_result"], default="sql", help="Mode of submission results")
     parser.add_argument("--result_dir", type=str, default="spider2sql_example_submit_result", help="Result directory")
-    parser.add_argument("--gold_dir", type=str, default="benchmarks/Spider2/spider2-lite/evaluation_suite/gold", help="Result directory")
+    parser.add_argument("--gold_dir", type=str, default="data/Spider2/spider2-lite/evaluation_suite/gold", help="Result directory")
     parser.add_argument("--is_sql_debug", action="store_true", default=False)
     parser.add_argument("--max_workers", type=int, default=20, help="Maximum number of worker threads")
     parser.add_argument("--timeout", type=int, default=60, help="SQL execution timeout in seconds")

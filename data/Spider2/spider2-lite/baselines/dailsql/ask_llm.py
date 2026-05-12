@@ -130,7 +130,7 @@ if __name__ == '__main__':
     # parser.add_argument("--temperature", type=float, default=0)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--n", type=int, default=1)
-    parser.add_argument("--db_dir", type=str, default="benchmarks/Spider2/spider2-lite/resource/databases/spider2-localdb")
+    parser.add_argument("--db_dir", type=str, default="data/Spider2/spider2-lite/resource/databases/spider2-localdb")
     # parser.add_argument('--max_tokens', type=int, default=1000)
     parser.add_argument('--post_mode', type=str, choices=['pass@n', 'consistency@n', 'consistency-from-generated-pass@n', None], default=None)
     parser.add_argument("--is_sql_debug", action="store_true", default=False)

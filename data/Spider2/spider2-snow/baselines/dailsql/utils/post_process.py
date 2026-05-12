@@ -157,7 +157,7 @@ async def exec_on_bigquery_(query: str, instance_id: str) -> Tuple[str, Any]:
 
     post_query = spider2_postprocess_single_sql(query, instance_id)
 
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "benchmarks/Spider2/spider2-lite/evaluation_suite/bigquery_credential.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "data/Spider2/spider2-lite/evaluation_suite/bigquery_credential.json"
     client = bigquery.Client()
     try:
         query_job = client.query(post_query)

@@ -33,4 +33,4 @@ python postprocessed_data/spider2_postprocess.py --dev $DEV --model $LLM --comme
 # step4. evaluate
 eval_suite_dir=$(readlink -f "../../evaluation_suite")
 # cd ${eval_suite_dir}
-python ${eval_suite_dir}/evaluate.py --mode sql --result_dir ${script_dir}/postprocessed_data/${COMMENT}_${DEV}_CTX-200/RESULTS_MODEL-${LLM}-SQL-postprocessed --gold_dir /content/ttsql/benchmarks/Spider2/spider2-lite/evaluation_suite/gold
+python ${eval_suite_dir}/evaluate.py --mode sql --result_dir ${script_dir}/postprocessed_data/${COMMENT}_${DEV}_CTX-200/RESULTS_MODEL-${LLM}-SQL-postprocessed --gold_dir /content/ttsql/data/Spider2/spider2-lite/evaluation_suite/gold

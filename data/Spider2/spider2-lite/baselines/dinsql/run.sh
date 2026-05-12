@@ -14,4 +14,4 @@ python postprocessed_data/spider2_postprocess.py --dev $DEV
 
 eval_suite_dir=$(readlink -f "${script_dir}/../../evaluation_suite")
 cd ${eval_suite_dir}
-python evaluate.py --mode sql --result_dir ${script_dir}/postprocessed_data/${DEV}/predicted-SQL-postprocessed --gold_dir /content/ttsql/benchmarks/Spider2/spider2-lite/evaluation_suite/gold
+python evaluate.py --mode sql --result_dir ${script_dir}/postprocessed_data/${DEV}/predicted-SQL-postprocessed --gold_dir /content/ttsql/data/Spider2/spider2-lite/evaluation_suite/gold

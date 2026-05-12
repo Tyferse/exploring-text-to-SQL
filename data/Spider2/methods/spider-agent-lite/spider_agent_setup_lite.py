@@ -5,11 +5,11 @@ import zipfile
 import argparse
 from tqdm import tqdm
 
-JSONL_PATH = '../../../../benchmarks/Spider2/spider2-lite/spider2-lite.jsonl'
-DATABASE_PATH_BQ = '../../../../benchmarks/Spider2/spider2-lite/resource/databases/bigquery/'
-DATABASE_PATH_SF = '../../../../benchmarks/Spider2/spider2-lite/resource/databases/snowflake/'
-DATABASE_PATH_SQLITE = '../../../../benchmarks/Spider2/spider2-lite/resource/databases/spider2-localdb'
-DOCUMENT_PATH = '../../../../benchmarks/Spider2/spider2-lite/resource/documents'
+JSONL_PATH = '../../../../data/Spider2/spider2-lite/spider2-lite.jsonl'
+DATABASE_PATH_BQ = '../../../../data/Spider2/spider2-lite/resource/databases/bigquery/'
+DATABASE_PATH_SF = '../../../../data/Spider2/spider2-lite/resource/databases/snowflake/'
+DATABASE_PATH_SQLITE = '../../../../data/Spider2/spider2-lite/resource/databases/spider2-localdb'
+DOCUMENT_PATH = '../../../../data/Spider2/spider2-lite/resource/documents'
 
 
 def clear_folder(folder_path):

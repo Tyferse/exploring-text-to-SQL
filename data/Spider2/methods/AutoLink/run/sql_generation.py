@@ -39,7 +39,7 @@ class SQLGenerator:
     def generate(self, instance_id: str, info: Dict, schema: str) -> Dict:
         question = info["question"]
 
-        if instance_id.startswith("bq"):
+        if instance_id.startswith(("bq", "ga")):
             sql_type = BIGQUERY_DIALECT_OPTIMIZATION_SQL_GEN
             dialect = "BigQuery"
         elif instance_id.startswith("sf"):
