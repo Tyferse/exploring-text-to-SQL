@@ -3,11 +3,11 @@ import os
 import json
 import re
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-def setup_logger(log_dir: str = "logs"):
+def setup_logger(log_dir: str = "logs") -> logging.Logger:
     """Настраивает файловый и консольный логгер."""
     os.makedirs(log_dir, exist_ok=True)
     log_path = os.path.join(log_dir, "preprocessing.log")
@@ -165,8 +165,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
                     "db_id": db_id,
                     "table_name": representative["original_name"],
                     "column_name": col,
-                    "column_type": typ,
-                    "similar_tables": similar_tables
+                    "column_type": typ
                 }
             })
 
@@ -303,7 +302,7 @@ def spider2preprocess(
     return results
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Preprocess Spider 2 dataset for Text-to-SQL pipeline.")
+    parser = argparse.ArgumentParser(description="Preprocess Spider 2 structured dataset for Text-to-SQL pipeline.")
     parser.add_argument(
         "input_data", type=str, default="Spider2\spider2-lite",
         help="Path to the directory of the Spider 2 structured dataset in data_root directory (default: Spider2\spider2-lite)"
@@ -317,16 +316,16 @@ if __name__ == "__main__":
         help="Path to the storage directory for cached schemas and embeddings (default: storage)"
     )
     parser.add_argument(
-        "--multidialect", action="store_true", default=True,
-        help="If set, expects structure {root}/{dialect}/{db_id}/, otherwise {root}/{db_id}/ (all DBs in root) (default: True)"
+        "--log_root", type=str, default="logs",
+        help="Path to the directory with all saved logs (default: logs)"
     )
     parser.add_argument(
         "--workers", type=int, default=4,
         help="Number of parallel workers for processing databases (default: 4)"
     )
     parser.add_argument(
-        "--log_root", type=str, default="logs",
-        help="Path to the directory with all saved logs (default: logs)"
+        "--multidialect", action="store_true",
+        help="If set, expects structure {root}/{dialect}/{db_id}/, otherwise {root}/{db_id}/ (all DBs in root)"
     )
     parser.add_argument(
         "--force", action="store_true", 
