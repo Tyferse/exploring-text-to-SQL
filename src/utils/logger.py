@@ -73,6 +73,45 @@ def get_logger(
     return logger
 
 
+def attach_shared_file_handler(
+    log_file: Union[str, Path],
+    logger_names: List[str],
+    level: Union[int, str] = logging.INFO,
+    fmt: Optional[str] = None,
+    mode: str = 'a',
+    encoding: str = 'utf-8'
+) -> logging.FileHandler:
+    """
+    Прикрепляет единый файловый обработчик к списку логгеров.
+    Все логи указанных модулей будут писаться в один файл.
+    """
+    if isinstance(level, str):
+        level = getattr(logging, level.upper(), logging.INFO)
+
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if fmt is None:
+        fmt = '%(asctime)s | %(name)s | %(levelname)-8s | %(message)s'
+
+    formatter = logging.Formatter(fmt, datefmt='%Y-%m-%d %H:%M:%S')
+
+    file_handler = logging.FileHandler(str(log_path), mode=mode, encoding=encoding)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+
+    for name in logger_names:
+        logger = logging.getLogger(name)
+        # Добавляем только если такого обработчика ещё нет
+        if not any(h is file_handler for h in logger.handlers):
+            logger.addHandler(file_handler)
+            # Убеждаемся, что логгер не отфильтрует записи раньше обработчика
+            if logger.level > level:
+                logger.setLevel(level)
+
+    return file_handler
+
+
 def setup_resource_logger(log_path: str) -> logging.Logger:
     """Создаёт уникальный лог-файл для каждого запуска."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

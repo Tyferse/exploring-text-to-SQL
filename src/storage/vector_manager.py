@@ -1,18 +1,24 @@
-import os
+import gc
 import json
-import logging
-from typing import List, Dict, Any, Optional
+import os
+import threading
+from typing import Dict, List, Optional, Any
 from collections import OrderedDict
 
-from src.storage.core import BaseVectorStore, VectorSearchResult
-from qdrant_store import QdrantVectorStore
+from .core import BaseVectorStore, VectorSearchResult
+from .qdrant_store import QdrantVectorStore
+from src.utils.logger import get_logger, attach_shared_file_handler
 
-logger = logging.getLogger("vector_manager")
 
 class VectorStoreManager:
     """
-    Управляет пулом сессий векторных хранилищ с LRU-эвикцией.
-    Оптимизирован для работы с ограниченной памятью.
+    Управляет пулом сессий векторных хранилищ.
+    
+    Особенности:
+    - LRU-кэш сессий для экономии памяти
+    - Автоматическое создание индексов из результатов предобработки
+    - Групповой поиск по db_id
+    - Потокобезопасные операции
     """
     
     def __init__(
@@ -20,26 +26,88 @@ class VectorStoreManager:
         storage_root: str = "storage",
         max_cached_sessions: int = 3,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
-        backend: str = "qdrant"
+        backend: str = "qdrant",
+        device: str = "cpu",
+        quantization: bool = True,
+        dtype: str = "auto",
+        log_path: str = None
     ):
         self.storage_root = storage_root
         self.max_cached_sessions = max_cached_sessions
         self.embedding_model = embedding_model
         self.backend = backend
+        self.device = device
+        self.quantization = quantization
+        self.dtype = dtype
+        self.log_path = log_path
+        self.is_log_file_set = False
         
-        # LRU-кэш сессий: {context_id: VectorStore}
+        # LRU-кэш: {context_id: VectorStore}
         self._session_cache: OrderedDict[str, BaseVectorStore] = OrderedDict()
+        self._cache_lock = threading.Lock() if backend == "qdrant" else None
         
-        logger.info(f"Initialized VectorStoreManager: max_sessions={max_cached_sessions}")
+        os.makedirs(self.log_path, exist_ok=True)
+        if not os.path.exists(os.path.join(self.log_path, "vector_store.log")):
+            open(os.path.join(self.log_path, "vector_store.log"), 'w', encoding='utf-8').close()
+
+        attach_shared_file_handler(
+            log_file=os.path.join(self.log_path, "vector_store.log"),
+            logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
+            level="INFO",
+            mode='a'
+        )
+
+        self.logger = get_logger(
+            "vector_manager", 
+            # os.path.join(self.log_path, "vector_store.log"), 
+            # mode='w'
+            file=False
+        ) if self.log_path else None
+        if self.logger:
+            self.logger.info(
+                f"VectorStoreManager initialized: backend={backend}, "
+                f"model={embedding_model}, max_sessions={max_cached_sessions}, device={device}"
+            )
     
     def _get_context_path(self, context_id: str) -> str:
-        """Возвращает путь к хранилищу для данного контекста."""
-        return os.path.join(self.storage_root, "vector_db", context_id)
+        """Возвращает путь к хранилищу для контекста."""
+        return os.path.join(self.storage_root, context_id, "vector_db")
+    
+    def _create_session(self, context_id: str) -> BaseVectorStore:
+        """Создаёт новую сессию для контекста."""
+        if self.backend == "qdrant":
+            session = QdrantVectorStore(
+                path=self._get_context_path(context_id),
+                collection_name="schema_columns",
+                embedding_model=self.embedding_model,
+                device=self.device,
+                quantization=self.quantization,
+                dtype=self.dtype,
+                log_path=self.log_path,
+            )
+            if not self.is_log_file_set:
+                attach_shared_file_handler(
+                    log_file=os.path.join(self.log_path, "vector_store.log"),
+                    logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
+                    level="INFO",
+                    mode='a'
+                )
+                self.is_log_file_set = True
+
+            return session
+        else:
+            raise ValueError(f"Unsupported backend: {self.backend}")
     
     def _get_or_create_session(self, context_id: str) -> BaseVectorStore:
-        """
-        Получает или создает сессию для контекста с LRU-эвикцией.
-        """
+        """Получает или создаёт сессию."""
+        if self._cache_lock:
+            with self._cache_lock:
+                return self._get_or_create_session_unlocked(context_id)
+            
+        return self._get_or_create_session_unlocked(context_id)
+    
+    def _get_or_create_session_unlocked(self, context_id: str) -> BaseVectorStore:
+        """Внутренний метод без блокировки."""
         # Если уже в кэше — перемещаем в конец (LRU)
         if context_id in self._session_cache:
             self._session_cache.move_to_end(context_id)
@@ -49,79 +117,70 @@ class VectorStoreManager:
         if len(self._session_cache) >= self.max_cached_sessions:
             oldest_id, oldest_session = self._session_cache.popitem(last=False)
             oldest_session.close()
-            logger.info(f"Evicted session for context '{oldest_id}' from cache")
+            if self.logger: self.logger.info(f"Evicted session for context '{oldest_id}' from cache")
         
-        # Создаем новую сессию
-        location = self._get_context_path(context_id)
-        
-        if self.backend == "qdrant":
-            session = QdrantVectorStore(
-                location=location,
-                collection_name="schema_columns",
-                embedding_model=self.embedding_model
-            )
-        else:
-            raise ValueError(f"Unsupported backend: {self.backend}")
-        
+        # Создаём новую сессию
+        session = self._create_session(context_id)
         self._session_cache[context_id] = session
-        logger.info(f"Created new session for context '{context_id}'")
+        if self.logger: self.logger.info(f"Created new session for context '{context_id}'")
         return session
     
     def build_from_preprocessing_results(
         self,
         preprocessing_results: Dict[str, str],
-        context_id: Optional[str] = None
+        context_id: Optional[str] = None,
+        max_workers: int = 2,
+        force_rebuild: bool = False
     ) -> None:
         """
-        Создает векторные индексы из результатов предобработки.
+        Создаёт векторные индексы из результатов предобработки.
         
         Args:
-            preprocessing_results: Dict {db_id: path_to_meta.json} от spider2preprocess
-            context_id: Уникальный ID для изоляции индексов (если None, генерируется)
+            preprocessing_results: Dict {db_id: path_to_meta.json}
+            context_id: Уникальный ID для изоляции индексов
+            max_workers: число процессов для параллельного построения индекса
         """
-        if not context_id:
-            # Генерируем context_id на основе первого db_id
-            context_id = list(preprocessing_results.keys())[0].split("_")[0]
+        if not context_id:    
+            context_id = list(preprocessing_results.keys())[0].rsplit("_", 1)[0]
         
-        logger.info(f"Building vector indexes for context '{context_id}'...")
+        if self.logger: self.logger.info(f"Building vector indexes for context '{context_id}'...")
         
-        # Группируем документы по db_id для эффективной загрузки
-        documents_by_db: Dict[str, List[Dict]] = {}
+        # Собираем все документы
+        all_documents: List[Dict] = []
         
         for db_id, meta_path in preprocessing_results.items():
-            docs_path = meta_path.replace("_meta.json", "_docs.json")
+            docs_path = meta_path[:meta_path.rfind('_meta')] + '_docs.json'
             
             if not os.path.exists(docs_path):
-                logger.warning(f"Docs file not found: {docs_path}")
+                if self.logger: self.logger.warning(f"Docs file not found: {docs_path}")
                 continue
             
             with open(docs_path, 'r', encoding='utf-8') as f:
                 docs_data = json.load(f)
             
-            documents_by_db[db_id] = docs_data  # Список документов для этой БД
-        
-        # Создаем индекс для каждой БД
-        session = self._get_or_create_session(context_id)
-        
-        # Объединяем все документы в одну коллекцию (фильтрация по db_id)
-        all_documents = []
-        for db_id, docs in documents_by_db.items():
-            for doc in docs:
-                # Убеждаемся, что db_id есть в метаданных
-                doc["metadata"]["db_id"] = db_id
+            # docs_data может быть списком документов или dict с ключом "documents"
+            documents = docs_data if isinstance(docs_data, list) else docs_data.get("documents", [])
+            
+            for doc in documents:
                 all_documents.append(doc)
         
-        if all_documents:
-            session.build_index(all_documents, collection_name="schema_columns")
-            logger.info(f"Built index with {len(all_documents)} column documents")
-        else:
-            logger.warning("No documents found for indexing")
+        if not all_documents:
+            if self.logger: self.logger.warning(f"No documents found for indexing '{db_id}'")
+            return
+        
+        # Создаём индекс через сессию
+        session = self._get_or_create_session(context_id)
+        session.build_index(all_documents, collection_name="schema_columns", max_workers=max_workers, force_rebuild=force_rebuild)
+        
+        if self.logger: self.logger.info(f"Built index with {len(all_documents)} column documents for context '{context_id}'")
     
     def search_batch(
         self,
+        context_id: str,
         queries_by_db: Dict[str, List[str]],
         top_k: int = 10,
-        batch_size: int = 32
+        batch_size: int = 32,
+        filters: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Dict[str, List[VectorSearchResult]]]:
         """
         Выполняет поиск для групп вопросов, сгруппированных по db_id.
@@ -130,38 +189,45 @@ class VectorStoreManager:
             queries_by_db: {db_id: [question1, question2, ...]}
             top_k: Число результатов на запрос
             batch_size: Размер батча для эмбеддингов
+            filters: Дополнительные фильтры (объединяются с db_id)
             
         Returns:
             {db_id: {query: [results]}}
         """
-        results = {}
+        results: Dict[str, Dict[str, List[VectorSearchResult]]] = {}
         
         for db_id, queries in queries_by_db.items():
-            # Извлекаем context_id из db_id (например, "sqlite_orders" -> "sqlite")
-            context_id = db_id.split("_")[0]
+            if not queries:
+                continue
             
-            # Получаем сессию для этого контекста
+            # Получаем сессию
             session = self._get_or_create_session(context_id)
             
-            # Поиск с фильтрацией по db_id
+            # Объединяем фильтры: обязательный db_id + дополнительные
+            search_filters = {"db_id": db_id}
+            if filters:
+                search_filters.update(filters)
+            
             search_results = session.search(
                 queries=queries,
                 top_k=top_k,
-                filters={"db_id": db_id},  # Критичный фильтр!
+                filters=search_filters,
                 batch_size=batch_size
             )
             
             results[db_id] = search_results
-            logger.info(f"Searched {len(queries)} queries for db '{db_id}'")
+            if self.logger: self.logger.info(f"Searched {len(queries)} queries for db '{db_id}'")
         
         return results
     
     def close_all(self) -> None:
         """Закрывает все сессии и освобождает память."""
+        if self.logger: self.logger.info(f"Closing {len(self._session_cache)} vector store sessions...")
         for session in self._session_cache.values():
             session.close()
         self._session_cache.clear()
-        logger.info("All vector store sessions closed")
+        gc.collect()
+        if self.logger: self.logger.info("All vector store sessions closed")
     
     def __enter__(self):
         return self

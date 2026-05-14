@@ -1,76 +1,114 @@
-import logging
-from typing import List, Dict, Any, Optional
+import gc
+import os
+from typing import List, Dict, Any, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
-    Distance, VectorParams, Filter, FieldCondition, 
-    MatchValue, PointStruct, SearchParams
+    Distance, VectorParams, Filter, FieldCondition, KeywordIndexParams,
+    MatchValue, PayloadSchemaType, PointStruct, SearchParams
 )
-from sentence_transformers import SentenceTransformer
 
-from src.storage.core import BaseVectorStore, VectorSearchResult
+from .core import BaseVectorStore, VectorSearchResult
+from .model_manager import embedding_model_manager
+from src.utils.logger import get_logger
 
-
-logger = logging.getLogger("vector_store")
 
 class QdrantVectorStore(BaseVectorStore):
     """
-    Реализация BaseVectorStore для Qdrant в local/embedded режиме.
-    Оптимизирована для работы с ограниченной памятью (8 Гб ОЗУ).
+    Qdrant-бэкенд с поддержкой:
+    - Prompt-based encoding (Harrier, E5)
+    - Scalar quantization для экономии памяти
+    - Payload indexing для быстрой фильтрации
+    - Batch processing для эффективности
     """
     
     def __init__(
         self,
-        location: str,
         collection_name: str,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
-        vector_size: int = 384,
         device: str = "cpu",
-        quantization: bool = True
+        quantization: bool = False,
+        dtype: str = "auto",
+        path: str = None,
+        location: str = None,
+        log_path: str = None
     ):
+        self.path = path
         self.location = location
-        self.collection_name = collection_name
-        self.vector_size = vector_size
+        self._collection_name = collection_name
+        self.model_name = embedding_model
         self.device = device
         self.quantization = quantization
+        self.dtype = dtype
         
-        # Инициализация модели эмбеддингов (ленивая загрузка)
-        self._model_name = embedding_model
-        self._embedding_model: Optional[SentenceTransformer] = None
+        # Параметры из конфига модели
+        model_cfg = embedding_model_manager.MODEL_CONFIGS[embedding_model]
+        self.vector_size = model_cfg["dim"]
+        self.query_prompt_name = embedding_model_manager.get_query_prompt(embedding_model)
+        
         self._client: Optional[QdrantClient] = None
         self._is_index_built = False
         
-        logger.info(f"Initialized QdrantVectorStore: location={location}, collection={collection_name}")
+        # complete_log_path = log_path if log_path.endswith('.log') else os.path.join(log_path, "qdrant_vector_store.log")
+        self.logger = get_logger(
+            "qdrant_vector_store", 
+            # complete_log_path, 
+            # mode='w' if not os.path.exists(complete_log_path) else 'a'
+            file=False
+        ) if log_path else None
+        if self.logger:
+            self.logger.info(
+                f"QdrantVectorStore initialized: model={embedding_model}, "
+                f"dim={self.vector_size}, path={path}, location={location}, device={device}"
+            )
+            # complete_log_path = log_path if log_path.endswith('.log') else os.path.join(log_path, "embedding_model.log")
+            embedding_model_manager.logger = get_logger(
+                "emdedding_model",
+                # complete_log_path, 
+                # mode='w' if not os.path.exists(complete_log_path) else 'a'
+                file=False
+            )
     
     @property
-    def embedding_model(self) -> SentenceTransformer:
-        """Ленивая загрузка модели эмбеддингов."""
-        if self._embedding_model is None:
-            logger.info(f"Loading embedding model: {self._model_name}")
-            self._embedding_model = SentenceTransformer(
-                self._model_name,
-                device=self.device
-            )
-        return self._embedding_model
+    def collection_name(self) -> str:
+        return self._collection_name
     
     @property
     def client(self) -> QdrantClient:
-        """Ленивая инициализация клиента Qdrant."""
         if self._client is None:
-            logger.info(f"Connecting to Qdrant at {self.location}")
-            self._client = QdrantClient(location=self.location)
+            if self.logger: self.logger.info(f"Connecting to Qdrant at {self.path}")
+            self._client = QdrantClient(path=self.path)
         return self._client
     
     @property
     def is_loaded(self) -> bool:
         return self._client is not None and self._is_index_built
     
+    def _encode_texts(
+        self,
+        texts: List[str],
+        is_query: bool = False,
+        batch_size: int = 64
+    ) -> np.ndarray:
+        """Кодирует тексты с учётом prompt_name."""
+        prompt_name = self.query_prompt_name if is_query else None
+        return embedding_model_manager.encode(
+            model_name=self.model_name,
+            texts=texts,
+            device=self.device,
+            dtype=self.dtype,
+            prompt_name=prompt_name,
+            normalize=True,
+            batch_size=batch_size
+        )
+    
     def _get_collection_config(self) -> Dict[str, Any]:
-        """Конфигурация коллекции с оптимизацией под память."""
         config = {
-            "vectors": VectorParams(
+            "vectors_config": VectorParams(
                 size=self.vector_size,
-                distance=Distance.COSINE,
+                distance=Distance.COSINE, 
                 hnsw_config={
                     "m": 16,
                     "ef_construct": 200,
@@ -78,81 +116,120 @@ class QdrantVectorStore(BaseVectorStore):
                 }
             ),
             "optimizers_config": {
-                "default_segment_number": 2,  # Меньше сегментов = меньше фрагментации памяти
-                "memmap_threshold": 10000     # Включаем mmap для больших индексов
+                "default_segment_number": 2,
+                "memmap_threshold": 10000
             }
         }
         
-        # Квантование для экономии памяти (в 4 раза)
         if self.quantization:
             config["quantization_config"] = {
                 "scalar": {
                     "type": "int8",
                     "quantile": 0.99,
-                    "always_ram": True  # Держим квантованный индекс в RAM для скорости
+                    "always_ram": True
                 }
             }
         
         return config
     
-    def build_index(self, documents: List[Dict[str, Any]], collection_name: Optional[str] = None) -> None:
+    def build_index(
+        self,
+        documents: List[Dict[str, Any]],
+        collection_name: Optional[str] = None,
+        batch_size: int = 256,
+        max_workers: int = 2,
+        force_rebuild: bool = False
+    ) -> None:
         """
-        Создает индекс из документов. Поддерживает батчинг для экономии памяти.
+        Создает векторный индекс из списка документов с параллельной обработкой батчей.
         
         Args:
-            documents: Список {'text': str, 'metadata': dict}
-            collection_name: Переопределение имени коллекции (опционально)
+            documents: Список dict с ключами 'text' и 'metadata'.
+            collection_name: Имя коллекции (по умолчанию self._collection_name).
+            batch_size: Размер одного батча для кодирования и upsert.
+            max_workers: Количество потоков. Рекомендуется 2-4 для CPU, 1 для CUDA 
+                         (из-за внутренней многопоточности PyTorch).
+            force_rebuild: Если True, удаляет коллекцию и создаёт её заново,
         """
-        coll_name = collection_name or self.collection_name
-        logger.info(f"Building index '{coll_name}' with {len(documents)} documents...")
+        if not documents:
+            if self.logger: self.logger.warning("Empty document list provided. Skipping index build.")
+            return
+
+        coll_name = collection_name or self._collection_name
+        if self.logger: self.logger.info(f"Building index '{coll_name}' with {len(documents)} documents...")
         
-        # Создаем коллекцию если не существует
+        if force_rebuild and self.client.collection_exists(coll_name):
+            self.client.delete_collection(coll_name)
+            if self.logger: self.logger.info(f"Dropped existing collection '{coll_name}' for rebuild")
+
         if not self.client.collection_exists(coll_name):
+            if self.logger: self.logger.info(f"Creating collection '{coll_name}'")
             self.client.create_collection(
                 collection_name=coll_name,
                 **self._get_collection_config()
             )
-            # Создаем индекс для фильтрации по db_id (критично для schema linking)
+            # Индекс для фильтрации по db_id
             self.client.create_payload_index(
                 collection_name=coll_name,
                 field_name="db_id",
-                field_schema="keyword"
+                field_schema=KeywordIndexParams(
+                    type=PayloadSchemaType.KEYWORD,
+                    is_tenant=True 
+                )
             )
         
-        # Батчинг для экономии памяти (не грузим все векторы сразу)
-        batch_size = 256
-        points = []
+        batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]
+        completed_batches = 0
         
-        for i, doc in enumerate(documents):
-            # Генерируем эмбеддинг
-            vector = self.embedding_model.encode(
-                doc["text"],
-                show_progress_bar=False
-            ).tolist()
+        def _process_batch(batch_data: Tuple[int, List[Dict]]) -> Tuple[int, List[PointStruct]]:
+            start_idx, batch_docs = batch_data
+            texts = [doc["text"] for doc in batch_docs]
             
-            # Создаем точку для Qdrant
-            point = PointStruct(
-                id=i,  # Простой числовой ID
-                vector=vector,
-                payload={
-                    "text": doc["text"],
-                    **doc["metadata"]  # db_id, table_name, column_name, etc.
-                }
+            vectors = embedding_model_manager.encode(
+                model_name=self.model_name,
+                texts=texts,
+                device=self.device,
+                dtype=self.dtype,
+                prompt_name=None,
+                normalize=True,
+                batch_size=len(texts)
             )
-            points.append(point)
-            
-            # Отправляем батч
-            if len(points) >= batch_size:
-                self.client.upsert(collection_name=coll_name, points=points)
-                points = []
-                logger.info(f"Indexed {i+1}/{len(documents)} documents...")
-        
-        # Отправляем остаток
-        if points:
-            self.client.upsert(collection_name=coll_name, points=points)
+
+            points = []
+            for i, (doc, vec) in enumerate(zip(batch_docs, vectors)):
+                points.append(PointStruct(
+                    id=start_idx + i,
+                    vector=vec.tolist(),
+                    payload={"text": doc["text"], **doc["metadata"]}
+                ))
+            return start_idx, points
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Отправляем батчи на кодирование
+            futures = {
+                executor.submit(_process_batch, (i * batch_size, batch)): i 
+                for i, batch in enumerate(batches)
+            }
+
+            # По мере завершения потока сразу отправляем в Qdrant
+            for future in as_completed(futures):
+                batch_idx = futures[future]
+                try:
+                    _, points = future.result()
+                    self.client.upsert(collection_name=coll_name, points=points)
+                    completed_batches += 1
+                    if self.logger: 
+                        self.logger.debug(
+                            f"Upserted batch {completed_batches}/{len(batches)} "
+                            f"(start_idx={_}, points={len(points)})"
+                        )
+                except Exception as e:
+                    if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
+                    executor.shutdown(wait=False)
+                    raise
         
         self._is_index_built = True
-        logger.info(f"Index '{coll_name}' built successfully.")
+        if self.logger: self.logger.info(f"Index '{coll_name}' built successfully.")
     
     def search(
         self,
@@ -161,53 +238,40 @@ class QdrantVectorStore(BaseVectorStore):
         filters: Optional[Dict[str, Any]] = None,
         batch_size: int = 32
     ) -> Dict[str, List[VectorSearchResult]]:
-        """
-        Поиск с поддержкой батчинга и фильтрации.
-        """
+        """Поиск. Запросы кодируются С query-промптом (если задан)."""
         if not self.is_loaded:
             raise RuntimeError("Index not loaded. Call build_index() first.")
         
-        results = {}
+        results: Dict[str, List[VectorSearchResult]] = {}
         
-        # Батчинг запросов для эффективного использования GPU/CPU
         for i in range(0, len(queries), batch_size):
-            batch_queries = queries[i:i+batch_size]
+            batch_queries = queries[i:i + batch_size]
             
-            # Генерируем эмбеддинги для батча
-            vectors = self.embedding_model.encode(
-                batch_queries,
-                show_progress_bar=False,
-                batch_size=batch_size
-            )
+            # Запросы кодируем с prompt_name
+            vectors = self._encode_texts(batch_queries, is_query=True)
             
             # Формируем фильтр Qdrant
             qdrant_filter = None
             if filters:
-                must_conditions = []
-                for key, value in filters.items():
-                    must_conditions.append(
-                        FieldCondition(
-                            key=key,
-                            match=MatchValue(value=value)
-                        )
-                    )
+                must_conditions = [
+                    FieldCondition(key=key, match=MatchValue(value=value))
+                    for key, value in filters.items()
+                ]
                 if must_conditions:
                     qdrant_filter = Filter(must=must_conditions)
             
-            # Поиск для каждого запроса в батче
             for query_text, vector in zip(batch_queries, vectors):
-                hits = self.client.search(
-                    collection_name=self.collection_name,
-                    query_vector=vector,
+                hits = self.client.query_points(
+                    collection_name=self._collection_name,
+                    query=vector.tolist(),
                     query_filter=qdrant_filter,
                     limit=top_k,
                     with_payload=True,
-                    params=SearchParams(hnsw_ef=128)  # Баланс скорость/точность
-                )
-                
+                    search_params=SearchParams(hnsw_ef=128)
+                ).points
                 results[query_text] = [
                     VectorSearchResult(
-                        text=hit.payload.get("text", ""),
+                        text=hit.p.get("text", ""),
                         metadata={k: v for k, v in hit.payload.items() if k != "text"},
                         score=hit.score,
                         rank=idx
@@ -218,10 +282,8 @@ class QdrantVectorStore(BaseVectorStore):
         return results
     
     def close(self) -> None:
-        """Закрывает соединения и освобождает память."""
+        """Закрывает клиент Qdrant (модель управляется глобальным менеджером)."""
         if self._client:
             self._client = None
-        if self._embedding_model:
-            # SentenceTransformer не имеет явного close(), но можно удалить ссылку
-            self._embedding_model = None
-        logger.info("QdrantVectorStore resources released.")
+            gc.collect()
+            if self.logger: self.logger.info(f"Qdrant client closed for collection '{self._collection_name}'")
