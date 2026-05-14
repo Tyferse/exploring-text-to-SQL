@@ -11,6 +11,7 @@ import argparse
 from datetime import datetime
 import gc
 
+
 def sliding_window_table_match(metadata_table: str, target_table: str) -> bool:
     metadata_parts = metadata_table.lower().split('.')
     target_parts = target_table.lower().split('.')

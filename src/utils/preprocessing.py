@@ -3,8 +3,11 @@ import os
 import json
 import re
 import logging
+from copy import deepcopy
 from typing import Dict, List, Any, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from src.utils.logger import get_logger
 
 
 def setup_logger(log_dir: str = "logs") -> logging.Logger:
@@ -35,15 +38,17 @@ def remove_digits(text: str) -> str:
     """Удаляет все цифры из строки для нормализации имени таблицы."""
     return re.sub(r'\d+', '', text)
 
-def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger) -> Dict[str, Any]:
+def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger = None) -> Dict[str, Any]:
     """
     Обрабатывает одну базу данных (папку с JSON файлами таблиц).
     Возвращает словарь с метаданными и документами для эмбеддинга.
     """
-    logger.info(f"Processing database: {db_id} at {db_path}")
+    if logger:
+        logger.info(f"Processing database: {db_id} at {db_path}")
     
     if not os.path.exists(db_path):
-        logger.warning(f"Path does not exist: {db_path}")
+        if logger:
+            logger.warning(f"Path does not exist: {db_path}")
         return {}
 
     # Ключ группы: (шаблон_имени, сигнатура_набора_столбцов)
@@ -61,8 +66,17 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
                       if f.endswith('.json')]
 
     if not json_files:
-        logger.warning(f"No JSON files found in {db_path}")
+        if logger:
+            logger.warning(f"No JSON files found in {db_path}")
         return {}
+
+    def recursive_key_map(obj, keys=tuple()):
+        val = deepcopy(obj)
+        for key in keys:
+            if isinstance(val, dict) and val.get(key) or isinstance(val, list) and isinstance(key, int) and key < len(val):
+                val = val[key]
+        
+        return val
 
     for json_file in json_files:
         file_path = os.path.join(db_path, json_file)
@@ -115,7 +129,8 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
             processed_groups[group_key].append(table_info)
             
         except Exception as e:
-            logger.error(f"Error processing file {json_file} in {db_id}: {str(e)}")
+            if logger:
+                logger.error(f"Error processing file {json_file} in {db_id}: {str(e)}")
             continue
 
     # Пост-обработка групп: объединение схожих таблиц
@@ -152,20 +167,23 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
         final_db_metadata["tables"][representative["original_name"]] = table_meta
         
         # Генерация документов и метаданных столбцов для эмбеддингов
-        for col, typ, desc in zip(merged_columns, merged_types, table_meta['descriptions']):
+        for col, typ, desc in zip(merged_columns, merged_types, table_meta['descriptions']):           
             doc_text = (
                 f"Table: {representative['original_name']}. "
                 f"Column: {col}. "
                 f"Type: {typ}. "
                 f"Description: {desc}."
             )
+            has_nested_vals = representative["sample_rows"] and not isinstance(recursive_key_map(representative["sample_rows"][0], col.split('.')), dict) 
             documents.append({
                 "text": doc_text,
                 "metadata": {
                     "db_id": db_id,
                     "table_name": representative["original_name"],
                     "column_name": col,
-                    "column_type": typ
+                    "column_type": typ,
+                    "column_vals": [recursive_key_map(line, col.split('.')) for line in representative["sample_rows"]] 
+                    if has_nested_vals else []
                 }
             })
 
@@ -182,7 +200,8 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
     with open(docs_path, 'w', encoding='utf-8') as f:
         json.dump(documents, f, indent=2, ensure_ascii=False)
 
-    logger.info(f"Finished processing {db_id}. Found {len(final_db_metadata['tables'])} unique table groups.")
+    if logger:
+        logger.info(f"Finished processing {db_id}. Found {len(final_db_metadata['tables'])} unique table groups.")
     return final_db_metadata
 
 def spider2preprocess(
@@ -211,7 +230,12 @@ def spider2preprocess(
         Словарь, отображающий идентификатор базы данных db_id в путь к сохранённым метаданным.
     """
     os.makedirs(os.path.join(log_root, 'dbs', input_data_root), exist_ok=True)
-    logger = setup_logger(os.path.join(log_root, 'dbs', input_data_root))
+    logger = get_logger(
+        "preprocessing", 
+        os.path.join(log_root, 'dbs', input_data_root, 'preprocessing.log'), 
+        mode='w', 
+        force_reconfigure=True
+    )
     logger.info(f"Starting preprocessing. Root: {input_data_root}, Multidialect: {is_multidialect}")
     
     os.makedirs(output_storage_root, exist_ok=True)
@@ -282,7 +306,7 @@ def spider2preprocess(
                 
             return db_id, os.path.join(schema_cache_dir, f"{db_id}_meta.json")
         except Exception as e:
-            logger.error(f"Critical error processing {db_id}: {str(e)}")
+            logger.error(f"Critical error processing {db_id}: {e}")
             return None
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
