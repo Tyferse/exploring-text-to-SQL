@@ -1,9 +1,11 @@
 import gc
+import hashlib
 import json
 import os
 import threading
 from typing import Dict, List, Optional, Any
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .core import BaseVectorStore, VectorSearchResult
 from .qdrant_store import QdrantVectorStore
@@ -40,22 +42,23 @@ class VectorStoreManager:
         self.quantization = quantization
         self.dtype = dtype
         self.log_path = log_path
-        self.is_log_file_set = False
+        self._is_log_file_set = False
         
         # LRU-кэш: {context_id: VectorStore}
         self._session_cache: OrderedDict[str, BaseVectorStore] = OrderedDict()
         self._cache_lock = threading.Lock() if backend == "qdrant" else None
-        
+        self._coll_name = "schema_columns"
+
         os.makedirs(self.log_path, exist_ok=True)
         if not os.path.exists(os.path.join(self.log_path, "vector_store.log")):
             open(os.path.join(self.log_path, "vector_store.log"), 'w', encoding='utf-8').close()
 
-        attach_shared_file_handler(
-            log_file=os.path.join(self.log_path, "vector_store.log"),
-            logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
-            level="INFO",
-            mode='a'
-        )
+        # attach_shared_file_handler(
+        #     log_file=os.path.join(self.log_path, "vector_store.log"),
+        #     logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
+        #     level="INFO",
+        #     mode='a'
+        # )
 
         self.logger = get_logger(
             "vector_manager", 
@@ -78,21 +81,21 @@ class VectorStoreManager:
         if self.backend == "qdrant":
             session = QdrantVectorStore(
                 path=self._get_context_path(context_id),
-                collection_name="schema_columns",
+                collection_name=self._coll_name,
                 embedding_model=self.embedding_model,
                 device=self.device,
                 quantization=self.quantization,
                 dtype=self.dtype,
                 log_path=self.log_path,
             )
-            if not self.is_log_file_set:
+            if not self._is_log_file_set:
                 attach_shared_file_handler(
                     log_file=os.path.join(self.log_path, "vector_store.log"),
                     logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
                     level="INFO",
                     mode='a'
                 )
-                self.is_log_file_set = True
+                self._is_log_file_set = True
 
             return session
         else:
@@ -129,6 +132,7 @@ class VectorStoreManager:
         self,
         preprocessing_results: Dict[str, str],
         context_id: Optional[str] = None,
+        batch_size: int = 256,
         max_workers: int = 2,
         force_rebuild: bool = False
     ) -> None:
@@ -138,9 +142,10 @@ class VectorStoreManager:
         Args:
             preprocessing_results: Dict {db_id: path_to_meta.json}
             context_id: Уникальный ID для изоляции индексов
-            max_workers: число процессов для параллельного построения индекса
+            max_workers: число процессов для проверки на существующие данные
+            force_rebuild: Если True, пересоздаёт хранилище заново вне зависимости от существующих данных
         """
-        if not context_id:    
+        if not context_id:
             context_id = list(preprocessing_results.keys())[0].rsplit("_", 1)[0]
         
         if self.logger: self.logger.info(f"Building vector indexes for context '{context_id}'...")
@@ -161,7 +166,13 @@ class VectorStoreManager:
             # docs_data может быть списком документов или dict с ключом "documents"
             documents = docs_data if isinstance(docs_data, list) else docs_data.get("documents", [])
             
+            get_column_hash = lambda meta: int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
+
             for doc in documents:
+                if 'id' not in doc:
+                    meta = doc['metadata']
+                    doc['id'] = get_column_hash(meta)
+
                 all_documents.append(doc)
         
         if not all_documents:
@@ -170,7 +181,35 @@ class VectorStoreManager:
         
         # Создаём индекс через сессию
         session = self._get_or_create_session(context_id)
-        session.build_index(all_documents, collection_name="schema_columns", max_workers=max_workers, force_rebuild=force_rebuild)
+        if session.client.collection_exists(self._coll_name) and session.client.count(collection_name=self._coll_name).count > 0:
+            existing_points = []
+            if not force_rebuild:
+                if self.logger: self.logger.info("Index exists. Checking data.")
+                with ThreadPoolExecutor(max_workers) as executor:                    
+                    futures = {
+                        executor.submit(session.get_indexed_columns, self._coll_name, db_id): db_id
+                        for db_id in preprocessing_results.keys()
+                    }
+
+                    # По мере завершения потока сразу отправляем в Qdrant
+                    for future in as_completed(futures):
+                        try:
+                            db_id = futures[future]
+                            existing_points.extend(res[0] for res in future.result())
+                        except Exception as e:
+                            if self.logger: self.logger.error(f"Failed to find items for {db_id}: {e}")
+                            executor.shutdown(wait=False)
+                            raise
+
+                all_documents = [doc for doc in all_documents if doc['id'] not in existing_points]
+                if self.logger: self.logger.info(f"Found {len(existing_points)} items, adding {len(all_documents)}")
+
+            if all_documents:
+                session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=force_rebuild)
+            else:
+                session._is_index_built = True
+        else:
+            session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=True)
         
         if self.logger: self.logger.info(f"Built index with {len(all_documents)} column documents for context '{context_id}'")
     
@@ -236,3 +275,5 @@ class VectorStoreManager:
         self.close_all()
         return False
     
+
+

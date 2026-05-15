@@ -1,6 +1,6 @@
 {
     "BAAI/bge-small-en-v1.5": {"dim": 384, "default_prompt": null, "query_prompt": null},
-    "microsoft/harrier-oss-v1-270m": {"dim": 640, "default_prompt": null, "prompt_name": "web_search_query"},
+    "microsoft/harrier-oss-v1-270m": {"dim": 640, "default_prompt": null, "prompt_name": null},
     "microsoft/harrier-oss-v1-0.6b": {"dim": 1024, "default_prompt": null, "prompt_name": "web_search_query"},
     "Qwen/Qwen3-Embedding-0.6B": {"dim": 1024, "default_prompt": null, "query_prompt": null},
     "ibm-granite/granite-embedding-311m-multilingual-r2": {"dim": 768, "default_prompt": null, "query_prompt": null}

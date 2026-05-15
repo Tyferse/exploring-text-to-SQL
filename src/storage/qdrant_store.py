@@ -1,9 +1,9 @@
 import gc
-import os
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
+from tqdm import tqdm
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     Distance, VectorParams, Filter, FieldCondition, KeywordIndexParams,
@@ -101,7 +101,8 @@ class QdrantVectorStore(BaseVectorStore):
             dtype=self.dtype,
             prompt_name=prompt_name,
             normalize=True,
-            batch_size=batch_size
+            batch_size=batch_size,
+            is_query=is_query
         )
     
     def _get_collection_config(self) -> Dict[str, Any]:
@@ -177,7 +178,12 @@ class QdrantVectorStore(BaseVectorStore):
                     is_tenant=True 
                 )
             )
-        
+
+        embedding_model_manager.get_model(self.model_name)
+        _model_name = list(embedding_model_manager._locks.keys())[0]
+        _lock = embedding_model_manager._locks[_model_name]
+        embedding_model_manager._locks[_model_name] = None
+
         batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]
         completed_batches = 0
         
@@ -198,36 +204,34 @@ class QdrantVectorStore(BaseVectorStore):
             points = []
             for i, (doc, vec) in enumerate(zip(batch_docs, vectors)):
                 points.append(PointStruct(
-                    id=start_idx + i,
+                    id=doc.get("id", start_idx + i),
                     vector=vec.tolist(),
                     payload={"text": doc["text"], **doc["metadata"]}
                 ))
             return start_idx, points
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Отправляем батчи на кодирование
+            # Отправляем батчи на кодирование параллельно, на случай отключения блокировки потоков
             futures = {
                 executor.submit(_process_batch, (i * batch_size, batch)): i 
                 for i, batch in enumerate(batches)
             }
 
             # По мере завершения потока сразу отправляем в Qdrant
-            for future in as_completed(futures):
-                batch_idx = futures[future]
-                try:
-                    _, points = future.result()
-                    self.client.upsert(collection_name=coll_name, points=points)
-                    completed_batches += 1
-                    if self.logger: 
-                        self.logger.debug(
-                            f"Upserted batch {completed_batches}/{len(batches)} "
-                            f"(start_idx={_}, points={len(points)})"
-                        )
-                except Exception as e:
-                    if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
-                    executor.shutdown(wait=False)
-                    raise
+            with tqdm(total=len(list(futures.keys())), desc="Adding batches", ncols=160, leave=True) as pbar:
+                for future in as_completed(futures):
+                    batch_idx = futures[future]
+                    try:
+                        _, points = future.result()
+                        self.client.upsert(collection_name=coll_name, points=points)
+                        completed_batches += 1
+                        pbar.update(1)
+                    except Exception as e:
+                        if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
+                        executor.shutdown(wait=False)
+                        raise
         
+        embedding_model_manager._locks[_model_name] = _lock
         self._is_index_built = True
         if self.logger: self.logger.info(f"Index '{coll_name}' built successfully.")
     
@@ -242,14 +246,12 @@ class QdrantVectorStore(BaseVectorStore):
         if not self.is_loaded:
             raise RuntimeError("Index not loaded. Call build_index() first.")
         
-        results: Dict[str, List[VectorSearchResult]] = {}
+        results: Union[Dict[str, List[VectorSearchResult]], List[VectorSearchResult]] = {}
         
         for i in range(0, len(queries), batch_size):
             batch_queries = queries[i:i + batch_size]
-            
-            # Запросы кодируем с prompt_name
             vectors = self._encode_texts(batch_queries, is_query=True)
-            
+
             # Формируем фильтр Qdrant
             qdrant_filter = None
             if filters:
@@ -259,7 +261,7 @@ class QdrantVectorStore(BaseVectorStore):
                 ]
                 if must_conditions:
                     qdrant_filter = Filter(must=must_conditions)
-            
+
             for query_text, vector in zip(batch_queries, vectors):
                 hits = self.client.query_points(
                     collection_name=self._collection_name,
@@ -271,8 +273,9 @@ class QdrantVectorStore(BaseVectorStore):
                 ).points
                 results[query_text] = [
                     VectorSearchResult(
-                        text=hit.p.get("text", ""),
-                        metadata={k: v for k, v in hit.payload.items() if k != "text"},
+                        id=hit.id,
+                        text=hit.payload.get("text", ""),
+                        metadata={k: v for k, v in hit.payload.items() if k not in ["text", "id"]},
                         score=hit.score,
                         rank=idx
                     )
@@ -280,6 +283,35 @@ class QdrantVectorStore(BaseVectorStore):
                 ]
         
         return results
+
+    def get_indexed_columns(self, collection_name: str, target_db_id: str) -> set:
+        """Возвращает множество уникальных колонок (table.column), уже проиндексированных для db_id."""
+        indexed = set()
+        limit = 500
+        
+        # Фильтр только по нужной БД
+        db_filter = Filter(must=[FieldCondition(key="db_id", match=MatchValue(value=target_db_id))])
+        next_offset = 0
+
+        while True:
+            points, next_offset = self.client.scroll(
+                collection_name=collection_name,
+                scroll_filter=db_filter,
+                limit=limit,
+                offset=next_offset,
+                with_payload=["table_name", "column_name"],
+                with_vectors=False
+            )
+            
+            for p in points:
+                payload = p.payload if hasattr(p, 'payload') else (p[2] if isinstance(p, tuple) else {})
+                if payload:
+                    indexed.add((p.id, payload.get('table_name'), payload.get('columns_name')))
+
+            if next_offset is None:
+                break
+                
+        return indexed
     
     def close(self) -> None:
         """Закрывает клиент Qdrant (модель управляется глобальным менеджером)."""

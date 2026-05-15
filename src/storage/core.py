@@ -6,8 +6,9 @@ from dataclasses import dataclass
 @dataclass
 class VectorSearchResult:
     """Структурированный результат поиска."""
+    id: int
     text: str
-    meta: Dict[str, Any]
+    metadata: Dict[str, Any]
     score: float
     rank: int
 

@@ -157,7 +157,6 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
                     merged_descs[col] = desc
     
         table_meta = {
-            "representative_name": representative["original_name"],
             "similar_tables": similar_tables,
             "columns": merged_columns,
             "types": merged_types,

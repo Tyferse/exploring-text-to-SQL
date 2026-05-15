@@ -62,7 +62,7 @@ class EmbeddingModelManager:
                         self.logger.warning("CUDA not available, falling back to CPU")
                         device = "cpu"
                     
-                    model_kwargs = {"torch_dtype": dtype if dtype != "auto" else "auto"}
+                    model_kwargs = {"torch_dtype": dtype}
                     model = SentenceTransformer(model_name, device=device, model_kwargs=model_kwargs)
                     
                     self._models[key] = model
@@ -79,7 +79,8 @@ class EmbeddingModelManager:
         dtype: str = "auto",
         prompt_name: Optional[str] = None,
         normalize: bool = True,
-        batch_size: int = 64
+        batch_size: int = 64,
+        is_query: bool = False
     ) -> np.ndarray:
         """
         Потокобезопасное кодирование текстов.
@@ -93,9 +94,9 @@ class EmbeddingModelManager:
         
         if lock:
             with lock:
-                return self._do_encode(model, texts, prompt_name, normalize, batch_size)
+                return self._do_encode(model, texts, prompt_name, normalize, batch_size, is_query=is_query)
         else:
-            return self._do_encode(model, texts, prompt_name, normalize, batch_size)
+            return self._do_encode(model, texts, prompt_name, normalize, batch_size, is_query=is_query)
     
     def _do_encode(
         self,
@@ -103,7 +104,8 @@ class EmbeddingModelManager:
         texts: List[str],
         prompt_name: Optional[str],
         normalize: bool,
-        batch_size: int
+        batch_size: int,
+        is_query: bool = False
     ) -> np.ndarray:
         """Внутренний метод кодирования."""
         encode_kwargs = {
@@ -114,8 +116,15 @@ class EmbeddingModelManager:
         }
         if prompt_name:
             encode_kwargs["prompt_name"] = prompt_name
+            del encode_kwargs["prompt"]
+        elif is_query:
+            encode_kwargs["prompt"] = "Instruct: Given a natural language query, retrieve relevant database columns that answer the query\nQuery: "
         
-        embeddings = model.encode(**encode_kwargs)
+        try:
+            embeddings = model.encode(**encode_kwargs)
+        except:
+            del encode_kwargs["prompt"]
+            embeddings = model.encode(**encode_kwargs)
         
         # L2 нормализация для косинусного сходства
         if normalize and embeddings.ndim == 2:
