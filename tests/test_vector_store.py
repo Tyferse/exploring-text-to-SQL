@@ -16,7 +16,7 @@ if __name__ == "__main__":
             backend="qdrant",
             device="cpu",
             quantization=False,
-            log_path="logs/dbs/Spider2/spider2-lite"
+            log_path="logs\dbs\Spider2\spider2-lite"
         ) as vsm:
             
             # 1. Группируем вопросы по db_id
@@ -37,10 +37,10 @@ if __name__ == "__main__":
             # результаты предобработски spider2preprocess
             vsm.build_from_preprocessing_results(
                 preprocessing_results={
-                    db: os.path.join("storage/Spider2/spider2-lite/schema_cache", db + "_meta.json") 
+                    db: os.path.join("storage\Spider2\spider2-lite\schema_cache", db + "_meta.json") 
                     for db in queries_by_db.keys()
                 },
-                context_id="Spider2/spider2-lite",
+                context_id="Spider2\spider2-lite",
                 max_workers=2,
                 force_rebuild=True
             )
@@ -58,13 +58,13 @@ if __name__ == "__main__":
             
             # 3. Выполняем поиск
             search_results = vsm.search_batch(
-                context_id="Spider2/spider2-lite",
+                context_id="Spider2\spider2-lite",
                 queries_by_db=queries_by_db,
                 top_k=100,
                 batch_size=32
             )
             print(monitor.get_stats())
-        
+            
             meta = {
                 db: json.load(open(os.path.join("storage\Spider2\spider2-lite\schema_cache", db + '_meta.json'), encoding='utf-8'))
                 for db in queries_by_db
@@ -78,8 +78,4 @@ if __name__ == "__main__":
                     print(f"Query: {query}")
                     for r in results[:10]:
                         print(f"  [{r.score:.3f}] {r.metadata['table_name']}.{r.metadata['column_name']}")
-
-                    try:
-                        print(f"  ({', '.join(meta[db_id]['tables'][r.metadata['table_name']]['similar_tables'])})")
-                    except KeyError:
-                        continue
+                        print(f"                  ({', '.join(meta[db_id]['tables'][r.metadata['table_name']]['similar_tables'])})")

@@ -12,6 +12,11 @@ from .qdrant_store import QdrantVectorStore
 from src.utils.logger import get_logger, attach_shared_file_handler
 
 
+def get_column_hash(meta: dict):
+    "Геренирует хэш столбца по метаданным"
+    return int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
+
+
 class VectorStoreManager:
     """
     Управляет пулом сессий векторных хранилищ.
@@ -165,9 +170,6 @@ class VectorStoreManager:
             
             # docs_data может быть списком документов или dict с ключом "documents"
             documents = docs_data if isinstance(docs_data, list) else docs_data.get("documents", [])
-            
-            get_column_hash = lambda meta: int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
-
             for doc in documents:
                 if 'id' not in doc:
                     meta = doc['metadata']
@@ -274,6 +276,3 @@ class VectorStoreManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close_all()
         return False
-    
-
-
