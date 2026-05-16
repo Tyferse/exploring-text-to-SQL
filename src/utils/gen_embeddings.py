@@ -9,9 +9,11 @@ from src.storage.vector_manager import VectorStoreManager
 def gen_column_embeddings(
         input_data_root="Spider2/spider2-lite",
         storage_root="storage",
+        location=None,
         embedding_model="microsoft/harrier-oss-v1-270m",
         device="cpu", 
         quantization=False,
+        batch_size=256,
         max_workers=2,
         max_cached_sessions=2, 
         backend="qdrant",
@@ -19,6 +21,7 @@ def gen_column_embeddings(
     ):
     vsm = VectorStoreManager(
         storage_root=storage_root,
+        location=location,
         max_cached_sessions=max_cached_sessions, 
         embedding_model=embedding_model,
         backend=backend,
@@ -33,9 +36,11 @@ def gen_column_embeddings(
             if file.endswith("_meta.json")
         },
         context_id=input_data_root,
+        batch_size=batch_size,
         max_workers=max_workers,
         force_rebuild=force_rebuild
     )
+    vsm.close_all()
 
 
 if __name__ == "__main__":
@@ -57,6 +62,10 @@ if __name__ == "__main__":
         help="Корневая директория для кэшированных схем и векторных баз данных."
     )
     parser.add_argument(
+        "--location", type=str, default=None,
+        help="URL локального сервера с векторной базой данных."
+    )
+    parser.add_argument(
         "--embedding_model", type=str, default="microsoft/harrier-oss-v1-270m",
         help="Идентификатор HuggingFace модели или локальный путь для создания эмбеддингов. "
              "Поддерживает модели с prompt-based кодированием (Harrier, Qwen3 и др.)."
@@ -72,9 +81,13 @@ if __name__ == "__main__":
              "с минимальным влиянием на точность поиска. Рекомендуется для датасетов >50k столбцов."
     )
     parser.add_argument(
+        "--batch_size", type=int, default=256,
+        help="Размер батча генерируемых эмбеддингов."
+    )
+    parser.add_argument(
         "--max_workers", type=int, default=2,
         help="Количество параллельных потоков для кодирования батчей и upsert в Qdrant. "
-             "Для CPU: 2-4. Для CUDA: 1 (PyTorch уже распараллеливает матричные операции внутри)."
+             "Для CPU: 2-4. Для CUDA: 1."
     )
     parser.add_argument(
         "--max_cached_sessions", type=int, default=2,
@@ -94,8 +107,10 @@ if __name__ == "__main__":
 
     if args.embed_type == 'column':
         gen_column_embeddings(
-            args.input_data_root, args.storage_root, args.embedding_model, args.device, args.quantization, 
-            args.max_workers, args.max_cached_sessions, args.backend, args.force_rebuild
+            args.input_data_root, args.storage_root, args.location, 
+            args.embedding_model, args.device, args.quantization, 
+            args.batch_size, args.max_workers, args.max_cached_sessions, 
+            args.backend, args.force_rebuild
         )
     else:
         raise NotImplementedError

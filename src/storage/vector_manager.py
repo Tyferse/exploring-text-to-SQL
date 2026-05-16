@@ -10,11 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .core import BaseVectorStore, VectorSearchResult
 from .qdrant_store import QdrantVectorStore
 from src.utils.logger import get_logger, attach_shared_file_handler
-
-
-def get_column_hash(meta: dict):
-    "Геренирует хэш столбца по метаданным"
-    return int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
+from src.utils.preprocessing import get_column_hash
 
 
 class VectorStoreManager:
@@ -31,6 +27,7 @@ class VectorStoreManager:
     def __init__(
         self,
         storage_root: str = "storage",
+        location: str = None,
         max_cached_sessions: int = 3,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         backend: str = "qdrant",
@@ -40,6 +37,7 @@ class VectorStoreManager:
         log_path: str = None
     ):
         self.storage_root = storage_root
+        self.location = location
         self.max_cached_sessions = max_cached_sessions
         self.embedding_model = embedding_model
         self.backend = backend
@@ -79,13 +77,14 @@ class VectorStoreManager:
     
     def _get_context_path(self, context_id: str) -> str:
         """Возвращает путь к хранилищу для контекста."""
-        return os.path.join(self.storage_root, context_id, "vector_db")
+        return os.path.join(self.storage_root, context_id, "column_vdb")
     
     def _create_session(self, context_id: str) -> BaseVectorStore:
         """Создаёт новую сессию для контекста."""
         if self.backend == "qdrant":
             session = QdrantVectorStore(
-                path=self._get_context_path(context_id),
+                location=self.location,
+                path=self._get_context_path(context_id) if self.location is None else None,
                 collection_name=self._coll_name,
                 embedding_model=self.embedding_model,
                 device=self.device,
@@ -93,18 +92,19 @@ class VectorStoreManager:
                 dtype=self.dtype,
                 log_path=self.log_path,
             )
-            if not self._is_log_file_set:
-                attach_shared_file_handler(
-                    log_file=os.path.join(self.log_path, "vector_store.log"),
-                    logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
-                    level="INFO",
-                    mode='a'
-                )
-                self._is_log_file_set = True
-
-            return session
         else:
             raise ValueError(f"Unsupported backend: {self.backend}")
+        
+        if not self._is_log_file_set:
+            attach_shared_file_handler(
+                log_file=os.path.join(self.log_path, "vector_store.log"),
+                logger_names=["vector_manager", "qdrant_vector_store", "embedding_model_manager"],
+                level="INFO",
+                mode='a'
+            )
+            self._is_log_file_set = True
+
+        return session
     
     def _get_or_create_session(self, context_id: str) -> BaseVectorStore:
         """Получает или создаёт сессию."""
@@ -153,7 +153,7 @@ class VectorStoreManager:
         if not context_id:
             context_id = list(preprocessing_results.keys())[0].rsplit("_", 1)[0]
         
-        if self.logger: self.logger.info(f"Building vector indexes for context '{context_id}'...")
+        if self.logger: self.logger.info(f"Building vector indexes for context '{context_id}' with {batch_size} batch size...")
         
         # Собираем все документы
         all_documents: List[Dict] = []
@@ -189,7 +189,7 @@ class VectorStoreManager:
                 if self.logger: self.logger.info("Index exists. Checking data.")
                 with ThreadPoolExecutor(max_workers) as executor:                    
                     futures = {
-                        executor.submit(session.get_indexed_columns, self._coll_name, db_id): db_id
+                        executor.submit(session.get_indexed_columns, self._coll_name, db_id, True): db_id
                         for db_id in preprocessing_results.keys()
                     }
 
@@ -197,7 +197,7 @@ class VectorStoreManager:
                     for future in as_completed(futures):
                         try:
                             db_id = futures[future]
-                            existing_points.extend(res[0] for res in future.result())
+                            existing_points.extend(future.result())
                         except Exception as e:
                             if self.logger: self.logger.error(f"Failed to find items for {db_id}: {e}")
                             executor.shutdown(wait=False)

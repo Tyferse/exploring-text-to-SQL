@@ -284,10 +284,10 @@ class QdrantVectorStore(BaseVectorStore):
         
         return results
 
-    def get_indexed_columns(self, collection_name: str, target_db_id: str) -> set:
+    def get_indexed_columns(self, collection_name: str, target_db_id: str, id_only=False) -> set:
         """Возвращает множество уникальных колонок (table.column), уже проиндексированных для db_id."""
         indexed = set()
-        limit = 500
+        limit = 1000
         
         # Фильтр только по нужной БД
         db_filter = Filter(must=[FieldCondition(key="db_id", match=MatchValue(value=target_db_id))])
@@ -299,15 +299,19 @@ class QdrantVectorStore(BaseVectorStore):
                 scroll_filter=db_filter,
                 limit=limit,
                 offset=next_offset,
-                with_payload=["table_name", "column_name"],
+                with_payload=["table_name", "column_name"] if not id_only else False,
                 with_vectors=False
             )
             
-            for p in points:
-                payload = p.payload if hasattr(p, 'payload') else (p[2] if isinstance(p, tuple) else {})
-                if payload:
-                    indexed.add((p.id, payload.get('table_name'), payload.get('columns_name')))
-
+            if id_only:
+                for p in points:
+                    indexed.add(p.id)
+            else:
+                for p in points:
+                    payload = p.payload if hasattr(p, 'payload') else (p[2] if isinstance(p, tuple) else {})
+                    if payload:
+                        indexed.add((p.id, payload.get('table_name'), payload.get('columns_name')))
+        
             if next_offset is None:
                 break
                 

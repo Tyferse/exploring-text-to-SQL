@@ -1,42 +1,22 @@
 import argparse
-import os
+import hashlib
 import json
-import re
 import logging
+import os
+import re
 from copy import deepcopy
 from typing import Dict, List, Any, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
 from src.utils.logger import get_logger
 
-
-def setup_logger(log_dir: str = "logs") -> logging.Logger:
-    """Настраивает файловый и консольный логгер."""
-    os.makedirs(log_dir, exist_ok=True)
-    log_path = os.path.join(log_dir, "preprocessing.log")
-    logger = logging.getLogger("preprocessing")
-
-    # Очищаем хендлеры, если они есть (для перезапуска)
-    logger.handlers.clear()
-    logger.setLevel(logging.INFO)
-    
-    fh = logging.FileHandler(log_path, mode='w', encoding='utf-8')
-    fh.setLevel(logging.INFO)
-    
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter('%(asctime)s | %(name)s | %(levelname)s | %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    return logger
 
 def remove_digits(text: str) -> str:
     """Удаляет все цифры из строки для нормализации имени таблицы."""
     return re.sub(r'\d+', '', text)
+
+def get_column_hash(meta: dict):
+    "Геренирует хэш столбца по метаданным"
+    return int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
 
 def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger = None) -> Dict[str, Any]:
     """
@@ -185,6 +165,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
                     if has_nested_vals else []
                 }
             })
+            documents[-1]["id"] = get_column_hash(documents[-1]["metadata"])
 
     os.makedirs(schema_cache_dir, exist_ok=True)
     
