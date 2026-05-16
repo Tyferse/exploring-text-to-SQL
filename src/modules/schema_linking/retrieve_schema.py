@@ -390,9 +390,9 @@ class SchemaRetriever:
             force_refresh=False  # Использует кэш
         )
 
-
 def retrieve_columns(
         run_name: str = "", 
+        tasks: Optional[List[Dict[str, str]]] = None,
         input_data_root: str = "Spider2\spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage", 
@@ -423,24 +423,25 @@ def retrieve_columns(
         expansion_top_k=topk // 5, max_total_columns=topk
     )
 
-    tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                  if file.endswith('.jsonl')][0]
-    with open(os.path(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
-        q_key = "question"
-        tasks = [json.loads(line.strip()) for line in f.readlines()]
-        if "question" not in tasks[0]:
-            q_key = "instuction"
+    if tasks is None:
+        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
+                    if file.endswith('.jsonl')][0]
+        with open(os.path(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
+            tasks = [json.loads(line.strip()) for line in f.readlines()]
 
-        if input_data_root == "Spider2\spider2-lite":
-            inst2dialect = {"sf": "sqnowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-            tasks = [(instance["instance_id"], instance["instance_id"], instance[q_key], 
-                      inst2dialect[remove_digits(instance["instance_id"]).split('_')[0]] 
-                      + "_" + instance["db_id"], 
-                      instance["external_knowledge"])
-                     for instance in tasks]
-        else:
-            tasks = [(instance["instance_id"], instance["db_id"], instance[q_key])
-                     for instance in tasks]
+    q_key = "question"
+    if "question" not in tasks[0]:
+        q_key = "instuction"
+
+    if input_data_root == "Spider2\spider2-lite":
+        inst2dialect = {"sf": "sqnowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+        tasks = [(instance["instance_id"], instance["instance_id"], instance[q_key], 
+                    inst2dialect[remove_digits(instance["instance_id"]).split('_')[0]] 
+                    + "_" + instance["db_id"])
+                    for instance in tasks]
+    else:
+        tasks = [(instance["instance_id"], instance["db_id"], instance[q_key])
+                 for instance in tasks]
 
     def process_instance(instance_data):
         nonlocal retriever, storage_root, input_data_root, force_refresh

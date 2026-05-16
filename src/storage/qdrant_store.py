@@ -287,7 +287,7 @@ class QdrantVectorStore(BaseVectorStore):
     def get_indexed_columns(self, collection_name: str, target_db_id: str, id_only=False) -> set:
         """Возвращает множество уникальных колонок (table.column), уже проиндексированных для db_id."""
         indexed = set()
-        limit = 1000
+        limit = 5000
         
         # Фильтр только по нужной БД
         db_filter = Filter(must=[FieldCondition(key="db_id", match=MatchValue(value=target_db_id))])

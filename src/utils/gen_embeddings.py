@@ -3,21 +3,24 @@ sys.path.insert(0, '.')
 
 import argparse
 import os
+from typing import Dict, Optional
+
 from src.storage.vector_manager import VectorStoreManager
 
 
 def gen_column_embeddings(
-        input_data_root="Spider2/spider2-lite",
-        storage_root="storage",
-        location=None,
-        embedding_model="microsoft/harrier-oss-v1-270m",
-        device="cpu", 
-        quantization=False,
-        batch_size=256,
-        max_workers=2,
-        max_cached_sessions=2, 
-        backend="qdrant",
-        force_rebuild=False
+        preprocessing_results: Dict[str, str] = None,
+        input_data_root: str = "Spider2/spider2-lite",
+        storage_root: str = "storage",
+        location: Optional[str] = None,
+        embedding_model: str = "microsoft/harrier-oss-v1-270m",
+        device: str = "cpu", 
+        quantization: bool = False,
+        batch_size: int = 256,
+        max_workers: int = 2,
+        max_cached_sessions: int = 2, 
+        backend: str = "qdrant",
+        force_rebuild: bool = False
     ):
     vsm = VectorStoreManager(
         storage_root=storage_root,
@@ -29,12 +32,16 @@ def gen_column_embeddings(
         quantization=quantization,
         log_path=os.path.join("logs\dbs", input_data_root)
     )
-    vsm.build_from_preprocessing_results(
-        preprocessing_results={
+
+    if preprocessing_results is None:
+        preprocessing_results = {
             file.rsplit('_', 1)[0]: os.path.join(storage_root, input_data_root, "schema_cache", file) 
             for file in os.listdir(os.path.join(storage_root, input_data_root, "schema_cache"))
             if file.endswith("_meta.json")
-        },
+        }
+
+    vsm.build_from_preprocessing_results(
+        preprocessing_results=preprocessing_results,
         context_id=input_data_root,
         batch_size=batch_size,
         max_workers=max_workers,
@@ -107,7 +114,7 @@ if __name__ == "__main__":
 
     if args.embed_type == 'column':
         gen_column_embeddings(
-            args.input_data_root, args.storage_root, args.location, 
+            None, args.input_data_root, args.storage_root, args.location, 
             args.embedding_model, args.device, args.quantization, 
             args.batch_size, args.max_workers, args.max_cached_sessions, 
             args.backend, args.force_rebuild
