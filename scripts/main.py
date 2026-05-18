@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, ".")
 
 import os
+from src.modules.schema_linking.retrieve_schema import retrieve_columns
 from src.storage.docker_qdrant import ensure_qdrant_running
 from src.utils.gen_embeddings import gen_column_embeddings
 from src.utils.logger import ResourceMonitor
@@ -20,8 +21,8 @@ if __name__ == "__main__":
 
         # ensure_qdrant_running()
         gen_column_embeddings(
-            input_data_root, embedding_model="microsoft/harrier-oss-v1-270m", 
-            batch_size=256, device='cpu', max_workers=2
+            input_data_root=input_data_root, embedding_model="microsoft/harrier-oss-v1-270m", 
+            batch_size=180, device='cpu', max_workers=2
         )
 
         # Генерируем id запуска
@@ -32,5 +33,8 @@ if __name__ == "__main__":
         )
         run_path = get_run_path(run_id)
         os.makedirs(run_path, exist_ok=True)
+
+        retrieve_columns(run_name, input_data_root=input_data_root, max_workers=4)
+
 
     print(monitor.get_stats())

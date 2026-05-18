@@ -1,7 +1,7 @@
 import gc
-import hashlib
 import json
 import os
+import pickle
 import threading
 from typing import Dict, List, Optional, Any
 from collections import OrderedDict
@@ -183,35 +183,55 @@ class VectorStoreManager:
         
         # Создаём индекс через сессию
         session = self._get_or_create_session(context_id)
+
+        existing_ids = []
+        cached_id_path = os.path.join(self.storage_root, context_id, "added_ids.pkl")
         if session.client.collection_exists(self._coll_name) and session.client.count(collection_name=self._coll_name).count > 0:
-            existing_points = []
             if not force_rebuild:
                 if self.logger: self.logger.info("Index exists. Checking data.")
-                with ThreadPoolExecutor(max_workers) as executor:                    
-                    futures = {
-                        executor.submit(session.get_indexed_columns, self._coll_name, db_id, True): db_id
-                        for db_id in preprocessing_results.keys()
-                    }
 
-                    # По мере завершения потока сразу отправляем в Qdrant
-                    for future in as_completed(futures):
-                        try:
-                            db_id = futures[future]
-                            existing_points.extend(future.result())
-                        except Exception as e:
-                            if self.logger: self.logger.error(f"Failed to find items for {db_id}: {e}")
-                            executor.shutdown(wait=False)
-                            raise
+                # Загружаем существующие id из кэша
+                if os.path.exists(cached_id_path):
+                    with open(cached_id_path, 'rb') as f:
+                        existing_ids = pickle.load(f)
+                else:
+                    with ThreadPoolExecutor(max_workers) as executor:                    
+                        futures = {
+                            executor.submit(session.get_indexed_columns, self._coll_name, db_id, True): db_id
+                            for db_id in preprocessing_results.keys()
+                        }
 
-                all_documents = [doc for doc in all_documents if doc['id'] not in existing_points]
-                if self.logger: self.logger.info(f"Found {len(existing_points)} items, adding {len(all_documents)}")
+                        for future in as_completed(futures):
+                            try:
+                                db_id = futures[future]
+                                existing_ids.extend(future.result())
+                            except Exception as e:
+                                if self.logger: self.logger.error(f"Failed to find items for {db_id}: {e}")
+                                executor.shutdown(wait=False)
+                                raise
+
+                    with open(cached_id_path, 'wb') as f:
+                        pickle.dump(existing_ids, f)
+
+                all_documents = [doc for doc in all_documents if doc['id'] not in existing_ids]
+                if self.logger: self.logger.info(f"Found {len(existing_ids)} items, adding {len(all_documents)}")
 
             if all_documents:
-                session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=force_rebuild)
+                added_ids = session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=force_rebuild)
+                if added_ids is not None:
+                    with open(cached_id_path, 'wb') as f:
+                        pickle.dump(existing_ids + added_ids, f)
+                    
+                    raise
             else:
                 session._is_index_built = True
         else:
-            session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=True)
+            added_ids = session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=True)
+            if added_ids is not None:
+                with open(cached_id_path, 'wb') as f:
+                    pickle.dump(existing_ids + added_ids, f)
+                
+                raise
         
         if self.logger: self.logger.info(f"Built index with {len(all_documents)} column documents for context '{context_id}'")
     

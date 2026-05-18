@@ -1,4 +1,5 @@
 import gc
+import os
 from typing import List, Dict, Any, Optional, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -180,14 +181,17 @@ class QdrantVectorStore(BaseVectorStore):
             )
 
         embedding_model_manager.get_model(self.model_name)
-        _model_name = list(embedding_model_manager._locks.keys())[0]
-        _lock = embedding_model_manager._locks[_model_name]
-        embedding_model_manager._locks[_model_name] = None
+        # _model_name = list(embedding_model_manager._locks.keys())[0]
+        # _lock = embedding_model_manager._locks[_model_name]
+        # embedding_model_manager._locks[_model_name] = None
 
         batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]
         completed_batches = 0
-        
+        added_ids = []
+
         def _process_batch(batch_data: Tuple[int, List[Dict]]) -> Tuple[int, List[PointStruct]]:
+            nonlocal added_ids
+
             start_idx, batch_docs = batch_data
             texts = [doc["text"] for doc in batch_docs]
             
@@ -208,6 +212,7 @@ class QdrantVectorStore(BaseVectorStore):
                     vector=vec.tolist(),
                     payload={"text": doc["text"], **doc["metadata"]}
                 ))
+            added_ids.extend([point.id for point in points])
             return start_idx, points
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -229,9 +234,10 @@ class QdrantVectorStore(BaseVectorStore):
                     except Exception as e:
                         if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
                         executor.shutdown(wait=False)
-                        raise
+                        # raise
+                        return added_ids
         
-        embedding_model_manager._locks[_model_name] = _lock
+        # embedding_model_manager._locks[_model_name] = _lock
         self._is_index_built = True
         if self.logger: self.logger.info(f"Index '{coll_name}' built successfully.")
     

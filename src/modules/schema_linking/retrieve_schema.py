@@ -1,12 +1,12 @@
 import sys
-sys.insert(0, '.')
+sys.path.insert(0, '.')
 
 import argparse
 import json
 import os
 import re
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from typing import List, Dict, Set, Any, Optional
 
@@ -167,7 +167,7 @@ def enrich_nested_results(
                             "column_name": col,
                             "column_type": typ,
                             "description": desc or "",
-                            "columns_vals": vals or [],
+                            "column_vals": vals or [],
                             "role": "sibling_column"
                         },
                         score=0.0,
@@ -243,8 +243,8 @@ class RetrievalCache:
         else:
             self.cache_dir = get_run_path(run_id, runs_root, stage="schema_linking\\retrieval_cache")
         
+        os.makedirs(self.cache_dir, exist_ok=True)
         self.logger = get_logger("retrieval_cache", file=False)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.logger.info(f"RetrievalCache initialized at {self.cache_dir} (run_id={run_id})")
     
     def _get_cache_path(self, instance_id: str) -> str:
@@ -406,7 +406,6 @@ def retrieve_columns(
         backend: str = "qdrant",
         force_refresh: bool = False
     ):
-    run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     vsm = vsm = VectorStoreManager(
         storage_root=storage_root,
         location=location,
@@ -417,6 +416,7 @@ def retrieve_columns(
         quantization=quantization,
         log_path=os.path.join("logs\dbs", input_data_root)
     )
+    run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     cache = RetrievalCache(run_id)
     retriever = SchemaRetriever(
         vsm=vsm, cache=cache, initial_top_k=topk, 
@@ -426,7 +426,7 @@ def retrieve_columns(
     if tasks is None:
         tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
                     if file.endswith('.jsonl')][0]
-        with open(os.path(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
+        with open(os.path.join(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
             tasks = [json.loads(line.strip()) for line in f.readlines()]
 
     q_key = "question"
@@ -447,8 +447,8 @@ def retrieve_columns(
         nonlocal retriever, storage_root, input_data_root, force_refresh
         loaded_meta = json.load(open(
             os.path.join(storage_root, input_data_root, 
-                         "schema_cache", instance_data[1] + "_meta.json", 
-            encoding='utf-8'))
+                         "schema_cache", instance_data[1] + "_meta.json"), 
+            encoding='utf-8')
         )
         selected_columns = retriever.select_schema(
             instance_id=instance_data[0],
@@ -466,9 +466,9 @@ def retrieve_columns(
             )
             selected_columns.extend(more_columns)
 
-    with ProcessPoolExecutor(max_workers) as executor:
+    with ThreadPoolExecutor(max_workers) as executor:
         futures = [executor.submit(process_instance, task) for task in tasks]
-        with tqdm(total=len(list(futures)), desc="Retrieve for questions", ncols=160, leave=True) as pbar:
+        with tqdm(total=len(futures), desc="Retrieve for questions", ncols=160, leave=True) as pbar:
             for _ in as_completed(futures):
                 pbar.update(1)
 
@@ -543,7 +543,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     retrieve_columns(
-        args.run_name, args.input_data_root, args.data_root, args.storage_root, args.location,              
+        args.run_name, None, args.input_data_root, args.data_root, args.storage_root, args.location,              
         args.embedding_model, args.device, args.quantization, args.topk, 
         args.max_workers, args.max_cached_sessions, args.backend, args.force_refresh
     )
