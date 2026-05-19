@@ -89,7 +89,7 @@ def get_run_path(run_id: str, runs_root: str = "runs", stage: Optional[str] = No
     """
     base = os.path.join(runs_root, run_id)
     if stage:
-        return os.path.join(base, stage)
+        return os.path.join(base, *stage.split("\\"))
     return base
 
 

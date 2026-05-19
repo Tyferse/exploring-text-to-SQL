@@ -1,5 +1,4 @@
 import json
-import logging
 import threading
 from typing import Optional, Dict, List, Union
 
@@ -77,7 +76,7 @@ class EmbeddingModelManager:
         texts: Union[str, List[str]],
         device: str = "cpu",
         dtype: str = "auto",
-        prompt_name: Optional[str] = None,
+        prompt: Optional[str] = None,
         normalize: bool = True,
         batch_size: int = 64,
         is_query: bool = False
@@ -94,15 +93,15 @@ class EmbeddingModelManager:
         
         if lock:
             with lock:
-                return self._do_encode(model, texts, prompt_name, normalize, batch_size, is_query=is_query)
+                return self._do_encode(model, texts, prompt, normalize, batch_size, is_query=is_query)
         else:
-            return self._do_encode(model, texts, prompt_name, normalize, batch_size, is_query=is_query)
+            return self._do_encode(model, texts, prompt, normalize, batch_size, is_query=is_query)
     
     def _do_encode(
         self,
         model: SentenceTransformer,
         texts: List[str],
-        prompt_name: Optional[str],
+        prompt: Optional[str],
         normalize: bool,
         batch_size: int,
         is_query: bool = False
@@ -114,16 +113,21 @@ class EmbeddingModelManager:
             "show_progress_bar": False,
             "convert_to_numpy": True,
         }
-        if prompt_name:
-            encode_kwargs["prompt_name"] = prompt_name
-            del encode_kwargs["prompt"]
-        elif is_query:
-            encode_kwargs["prompt"] = "Instruct: Given a natural language query, retrieve relevant database columns that answer the query\nQuery: "
-        
+        if is_query:
+            prompt_name = self.MODEL_CONFIGS[model._model_name]['prompt_name']
+            if prompt_name:
+                encode_kwargs["prompt_name"] = prompt_name
+            else:
+                encode_kwargs["prompt"] = prompt or "Instruct: Given a natural language query, retrieve relevant database columns that answer the query\nQuery: "
+                
         try:
             embeddings = model.encode(**encode_kwargs)
         except:
-            del encode_kwargs["prompt"]
+            if encode_kwargs.get("prompt"):
+                del encode_kwargs["prompt"]
+            if encode_kwargs.get("prompt_name"):
+                del encode_kwargs["prompt_name"]
+
             embeddings = model.encode(**encode_kwargs)
         
         # L2 нормализация для косинусного сходства

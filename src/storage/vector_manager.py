@@ -217,7 +217,7 @@ class VectorStoreManager:
                 if self.logger: self.logger.info(f"Found {len(existing_ids)} items, adding {len(all_documents)}")
 
             if all_documents:
-                added_ids = session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, force_rebuild=force_rebuild)
+                added_ids = session.build_index(all_documents, collection_name=self._coll_name, batch_size=batch_size, max_workers=max_workers, cache_path=cached_id_path, force_rebuild=force_rebuild)
                 if added_ids is not None:
                     with open(cached_id_path, 'wb') as f:
                         pickle.dump(existing_ids + added_ids, f)

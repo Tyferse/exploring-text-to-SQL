@@ -17,7 +17,7 @@ def ensure_qdrant_running(host: str = "localhost", port: int = 6333) -> bool:
             cmd = [
                 "docker", "run", "-d",
                 "-p", f"{port}:{port}", "-p", f"{port+1}:{port+1}",
-                "-v", "qdrant_data:/qdrant/storage",
+                "-v", "E:\Code/ttsql/storage/Spider2/spider2-lite/column_vdb:/qdrant/storage",
                 "--name", "qdrant_local",
                 "qdrant/qdrant"
             ]

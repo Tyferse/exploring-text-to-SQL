@@ -6,7 +6,7 @@ from datetime import datetime
 
 def fill_rule(initial_candidates):
     with open("spider2_data.json", "r", encoding="utf-8") as f:
-            spider2_data = json.load(f)
+        spider2_data = json.load(f)
 
     final_schemas =  {}
     

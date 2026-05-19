@@ -30,7 +30,7 @@ def gen_column_embeddings(
         backend=backend,
         device=device,
         quantization=quantization,
-        log_path=os.path.join("logs\dbs", input_data_root)
+        log_path=os.path.join("logs/dbs", input_data_root)
     )
 
     if preprocessing_results is None:

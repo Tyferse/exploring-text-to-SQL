@@ -11,7 +11,7 @@ from src.utils.run_manager import resolve_run_id, get_run_path, load_run_metadat
 
 
 if __name__ == "__main__":
-    input_data_root = "Spider2\spider2-lite"
+    input_data_root = "Spider2/spider2-lite"
     run_name = "test"
     with ResourceMonitor() as monitor:
         preprocessing_results = spider2preprocess(
@@ -19,10 +19,10 @@ if __name__ == "__main__":
         )
         print(monitor.get_stats())
 
-        # ensure_qdrant_running()
+        ensure_qdrant_running()
         gen_column_embeddings(
-            input_data_root=input_data_root, embedding_model="microsoft/harrier-oss-v1-270m", 
-            batch_size=180, device='cpu', max_workers=2
+            input_data_root=input_data_root, location="http://localhost:6333", embedding_model="microsoft/harrier-oss-v1-270m", 
+            batch_size=256, device='cuda', max_workers=2
         )
 
         # Генерируем id запуска

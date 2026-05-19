@@ -241,7 +241,7 @@ class RetrievalCache:
         if cache_dir:
             self.cache_dir = cache_dir
         else:
-            self.cache_dir = get_run_path(run_id, runs_root, stage="schema_linking\\retrieval_cache")
+            self.cache_dir = get_run_path(run_id, runs_root, stage="schema_linking/retrieval_cache")
         
         os.makedirs(self.cache_dir, exist_ok=True)
         self.logger = get_logger("retrieval_cache", file=False)
@@ -393,7 +393,7 @@ class SchemaRetriever:
 def retrieve_columns(
         run_name: str = "", 
         tasks: Optional[List[Dict[str, str]]] = None,
-        input_data_root: str = "Spider2\spider2-lite",
+        input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage", 
         location: str = None,
@@ -414,7 +414,7 @@ def retrieve_columns(
         backend=backend,
         device=device,
         quantization=quantization,
-        log_path=os.path.join("logs\dbs", input_data_root)
+        log_path=os.path.join("logs/dbs", input_data_root)
     )
     run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     cache = RetrievalCache(run_id)
@@ -433,7 +433,7 @@ def retrieve_columns(
     if "question" not in tasks[0]:
         q_key = "instuction"
 
-    if input_data_root == "Spider2\spider2-lite":
+    if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "sqnowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         tasks = [(instance["instance_id"], instance["instance_id"], instance[q_key], 
                     inst2dialect[remove_digits(instance["instance_id"]).split('_')[0]] 
@@ -471,6 +471,8 @@ def retrieve_columns(
         with tqdm(total=len(futures), desc="Retrieve for questions", ncols=160, leave=True) as pbar:
             for _ in as_completed(futures):
                 pbar.update(1)
+    
+    vsm.close_all()
 
 
 if __name__ == "__main__":

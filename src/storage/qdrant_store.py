@@ -1,10 +1,11 @@
 import gc
-import os
+import pickle
 from typing import List, Dict, Any, Optional, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
 from tqdm import tqdm
+import torch
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     Distance, VectorParams, Filter, FieldCondition, KeywordIndexParams,
@@ -14,6 +15,12 @@ from qdrant_client.http.models import (
 from .core import BaseVectorStore, VectorSearchResult
 from .model_manager import embedding_model_manager
 from src.utils.logger import get_logger
+
+
+def clear_system_memory():
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 
 class QdrantVectorStore(BaseVectorStore):
@@ -79,7 +86,7 @@ class QdrantVectorStore(BaseVectorStore):
     @property
     def client(self) -> QdrantClient:
         if self._client is None:
-            if self.logger: self.logger.info(f"Connecting to Qdrant at {self.path}")
+            if self.logger: self.logger.info(f"Connecting to Qdrant at {self.path if self.path else self.location}")
             self._client = QdrantClient(path=self.path)
         return self._client
     
@@ -140,6 +147,7 @@ class QdrantVectorStore(BaseVectorStore):
         collection_name: Optional[str] = None,
         batch_size: int = 256,
         max_workers: int = 2,
+        cache_file: Optional[str] = None,
         force_rebuild: bool = False
     ) -> None:
         """
@@ -151,7 +159,8 @@ class QdrantVectorStore(BaseVectorStore):
             batch_size: Размер одного батча для кодирования и upsert.
             max_workers: Количество потоков. Рекомендуется 2-4 для CPU, 1 для CUDA 
                          (из-за внутренней многопоточности PyTorch).
-            force_rebuild: Если True, удаляет коллекцию и создаёт её заново,
+            cache_file: Путь до .pkl файла, в котором будет храниться кэш id уже добавленных столбцов.
+            force_rebuild: Если True, удаляет коллекцию и создаёт её заново.
         """
         if not documents:
             if self.logger: self.logger.warning("Empty document list provided. Skipping index build.")
@@ -180,7 +189,7 @@ class QdrantVectorStore(BaseVectorStore):
                 )
             )
 
-        embedding_model_manager.get_model(self.model_name)
+        # embedding_model_manager.get_model(self.model_name, self.device, self.dtype)
         # _model_name = list(embedding_model_manager._locks.keys())[0]
         # _lock = embedding_model_manager._locks[_model_name]
         # embedding_model_manager._locks[_model_name] = None
@@ -188,10 +197,13 @@ class QdrantVectorStore(BaseVectorStore):
         batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]
         completed_batches = 0
         added_ids = []
+        
+        existing_ids = []
+        if cache_file:
+            with open(cache_file, 'rb') as f:
+                existing_ids = pickle.load(f)
 
         def _process_batch(batch_data: Tuple[int, List[Dict]]) -> Tuple[int, List[PointStruct]]:
-            nonlocal added_ids
-
             start_idx, batch_docs = batch_data
             texts = [doc["text"] for doc in batch_docs]
             
@@ -200,7 +212,7 @@ class QdrantVectorStore(BaseVectorStore):
                 texts=texts,
                 device=self.device,
                 dtype=self.dtype,
-                prompt_name=None,
+                prompt=None,
                 normalize=True,
                 batch_size=len(texts)
             )
@@ -212,31 +224,51 @@ class QdrantVectorStore(BaseVectorStore):
                     vector=vec.tolist(),
                     payload={"text": doc["text"], **doc["metadata"]}
                 ))
-            added_ids.extend([point.id for point in points])
+            del vectors
             return start_idx, points
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Отправляем батчи на кодирование параллельно, на случай отключения блокировки потоков
-            futures = {
-                executor.submit(_process_batch, (i * batch_size, batch)): i 
-                for i, batch in enumerate(batches)
-            }
+        # with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        #     # Отправляем батчи на кодирование параллельно, на случай отключения блокировки потоков
+        #     futures = {
+        #         executor.submit(_process_batch, (i * batch_size, batch)): i 
+        #         for i, batch in enumerate(batches)
+        #     }
 
-            # По мере завершения потока сразу отправляем в Qdrant
-            with tqdm(total=len(list(futures.keys())), desc="Adding batches", ncols=160, leave=True) as pbar:
-                for future in as_completed(futures):
-                    batch_idx = futures[future]
-                    try:
-                        _, points = future.result()
-                        self.client.upsert(collection_name=coll_name, points=points)
-                        completed_batches += 1
-                        pbar.update(1)
-                    except Exception as e:
-                        if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
-                        executor.shutdown(wait=False)
-                        # raise
-                        return added_ids
+        #     # По мере завершения потока сразу отправляем в Qdrant
+        #     with tqdm(total=len(list(futures.keys())), desc="Adding batches", ncols=160, leave=True) as pbar:
+        #         for future in as_completed(futures):
+        #             batch_idx = futures[future]
+        #             try:
+        #                 _, points = future.result()
+        #                 self.client.upsert(collection_name=coll_name, points=points)
+        #                 added_ids.extend([point.id for point in points])
+        #                 completed_batches += 1
+        #                 pbar.update(1)
+        #             except Exception as e:
+        #                 if self.logger: self.logger.error(f"Failed to upsert batch {batch_idx}: {e}")
+        #                 executor.shutdown(wait=False)
+        #                 # raise
+        #                 return added_ids
         
+        with tqdm(total=len(batches), desc="Adding batches", ncols=160, leave=True) as pbar:
+            for i, batch in enumerate(batches):
+                try:
+                    _, points = _process_batch((i * batch_size, batch))
+                    self.client.upsert(collection_name=coll_name, points=points)
+                    added_ids.extend([point.id for point in points])
+                    completed_batches += 1
+                    pbar.update(1)
+
+                    if cache_file and i % 3 == 0:
+                        with open(cache_file, 'wb') as f:
+                            pickle.dump(existing_ids + added_ids, f)
+                    
+                    del points
+                    clear_system_memory()
+                except Exception as e:
+                    if self.logger: self.logger.error(f"Failed to upsert batch {i} {self.client.client.count(collection_name=self._coll_name).count}: {e}")    
+                    return added_ids
+
         # embedding_model_manager._locks[_model_name] = _lock
         self._is_index_built = True
         if self.logger: self.logger.info(f"Index '{coll_name}' built successfully.")
