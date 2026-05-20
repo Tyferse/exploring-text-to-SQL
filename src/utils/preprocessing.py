@@ -1,9 +1,13 @@
+import sys
+sys.path.insert(0, ".")
+
 import argparse
 import hashlib
 import json
 import logging
 import os
 import re
+import shutil
 from copy import deepcopy
 from typing import Dict, List, Any, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -53,7 +57,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
     def recursive_key_map(obj, keys=tuple()):
         val = deepcopy(obj)
         for key in keys:
-            if isinstance(val, dict) and val.get(key) or isinstance(val, list) and isinstance(key, int) and key < len(val):
+            if isinstance(val, dict) and key in val or isinstance(val, list) and isinstance(key, int) and key < len(val):
                 val = val[key]
         
         return val
@@ -151,7 +155,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
                 f"Table: {representative['original_name']}. "
                 f"Column: {col}. "
                 f"Type: {typ}. "
-                f"Description: {desc}."
+                f"Description: {desc}"
             )
             has_nested_vals = representative["sample_rows"] and not isinstance(recursive_key_map(representative["sample_rows"][0], col.split('.')), dict) 
             documents.append({
@@ -182,12 +186,13 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
 
     if logger:
         logger.info(f"Finished processing {db_id}. Found {len(final_db_metadata['tables'])} unique table groups.")
+
     return final_db_metadata
 
 def spider2preprocess(
     input_data_root: str,
     data_root: str = "data",
-    output_storage_root: str = "storage",
+    storage_root: str = "storage",
     is_multidialect: bool = True,
     max_workers: int = 4,
     log_root: str = "logs",
@@ -199,7 +204,7 @@ def spider2preprocess(
     Args:
         input_data_root: Путь к папке с данными относительно каталога data_root (например, Spider2/spider2-lite).
         data_root: Путь к корневой папке со всеми входными данным.
-        output_storage_root: Путь к папке storage для сохранения кэша.
+        storage_root: Путь к папке storage для сохранения кэша.
         is_multidialect: Если True, ожидает структуру data/{root}/{dialect}/resource/databases/{db_id}/.
                          Если False, ожидает data/{root}/resource/databases/{db_id}/.
         max_workers: Количество потоков для параллельной обработки БД.
@@ -218,14 +223,26 @@ def spider2preprocess(
     )
     logger.info(f"Starting preprocessing. Root: {input_data_root}, Multidialect: {is_multidialect}")
     
-    os.makedirs(output_storage_root, exist_ok=True)
-    schema_cache_dir = os.path.join(output_storage_root, input_data_root, "schema_cache")
+    os.makedirs(storage_root, exist_ok=True)
+    schema_cache_dir = os.path.join(storage_root, input_data_root, "schema_cache")
     os.makedirs(schema_cache_dir, exist_ok=True)
     
     full_dbs_path = os.path.join(data_root, input_data_root, "resource", "databases")
     if not os.path.exists(full_dbs_path):
         logger.error(f"Input path {full_dbs_path} does not exist.")
         return {}
+    
+    # Ищем credentials для облачных СУБД и копируем их, если есть
+    credentials = [file for file in os.path.join(data_root, input_data_root, "evaluation_suite") 
+                   if file.rsplit('.', 1)[0].endswith("_credential")]
+    if credentials:
+        for file in credentials:
+            if os.path.isfile(os.path.join(data_root, input_data_root, "evaluation_suite", file)):
+                shutil.copy(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
+                            os.path.join(storage_root, input_data_root))
+            else:
+                shutil.copytree(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
+                                os.path.join(storage_root, input_data_root))
 
     # 1. Определение списка баз данных
     db_paths = {} # db_id -> absolute_path
@@ -254,7 +271,7 @@ def spider2preprocess(
         logger.error(f"No databases found. Check input path and structure at {full_dbs_path}")
         return {}
 
-    # 3. Фильтрация уже обработанных, если не указано force_update=True
+    # 2. Фильтрация уже обработанных, если не указано force_update=True
     tasks_to_process = {}
     skipped_count = 0
     
@@ -308,15 +325,15 @@ def spider2preprocess(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocess Spider 2 structured dataset for Text-to-SQL pipeline.")
     parser.add_argument(
-        "input_data", type=str, default="Spider2\spider2-lite",
-        help="Path to the directory of the Spider 2 structured dataset in data_root directory (default: Spider2\spider2-lite)"
+        "input_data", type=str, default="Spider2/spider2-lite",
+        help="Path to the directory of the Spider 2 structured dataset in data_root directory (default: Spider2/spider2-lite)"
     )
     parser.add_argument(
         "--data_root", type=str, default="data",
         help="Path to the root directory with all input data (default: data)"
     )
     parser.add_argument(
-        "--output_storage", type=str, default="storage",
+        "--storage_root", type=str, default="storage",
         help="Path to the storage directory for cached schemas and embeddings (default: storage)"
     )
     parser.add_argument(
@@ -340,13 +357,13 @@ if __name__ == "__main__":
     
     print(f"Starting preprocessing...")
     print(f"Input: {args.input_data}")
-    print(f"Storage: {args.output_storage}")
+    print(f"Storage: {args.storage_root}")
     print(f"Mode: {'Multidialect' if args.multidialect else 'Single Dialect'}")
     
     spider2preprocess(
         input_data_root=args.input_data,
         data_root=args.data_root,
-        output_storage_root=args.output_storage,
+        storage_root=args.storage_root,
         is_multidialect=args.multidialect,
         max_workers=args.workers,
         log_root=args.log_root,

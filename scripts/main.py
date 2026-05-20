@@ -2,6 +2,9 @@ import sys
 sys.path.insert(0, ".")
 
 import os
+
+from dotenv import load_dotenv
+
 from src.modules.schema_linking.retrieve_schema import retrieve_columns
 from src.storage.docker_qdrant import ensure_qdrant_running
 from src.utils.gen_embeddings import gen_column_embeddings
@@ -11,6 +14,8 @@ from src.utils.run_manager import resolve_run_id, get_run_path, load_run_metadat
 
 
 if __name__ == "__main__":
+    load_dotenv(".env")
+
     input_data_root = "Spider2/spider2-lite"
     run_name = "test"
     with ResourceMonitor() as monitor:

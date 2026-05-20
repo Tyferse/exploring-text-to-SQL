@@ -301,7 +301,7 @@ def generate_schema_prompt(log_path: str, is_initial: bool = False, log_time=Tru
         column_candidates = schema_info["column_candidates"]
         column_types = schema_info["column_types"]
         column_values = schema_info["column_values"]
-        column_candidates = schema_info["column_candidates"]
+        # column_candidates = schema_info["column_candidates"]
         table_candidates = schema_info["table_candidates"]
         descriptions = schema_info["descriptions"]
 

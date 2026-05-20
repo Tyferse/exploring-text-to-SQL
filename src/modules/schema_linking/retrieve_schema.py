@@ -232,7 +232,7 @@ class RetrievalCache:
         self,
         run_id: str,
         cache_dir: Optional[str] = None,  # Если None, используется runs/{run_id}/cache
-        runs_root: str = "runs"
+        runs_root: str = "logs/runs"
     ):
         self.run_id = run_id
         self.runs_root = runs_root
@@ -244,7 +244,7 @@ class RetrievalCache:
             self.cache_dir = get_run_path(run_id, runs_root, stage="schema_linking/retrieval_cache")
         
         os.makedirs(self.cache_dir, exist_ok=True)
-        self.logger = get_logger("retrieval_cache", file=False)
+        self.logger = get_logger("retrieval_cache", log_file=os.path.join(runs_root, run_id, "schema_linking", "retrieve.log"))
         self.logger.info(f"RetrievalCache initialized at {self.cache_dir} (run_id={run_id})")
     
     def _get_cache_path(self, instance_id: str) -> str:
@@ -300,6 +300,18 @@ class RetrievalCache:
             "remaining_count": max(0, total_available - used),
             "is_complete": used >= total_available
         }
+    
+    def cache_union(self, instance_db: Dict[str, str]):
+        all_indices = {}
+        for file in os.listdir(self.cache_dir):
+            with open(self.cache_dir, file, encoding="utf-8") as f:
+                used_indices = json.load(f).get("used_indices")
+            
+            instance_id = file.rsplit(".", 1)[0]
+            all_indices[instance_id] = {"db_id": instance_db[instance_id], "used_indices": used_indices}
+        
+        with open(os.path.join(self.cache_dir, "used_indices.json"), 'w', encoding='utf-8') as f:
+            json.dump(all_indices, f)
 
 
 class SchemaRetriever:
@@ -425,7 +437,7 @@ def retrieve_columns(
 
     if tasks is None:
         tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                    if file.endswith('.jsonl')][0]
+                      if file.endswith('.jsonl')][0]
         with open(os.path.join(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
             tasks = [json.loads(line.strip()) for line in f.readlines()]
 
@@ -434,20 +446,25 @@ def retrieve_columns(
         q_key = "instuction"
 
     if input_data_root == "Spider2/spider2-lite":
-        inst2dialect = {"sf": "sqnowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-        tasks = [(instance["instance_id"], instance["instance_id"], instance[q_key], 
-                    inst2dialect[remove_digits(instance["instance_id"]).split('_')[0]] 
-                    + "_" + instance["db_id"])
-                    for instance in tasks]
-    else:
-        tasks = [(instance["instance_id"], instance["db_id"], instance[q_key])
+        inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+        tasks = [(instance["instance_id"], 
+                  inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"], 
+                  instance[q_key])
                  for instance in tasks]
+    else:
+        tasks = [(instance["instance_id"], 
+                  instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
+                  instance[q_key])
+                 for instance in tasks]
+    
+    instance_db = {task[0]: task[1] for task in tasks}
+    tasks = [task for task in tasks if os.path.exists(cache._get_cache_path(task[0]))]
 
     def process_instance(instance_data):
         nonlocal retriever, storage_root, input_data_root, force_refresh
         loaded_meta = json.load(open(
-            os.path.join(storage_root, input_data_root, 
-                         "schema_cache", instance_data[1] + "_meta.json"), 
+            os.path.join(storage_root, input_data_root, "schema_cache", 
+                         instance_data[1] + "_meta.json"), 
             encoding='utf-8')
         )
         selected_columns = retriever.select_schema(
@@ -472,6 +489,7 @@ def retrieve_columns(
             for _ in as_completed(futures):
                 pbar.update(1)
     
+    cache.cache_union(instance_db)
     vsm.close_all()
 
 

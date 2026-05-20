@@ -2,6 +2,8 @@ from typing import Tuple, Union, Dict, Any
 import pandas as pd
 from langchain_core.tools import tool
 
+from src.utils.sql_exexution import sql_execution
+
 
 def _format_df_for_llm(df: pd.DataFrame, max_rows: int = 5) -> str:
     """Сериализует DataFrame в компактный markdown-формат для LLM."""
@@ -36,9 +38,8 @@ def join_discovery(
     # Валидация структуры evidence
     required_keys = {"naming_pattern", "type_compatibility", "sample_value_overlap", "semantic_coherence"}
     if not required_keys.issubset(evidence.keys()):
-        return f"[JOIN ERROR] Missing evidence keys: {required_keys - evidence.keys()}"
+        return f"[JOIN ERROR] Missing evidence keys: {required_keys - set(evidence.keys())}"
     
-    # Сохранение в state происходит через callback или глобальный контекст
     return f"[JOIN DISCOVERED] {left_table}.{left_column} -> {right_table}.{right_column} ({join_type})"
 
 @tool

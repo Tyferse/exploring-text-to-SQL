@@ -36,7 +36,7 @@ def generate_run_id(
 
 
 def resolve_run_id(
-    runs_root: str = "runs",
+    runs_root: str = "logs/runs",
     input_data_root: Optional[str] = None,
     custom_suffix: Optional[str] = None,
     use_latest: bool = True
@@ -83,7 +83,7 @@ def resolve_run_id(
     return generate_run_id(input_data_root or "default", custom_suffix)
 
 
-def get_run_path(run_id: str, runs_root: str = "runs", stage: Optional[str] = None) -> str:
+def get_run_path(run_id: str, runs_root: str = "logs/runs", stage: Optional[str] = None) -> str:
     """
     Возвращает путь к папке запуска (и опционально — к этапу внутри).
     """
@@ -93,8 +93,8 @@ def get_run_path(run_id: str, runs_root: str = "runs", stage: Optional[str] = No
     return base
 
 
-def save_run_metadata(run_id: str, metadata: Dict[str, Any], runs_root: str = "runs") -> None:
-    """Сохраняет метаданные запуска в runs/{run_id}/metadata.json."""
+def save_run_metadata(run_id: str, metadata: Dict[str, Any], runs_root: str = "logs/runs") -> None:
+    """Сохраняет метаданные запуска в logs/runs/{run_id}/metadata.json."""
     path = get_run_path(run_id, runs_root)
     os.makedirs(path, exist_ok=True)
     
