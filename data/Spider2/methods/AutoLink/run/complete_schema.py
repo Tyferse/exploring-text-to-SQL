@@ -5,7 +5,6 @@ import multiprocessing as mp
 import time
 from retrieve_topk_schema import get_next_k_results
 from utils import *
-import transformers
 from tqdm import tqdm
 from config import *
 from openai import OpenAI, RateLimitError, APITimeoutError
@@ -19,11 +18,13 @@ import pandas as pd
 import shutil
 import argparse
 
+
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), base_url=os.environ.get("OPENAI_BASE_URL"))
 bigquery_credential_paths = glob.glob(os.path.join("bigquery_credentials", "**", "*.json"), recursive=True)
 sqlite_lock = threading.Lock()
 credential_usage_count = {}
 credential_lock = threading.Lock()
+
 
 def get_least_used_credential():
     global credential_usage_count, bigquery_credential_paths

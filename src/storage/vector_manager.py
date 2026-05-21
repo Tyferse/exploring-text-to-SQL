@@ -241,7 +241,8 @@ class VectorStoreManager:
         queries_by_db: Dict[str, List[str]],
         top_k: int = 10,
         batch_size: int = 32,
-        filters: Optional[Dict[str, Any]] = None
+        filters: Optional[Dict[str, Any]] = None,
+        is_query: bool = True
     ) -> Dict[str, Dict[str, List[VectorSearchResult]]]:
         """
         Выполняет поиск для групп вопросов, сгруппированных по db_id.
@@ -273,7 +274,8 @@ class VectorStoreManager:
                 queries=queries,
                 top_k=top_k,
                 filters=search_filters,
-                batch_size=batch_size
+                batch_size=batch_size,
+                is_query=is_query
             )
             
             results[db_id] = search_results

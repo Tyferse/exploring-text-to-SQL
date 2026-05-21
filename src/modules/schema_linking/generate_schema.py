@@ -2,10 +2,11 @@ import os
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Literal
 from tqdm import tqdm
 
 from src.utils.logger import get_logger
+from src.utils.preprocessing import remove_digits
 from src.utils.run_manager import resolve_run_id
 
 
@@ -183,8 +184,8 @@ def process_single_instance(
     instance_id: str,
     col_ids: List[str],
     doc_data: Dict[int, Dict[str, Any]],
-    output_dir: Path,
-    target_max_tokens: int = 100_000,
+    output_path: Path,
+    target_max_tokens: int = 64_000,
     log: Optional[logging.Logger] = None
 ) -> Tuple[bool, Dict[str, Any]]:
     """
@@ -202,7 +203,7 @@ def process_single_instance(
         Tuple[успех: bool, метаданные: dict]
     """
     if log is None:
-        log = get_logger(output_dir.parent / "gen_schema" / (instance_id + ".log"))
+        log = get_logger(output_path.parent / "gen_schema" / (instance_id + ".log"))
 
     log.info(f"Begin processing | {instance_id}")
     metadata = {"instance_id": instance_id, "strategies_applied": [], "final_token_estimate": 0}
@@ -261,46 +262,38 @@ def process_single_instance(
             log.warning(f"Scheme is still over limit: {final_tokens} > {target_max_tokens} | {instance_id}")
         else:
             log.info(f"Schema is in limit: {final_tokens}/{target_max_tokens} tokens | {instance_id}")
-
-        # 3. Сохранение
-        output_file = output_dir / f"{instance_id}.txt"
-        output_file.write_text(schema_text, encoding="utf-8")
         
         tables_count = len(compressed_mapping)
         cols_count = sum(len(cols) for cols in compressed_mapping.values())
-        log.info(f"Schema saved: {output_file.name} | Tables: {tables_count} | Columns: {cols_count} | tokens: {final_tokens} | {instance_id}")
+        log.info(f"Tables: {tables_count} | Columns: {cols_count} | tokens: {final_tokens} | {instance_id}")
         
-        return True, metadata
+        return schema_text, metadata
 
     except Exception as e:
         log.exception(f"Critical processing error {instance_id}: {e}")
         metadata["error"] = str(e)
-        return False, metadata
+        return "", metadata
 
 def generate_schemas(
     run_id: str,
-    run_root: str = "logs/runs",  
-    docs_dir: Optional[str] = None,
-    target_max_tokens: int = 100_000
+    run_root: str = "logs/runs",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
+    output_dir: str = "initial_schema",
+    docs_path: Optional[str] = None,
+    included: Literal["retrieved", "full"] = "full",
+    target_max_tokens: int = 64_000
 ):
     """
     Читает used_indices.json, загружает *_docs.json, 
     итерирует по примерам и вызывает process_single_instance с контролем контекста.
     """
     run_path = Path(run_root) / run_id
-    indices_path = run_path / "schema_linking" / "retrieval_cache" / "used_indices.json"
-    output_dir = run_path / "schema_linking" / "initial_schema"
+    output_path = run_path / "schema_linking" / output_dir
     log_dir = run_path / "schema_linking"
 
-    if not indices_path.exists():
-        raise FileNotFoundError(f"used_indices.json not found: {indices_path}")
-
-    # Загрузка индексов
-    with open(indices_path, "r", encoding="utf-8") as f:
-        indices_data = json.load(f)
-
     # Загрузка документов схем
-    docs_path = Path(docs_dir)
+    docs_path = Path(docs_path)
     db_docs: Dict[str, Dict[str, Any]] = {}
     
     for doc_file in docs_path.glob("*_docs.json"):
@@ -310,7 +303,35 @@ def generate_schemas(
             db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
     
     if not db_docs:
-        raise FileNotFoundError(f"*_docs.json files not found in {docs_dir}")
+        raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
+
+    if included == "retrieved":
+        indices_path = run_path / "schema_linking" / "retrieval_cache" / "used_indices.json"
+        if not indices_path.exists():
+            raise FileNotFoundError(f"used_indices.json not found: {indices_path}")
+
+        # Загрузка индексов
+        with open(indices_path, "r", encoding="utf-8") as f:
+            indices_data = json.load(f)
+
+    elif included == "full":
+        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
+                      if file.endswith('.jsonl')][0]
+        with open(Path(data_root) / input_data_root / tasks_file, encoding="utf-8") as f:
+            tasks = [json.loads(line.strip()) for line in f.readlines()]
+
+        if input_data_root == "Spider2/spider2-lite":
+            inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+            tasks = [(instance["instance_id"], 
+                      inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"])
+                     for instance in tasks]
+        else:
+            tasks = [(instance["instance_id"], 
+                      instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"])
+                     for instance in tasks]
+        
+        indices_data = {instance_id: {"db_id": db_id, "used_indices": list(db_docs[db_id].keys())} 
+                        for instance_id, db_id in tasks}
 
     # Подготовка директорий
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -326,16 +347,20 @@ def generate_schemas(
     stats = {"success": 0, "failed": 0, "strategies_count": {}, "token_stats": []}
     
     for instance_id, inst_retrival_data in tqdm(indices_data.items(), desc="Schema generation"):    
-        success, meta = process_single_instance(
+        schema_text, meta = process_single_instance(
             instance_id=instance_id,
             col_ids=inst_retrival_data["used_indices"],
             doc_data=db_docs[inst_retrival_data["db_id"]],
-            output_dir=output_dir,
+            output_dir=output_path,
             target_max_tokens=target_max_tokens,
             log=main_logger
         )
         
-        if success:
+        if schema_text:
+            output_file = output_path / f"{instance_id}.txt"
+            output_file.write_text(schema_text, encoding="utf-8")
+            main_logger.info(f"Schema saved: {output_file.name} | {instance_id}")
+
             stats["success"] += 1
             # Сбор статистики по стратегиям сжатия
             for strategy in meta.get("strategies_applied", []):
@@ -378,14 +403,30 @@ if __name__ == "__main__":
         help="Название запуска, использовавшегося для формирования логов в logs/runs директории."
     )
     parser.add_argument(
+        "--data_root", type=str, default="data",
+        help="Путь к папке с входными данными"
+    )
+    parser.add_argument(
         "--storage_root", type=str, default="storage",
         help="Корневая директория для кэшированных схем и векторных баз данных."
+    )
+    parser.add_argument(
+        "--output_dir", type=str, default="initial_schema",
+        help="Директория, в которой будут сохранены представления схем БД."
     )
     parser.add_argument(
         "--max_tokens", type=int, default=64000,
         help="Максимальное длина схемы базы данных в токенах (оценочно)."
     )
+    parser.add_argument(
+        "--full_schema", type=bool, action="store_true",
+        help="Использовать полную схему."
+    )
     args = parser.parse_args()
 
     run_id = resolve_run_id(input_data_root=args.input_data_root, custom_suffix=args.run_name)
-    generate_schemas(run_id, docs_dir=str(Path(args.storage_root) / args.input_data_dir), target_max_tokens=args.max_tokens)
+    generate_schemas(
+        run_id, data_root=args.data_root, input_data_root=args.input_data_root, 
+        output_dir=args.output_dir, docs_dir=str(Path(args.storage_root) / args.input_data_dir), 
+        included="full" in args.full_schema else "retrieved", target_max_tokens=args.max_tokens
+    )

@@ -144,7 +144,7 @@ __Repeat until schema is validated or turn limit reached. Agent may call multipl
 - In a single turn, the agent MAY call:
   - Multiple `@schema_retrieval` (for different columns/tables)
   - Multiple `@join_discovery` (for different join hypotheses)
-  - One `@sql_draft` (if not already called 3 times total)
+  - One `@sql_draft` (if not already called {{MAX_DRAFT_CALLS}} times total)
 - Prohibited combinations:
   - `@stop` with any other tool (must be solo)
   - More than one `@sql_draft` per turn
@@ -159,14 +159,14 @@ __Repeat until schema is validated or turn limit reached. Agent may call multipl
 - Record accepted joins; discard rejected ones based on evidence threshold.
 2.4 **Draft Validation Turn**
 - When ready to test schema sufficiency, call exactly one `@sql_draft(query, purpose)` — optionally combined with final `@schema_retrieval` or `@join_discovery` calls if needed.
-- Hard limit: 3 total `@sql_draft` calls across session; 1 per turn.
+- Hard limit: {{MAX_DRAFT_CALLS}} total `@sql_draft` calls across session; 1 per turn.
 - Analyze result in the next turn:
   - `draft_status: valid` → proceed to finalization.
   - `draft_status: failed` → parse error and return to refinement phase.
 
 **Phase 3: Draft Validation (Execution-Based)**
 3.1 Compose a preliminary SQL query using only explicitly confirmed tables, columns, and join paths. Apply Dialect-Specific Optimization Rules (quoting, date functions, ROUND, LOWER/LIKE, NULL handling).
-3.2 Call `@sql_draft(query, purpose)`. Hard limit: 3 calls total.
+3.2 Call `@sql_draft(query, purpose)`. Hard limit: {{MAX_DRAFT_CALLS}} calls total.
 3.3 **Analyze result:**
 - draft_status: valid -> schema is sufficient. Proceed to Phase 4.
 - draft_status: failed + error message -> parse error:

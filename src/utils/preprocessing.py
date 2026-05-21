@@ -237,7 +237,11 @@ def spider2preprocess(
                    if file.rsplit('.', 1)[0].endswith("_credential")]
     if credentials:
         for file in credentials:
-            if os.path.isfile(os.path.join(data_root, input_data_root, "evaluation_suite", file)):
+            if file.startswith("bigquery") and file.endswith(".json"):
+                os.makedirs(os.path.join(storage_root, input_data_root, "bigquery_credentials"), exist_ok=True)
+                shutil.copy(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
+                            os.path.join(storage_root, input_data_root, "bigquery_credentials"))
+            elif os.path.isfile(os.path.join(data_root, input_data_root, "evaluation_suite", file)):
                 shutil.copy(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
                             os.path.join(storage_root, input_data_root))
             else:

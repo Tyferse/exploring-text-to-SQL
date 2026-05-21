@@ -50,7 +50,7 @@ When calling tools, use EXACTLY this syntax (no markdown code fences around the 
 ## Execution Protocol
 1. **Multi-Tool Per Turn:** Agent may invoke multiple tools in a single turn, subject to restrictions below.
 2. **@stop Isolation:** `@stop()` must be the only tool call in its turn. Never combine with other tools.
-3. **@sql_draft Limits:** Maximum 1 call per turn; maximum 3 calls total across the entire session.
+3. **@sql_draft Limits:** Maximum 1 call per turn; maximum {{MAX_DRAFT_CALLS}} calls total across the entire session.
 4. **Strict Result Waiting:** After any tool call(s), pause generation. Continue reasoning ONLY in the next turn based on actual orchestration results. Never assume outputs.
 5. **Query Safety:** All `@sql_draft` queries must be READ-ONLY and include LIMIT clauses. Never generate modifying statements.
 6. **Dialect Compliance:** All generated SQL must strictly follow SQL Dialect Specification and Dialect-Specific Optimization Rules (quoting style, function availability, NULL handling, partitioning rules).
