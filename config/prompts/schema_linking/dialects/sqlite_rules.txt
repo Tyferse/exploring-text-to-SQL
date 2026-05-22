@@ -1,0 +1,44 @@
+SQLite Optimization Strategies:
+
+- Decimal Precision:
+    - If user do not specify the precision, you should use `ROUND(value, 4)` to round the value to four decimal places.
+    - If user specify the precision, you should use `ROUND(value, precision)` to round the value to the specified decimal places.
+
+- Aggregation condition
+    When using ORDER BY xxx DESC, add NULLS LAST to exclude null records: ORDER BY xxx DESC NULLS LAST.\n"
+
+- String Matching:
+    - Don't directly match strings if you are not convinced. Use LOWER for fuzzy queries: WHERE LOWER(str) LIKE LOWER('%target_str%'). For example, to match 'meat lovers', use LOWER(str) LIKE '%meat%lovers%'.
+    - For string-matching scenarios, convert non-standard symbols to '%'. e.g. ('he's to he%s)
+
+- Date Handling:
+    - For time-related queries, given the variety of formats, avoid using time converting functions unless you are certain of the specific format being used.
+
+- Performance Tips:
+    - Materialize complex expressions in CTEs to avoid recomputation.
+    - You must quote all table names and column names in double quotes.
+    - Filter early using WHERE clauses before applying aggregations.
+    
+- Schema & Data Exploration (SQLite):
+    - To get column names of a table, use PRAGMA table_info:
+        ```sql
+        SELECT name
+        FROM pragma_table_info('<TABLE>')
+        WHERE LOWER(name) LIKE '%user%';
+        ```
+    - To get random rows from a table for data inspection, use ORDER BY RANDOM():
+        ```sql
+        SELECT *
+        FROM "<TABLE>"
+        ORDER BY RANDOM()
+        LIMIT 5;
+        ```
+    - To get a random non-null value from a specific column:
+        ```sql
+        SELECT "<COLUMN>"
+        FROM "<TABLE>"
+        WHERE "<COLUMN>" IS NOT NULL
+        ORDER BY RANDOM()
+        LIMIT 1;
+        ```
+    - These queries are commonly used to inspect schema structure and infer column semantics.

@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+
 class SchemaLinkingPreprocessor:
     """
     Загружает двухчастный промпт.
@@ -82,7 +83,7 @@ class SchemaLinkingPreprocessor:
                     "{{DIALECT_SPECIFICS}}",
                     dialect_rules['specifics']
                 )
-                system_prompt = system_template.replace(
+                system_prompt = system_prompt.replace(
                     "{{SQL_OPTIMIZATION}}",
                     dialect_rules['rules']
                 )

@@ -12,11 +12,11 @@ from google.cloud import bigquery
 
 
 class SQLExecutor:
-    def __init__(self, input_data_root: str = "Spider2/spider2-lite", data_root: str = "data", storage_root: str = "storage", local_dbs: Optional[Dict[str, str]]= None):
+    def __init__(self, input_data_root: str = "Spider2/spider2-lite", data_root: str = "data", storage_root: str = "storage", local_dbs: Optional[Dict[str, str]] = None):
         self.data_root = data_root
         self.storage_root = storage_root
         self.input_data_root = input_data_root
-        self.local_dbs = local_dbs
+        self.local_dbs = local_dbs if local_dbs is not None else {"sqlite": "resource\databases\spider2-localdb"}
         self.bigquery_credential_paths = glob.glob(os.path.join(storage_root, input_data_root, "bigquery_credential", "**", "*.json"), recursive=True)
         self.sqlite_lock = threading.Lock()
         self.credential_usage_count = {}
@@ -48,9 +48,10 @@ class SQLExecutor:
         if dialect == "bigquery":
             used_credential = []
             bigquery_credential_path = self.get_least_used_credential()
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = bigquery_credential_path
             used_credential.append(bigquery_credential_path)
-            client = bigquery.Client()
+            # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = bigquery_credential_path
+            # client = bigquery.Client()
+            client = bigquery.Client.from_service_account_json(bigquery_credential_path)
             try:
                 query_job = client.query(sql)
                 results = query_job.result().to_dataframe()
@@ -60,18 +61,20 @@ class SQLExecutor:
                     return "success", results
             except Exception as e:
                 if "403 Quota exceeded" in str(e):
+                    client.close()
                     print("403 Quota exceeded")
                     remaining_credentials = [cred for cred in self.bigquery_credential_paths if cred not in used_credential]
                     for credential_path in remaining_credentials:
-                        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
+                        # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
                         used_credential.append(credential_path)
                         
                         with self.credential_lock:
                             if credential_path not in self.credential_usage_count:
                                 self.credential_usage_count[credential_path] = 0
                             self.credential_usage_count[credential_path] += 1
-                            
-                        client = bigquery.Client()
+                        
+                        client = bigquery.Client.from_service_account_json(credential_path)
+                        # client = bigquery.Client()
                         try:
                             query_job = client.query(sql)
                             results = query_job.result().to_dataframe()
@@ -80,6 +83,7 @@ class SQLExecutor:
                             else:
                                 return "success", results
                         except Exception as e:
+                            client.close()
                             if "403 Quota exceeded" in str(e):
                                 print("403 Quota exceeded again, trying next credential")
                                 continue

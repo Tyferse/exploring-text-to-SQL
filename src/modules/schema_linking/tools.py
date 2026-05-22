@@ -1,3 +1,4 @@
+import functools
 import json
 from typing import Dict, Any, Optional
 
@@ -5,7 +6,7 @@ import pandas as pd
 from langchain_core.tools import tool
 
 from src.storage.vector_manager import VectorStoreManager
-from src.utils.sql_exexution import SQLExecutor
+from src.utils.sql_exeсution import SQLExecutor
 
 
 def _format_df_for_llm(df: pd.DataFrame, max_rows: int = 5) -> str:
@@ -60,6 +61,8 @@ def join_discovery(
     right_column: str, 
     join_type: str, 
     validation_query: Optional[str] = None,
+    db_name: Optional[str] = None,
+    dialect: Optional[str] = None,
     executor: Optional[SQLExecutor] = None,
     evidence: Optional[Dict[str, Any]] = None
 ) -> str:
@@ -67,7 +70,7 @@ def join_discovery(
     
     base_response = f"[JOIN DISCOVERY INITIATED]\nLeft: {left_table}.{left_column}\nRight: {right_table}.{right_column}\nType: {join_type}"
     if validation_query is not None:
-        status, result = executor.thread_safe_sql_execution(validation_query)
+        status, result = executor.thread_safe_sql_execution(validation_query, db_name, dialect)
         join_valid = False
         preview = "None"
         if status == "success" and isinstance(result, pd.DataFrame):

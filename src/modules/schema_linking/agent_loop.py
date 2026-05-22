@@ -1,5 +1,6 @@
-import re
+import inspect
 import json
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -48,6 +49,8 @@ class SchemaLinkingAgent:
         config: Dict[str, Any],
         cache_dir: Optional[Path] = None
     ):
+        assert all(key in config for key in ["max_turns", "max_draft_calls", "additional_k", 
+                                             "input_data_root", "vsm", "executor"])
         self.model = model
         self.tools = tools
         self.config = config
@@ -69,7 +72,10 @@ class SchemaLinkingAgent:
             return f"[ERROR] Tool @{tool_name} is not enabled in this experiment."
         
         try:
-            result = tool_fn.invoke(args) if hasattr(tool_fn, "invoke") else tool_fn(**args)
+            sig = inspect.signature(tool_fn.func if hasattr(tool_fn, 'func') else tool_fn)
+            allowed_keys = set(sig.parameters.keys())
+            filtered_args = {k: v for k, v in args.items() if k in allowed_keys}
+            result = tool_fn.invoke(filtered_args) if hasattr(tool_fn, "invoke") else tool_fn(**filtered_args)
             
             if tool_name == "schema_retrieval" and "[RETRIEVED" in str(result):
                 try:
@@ -83,14 +89,14 @@ class SchemaLinkingAgent:
                         for col in retrieved_cols:
                             col_id = col.get("column_id")
                             if col_id and col_id not in existing_ids:
-                                existing_ids.add(col_id)
+                                existing_ids.append(col_id)
                                 new_meta.append({
                                     "id": col_id,
                                     "table_name": col.get("table_name", ""),
                                     "column_name": col.get("column_name", "")
                                 })
                         
-                        state["retrieved_column_ids"] = list(existing_ids)
+                        state["retrieved_column_ids"] = existing_ids
                         state["retrieved_columns_meta"].extend(new_meta)
                             
                     return result.split("\n\nDetails:")[0] if "\n\nDetails:" in result else result

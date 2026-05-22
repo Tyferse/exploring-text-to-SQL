@@ -15,7 +15,7 @@ def extract_json_from_text(raw_text: str) -> Optional[str]:
     Поддерживает JSON внутри markdown-блоков ```json ... ```.
     """
     # Попытка найти markdown-блок
-    markdown_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw_text, re.DOTALL)
+    markdown_match = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", raw_text, re.DOTALL)
     if markdown_match:
         return markdown_match.group(1)
     
@@ -61,7 +61,7 @@ def format_for_downstream(parsed_output: Dict[str, Any], metadata: Dict[str, Any
         "issues": parsed_output.get("blocking_issues", []),
         "execution_metadata": {
             "turns_used": metadata.get("state", {}).get("turn"),
-            "tools_called": len(metadata.get("state", {}).get("tool_history", [])),
+            "tools_called": len(metadata.get("state", {}).get("tool_step_logs", [])),
             "draft_attempts": metadata.get("state", {}).get("draft_count", 0)
         }
     }
