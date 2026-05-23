@@ -30,9 +30,11 @@ if __name__ == "__main__":
 
         ensure_qdrant_running()
         gen_column_embeddings(
-            input_data_root=input_data_root, location="http://localhost:6333", embedding_model="microsoft/harrier-oss-v1-270m", 
+            input_data_root=input_data_root, location="http://localhost:6333",
+            embedding_model="microsoft/harrier-oss-v1-270m", 
             batch_size=256, device='cuda', max_workers=2
         )
+        print(monitor.get_stats())
 
         # Генерируем id запуска
         run_id = resolve_run_id(
@@ -44,13 +46,14 @@ if __name__ == "__main__":
         os.makedirs(run_path, exist_ok=True)
 
         vsm = VectorStoreManager(
-            location="http://localhost:6333", embedding_model="microsoft/harrier-oss-v1-270m", 
+            location="http://localhost:6333", 
+            embedding_model="microsoft/harrier-oss-v1-270m", 
             max_cached_sessions=2, backend="qdrant", device="cpu", 
             log_path=os.path.join("logs", "dbs", input_data_root)
         )
-
-
         retrieve_columns(run_name, vsm, input_data_root=input_data_root, topk=100, max_workers=4)
+        print(monitor.get_stats())
+
         generate_schemas(
             run_id, input_data_root=input_data_root, output_dir="initial_schema", 
             docs_path=os.path.join("storage", input_data_root, "schema_cache"), 
@@ -66,6 +69,10 @@ if __name__ == "__main__":
             additional_k=5, max_workers=2
         )
         agent_pipeline.run()
+        print(monitor.get_stats())
 
-
-    print(monitor.get_stats())
+        generate_schemas(
+            run_id, input_data_root=input_data_root, output_dir="final_schema", 
+            docs_path=os.path.join("storage", input_data_root, "schema_cache"), 
+            included="retrieval", target_max_tokens=80000
+        )

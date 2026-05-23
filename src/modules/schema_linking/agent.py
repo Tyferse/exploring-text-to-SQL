@@ -341,6 +341,19 @@ class SchemaLinkingAgentPipeline:
         stats_path.parent.mkdir(parents=True, exist_ok=True)
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
+
+        # Собираем все id в один файл
+        cand_dir = self.run_path / "schema_linking" / "candidates"
+        all_candidates = {}
+        for file in cand_dir.iterdir():
+            instance_id = file.stem
+            with open(cand_dir / file, "r", encoding="utf-8") as f:
+                cand_data = json.load(f)
+            
+            all_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}
+
+        with open(cand_dir.parent / "all_candidates.json", "w", encoding="utf-8") as f:
+            json.dump(all_candidates, f)
             
         self.logger.info(f"Pipeline finished. Success: {successful}/{total}")
         return results

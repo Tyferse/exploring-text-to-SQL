@@ -258,7 +258,8 @@ class SchemaLinkingAgent:
             
         # Финальное сохранение артефактов
         self._save_artifacts(instance_id, f"{dialect}_{db_name}", state)
-        
+        if state["log"]: state["log"].info("Artifacts has been saved")
+
         return {
             "final_response": state["messages"][-1].content if state["messages"] else "",
             "state": {k: v for k, v in state.items() if k != "messages"},

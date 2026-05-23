@@ -7,8 +7,10 @@ import os
 import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
+from pathlib import Path
 from typing import List, Dict, Set, Any, Optional
+
+from tqdm import tqdm
 
 from src.storage.core import VectorSearchResult
 from src.storage.vector_manager import VectorStoreManager
@@ -310,7 +312,7 @@ class RetrievalCache:
             instance_id = file.rsplit(".", 1)[0]
             all_indices[instance_id] = {"db_id": instance_db[instance_id], "used_indices": used_indices}
         
-        with open(os.path.join(self.cache_dir, "used_indices.json"), 'w', encoding='utf-8') as f:
+        with open(Path(self.cache_dir).parent / "used_indices.json", "w", encoding='utf-8') as f:
             json.dump(all_indices, f)
 
 

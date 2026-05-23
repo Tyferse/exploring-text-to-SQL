@@ -319,7 +319,10 @@ def generate_schemas(
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
 
     if included == "retrieved":
-        indices_path = run_path / "schema_linking" / "retrieval_cache" / "used_indices.json"
+        indices_data = {}
+
+        # Получаем начальные id
+        indices_path = run_path / "schema_linking" / "used_indices.json"
         if not indices_path.exists():
             raise FileNotFoundError(f"used_indices.json not found: {indices_path}")
 
@@ -327,6 +330,18 @@ def generate_schemas(
         with open(indices_path, "r", encoding="utf-8") as f:
             indices_data = json.load(f)
 
+        # Добавляем id, найденные в результате работы schema linking
+        candidates_file = run_path / "schema_linking" / "all_candidates.json"
+        if candidates_file.exists():
+            with open(candidates_file, "r", encoding="utf-8") as f:
+                all_candidates = json.load(f)
+
+            for instance_id in all_candidates:
+                indices_data[instance_id]["used_indices"] = list(set(
+                    indices_data[instance_id]["used_indices"] 
+                    + all_candidates[instance_id]["used_indices"]
+                ))
+                
     elif included == "full":
         tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
                       if file.endswith('.jsonl')][0]
