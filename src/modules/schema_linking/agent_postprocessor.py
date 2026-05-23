@@ -3,7 +3,7 @@ import re
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, ValidationError
 
-# Опциональная схема валидации выходных данных (Pydantic v2)
+
 class SchemaLinkingOutput(BaseModel):
     schema_linking_result: Dict[str, Any]
     ready_for_sql_generation: bool

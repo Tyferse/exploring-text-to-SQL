@@ -251,7 +251,8 @@ def process_single_instance(
         # 2. Сжатие схемы до целевого размера
         compressed_mapping, strategies = compress_schema_to_fit(
             table_mapping=table_mapping,
-            target_max_tokens=target_max_tokens
+            target_max_tokens=target_max_tokens,
+            similar_tables=similar_tables
         )
         metadata["strategies_applied"] = strategies
         if strategies:
@@ -259,7 +260,8 @@ def process_single_instance(
 
         # 2. Форматирование и финальная оценка
         schema_text = "".join(
-            format_schema_block(tbl, cols) for tbl, cols in compressed_mapping.items()
+            format_schema_block(tbl, cols, similar_tables.get(tbl, []) if similar_tables else None) 
+            for tbl, cols in compressed_mapping.items()
         )
         final_tokens = estimate_prompt_length(schema_text)
         metadata["final_token_estimate"] = final_tokens
@@ -438,6 +440,6 @@ if __name__ == "__main__":
     run_id = resolve_run_id(input_data_root=args.input_data_root, custom_suffix=args.run_name)
     generate_schemas(
         run_id, data_root=args.data_root, input_data_root=args.input_data_root, 
-        output_dir=args.output_dir, docs_dir=str(Path(args.storage_root) / args.input_data_dir), 
+        output_dir=args.output_dir, docs_dir=str(Path(args.storage_root) / args.input_data_dir / "schema_cache"), 
         included="full" in args.full_schema else "retrieved", target_max_tokens=args.max_tokens
     )

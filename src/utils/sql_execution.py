@@ -16,7 +16,7 @@ class SQLExecutor:
         self.data_root = data_root
         self.storage_root = storage_root
         self.input_data_root = input_data_root
-        self.local_dbs = local_dbs if local_dbs is not None else {"sqlite": "resource\databases\spider2-localdb"}
+        self.local_dbs = local_dbs if local_dbs is not None else {"sqlite": "resource/databases/spider2-localdb"}
         self.bigquery_credential_paths = glob.glob(os.path.join(storage_root, input_data_root, "bigquery_credential", "**", "*.json"), recursive=True)
         self.sqlite_lock = threading.Lock()
         self.credential_usage_count = {}

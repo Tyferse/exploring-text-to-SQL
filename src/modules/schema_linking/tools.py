@@ -6,7 +6,7 @@ import pandas as pd
 from langchain_core.tools import tool
 
 from src.storage.vector_manager import VectorStoreManager
-from src.utils.sql_exeсution import SQLExecutor
+from src.utils.sql_execution import SQLExecutor
 
 
 def _format_df_for_llm(df: pd.DataFrame, max_rows: int = 5) -> str:

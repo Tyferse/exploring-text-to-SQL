@@ -403,31 +403,16 @@ class SchemaRetriever:
         )
 
 def retrieve_columns(
-        run_name: str = "", 
+        run_name, 
+        vsm: VectorStoreManager,
         tasks: Optional[List[Dict[str, str]]] = None,
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage", 
-        location: str = None,
-        embedding_model: str = "microsoft/harrier-oss-v1-270m",
-        device: str = "cpu",
-        quantization: bool = False,
         topk: int = 100,
         max_workers: int = 2,
-        max_cached_sessions: int = 2,
-        backend: str = "qdrant",
         force_refresh: bool = False
     ):
-    vsm = vsm = VectorStoreManager(
-        storage_root=storage_root,
-        location=location,
-        max_cached_sessions=max_cached_sessions, 
-        embedding_model=embedding_model,
-        backend=backend,
-        device=device,
-        quantization=quantization,
-        log_path=os.path.join("logs/dbs", input_data_root)
-    )
     run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     cache = RetrievalCache(run_id)
     retriever = SchemaRetriever(
@@ -562,8 +547,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    vsm = vsm = VectorStoreManager(
+        storage_root=args.storage_root,
+        location=args.location,
+        max_cached_sessions=args.max_cached_sessions, 
+        embedding_model=args.embedding_model,
+        backend=args.backend,
+        device=args.device,
+        quantization=args.quantization,
+        log_path=os.path.join("logs/dbs", args.input_data_root)
+    )
     retrieve_columns(
-        args.run_name, None, args.input_data_root, args.data_root, args.storage_root, args.location,              
-        args.embedding_model, args.device, args.quantization, args.topk, 
-        args.max_workers, args.max_cached_sessions, args.backend, args.force_refresh
+        args.run_name, vsm, None, args.input_data_root, args.data_root, 
+        args.storage_root, args.topk, args.max_workers, args.force_refresh
     )

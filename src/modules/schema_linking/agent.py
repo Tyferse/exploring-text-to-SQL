@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, ".")
+
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -7,27 +10,32 @@ from typing import Dict, Optional, Any
 from langchain_openai import ChatOpenAI
 from tqdm import tqdm
 
+from .agent_postprocessor import parse_and_validate_output, format_for_downstream
 from .agent_preprocessor import SchemaLinkingPreprocessor
 from .agent_loop import SchemaLinkingAgent
-from .agent_postprocessor import parse_and_validate_output, format_for_downstream
 from .tools import get_enabled_tools, TOOL_REGISTRY
 from src.storage.vector_manager import VectorStoreManager
-from src.utils.sql_exeсution import SQLExecutor 
 from src.utils.logger import get_logger
+from src.utils.run_manager import resolve_run_id
+from src.utils.sql_execution import SQLExecutor 
 
 
 class SchemaLinkingAgentPipeline:
     def __init__(
         self,
         run_id: str,
+        model_name: str,
         vsm: VectorStoreManager,
         executor: SQLExecutor,
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
+        base_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+        temperature: float = 1.0,
         prompt_name: str = "sl_explore_validation_agent",
-        prompt_path: str = "config/prompts/schema_linking",
+        prompt_dir: str = "config/prompts/schema_linking",
         max_turns: int = 10,
         max_draft_calls: Optional[int] = 3,
         additional_k: int = 5,
@@ -35,8 +43,9 @@ class SchemaLinkingAgentPipeline:
     ):
         self.run_id = run_id
         self.run_path = Path(run_root) / run_id
+        self.data_root = Path(data_root)
         self.storage_root = Path(storage_root)
-        self.prompt_path = Path(prompt_path)
+        self.prompt_path = Path(prompt_dir)
         self.input_data_root = input_data_root
         self.max_workers = max_workers
         self.config = {
@@ -52,16 +61,10 @@ class SchemaLinkingAgentPipeline:
         self.logger = get_logger("sl_agent", str(self.run_path / "schema_linking" / "agent.log"))
         self.preprocessor = SchemaLinkingPreprocessor(
             prompt_name=prompt_name,
-            base_dir=prompt_path,
+            base_dir=prompt_dir,
             logger=self.logger
         )
-        agent_config = {
-            **self.config,
-            "vsm": self.vsm,
-            "executor": self.executor,
-            "input_data_root": self.input_data_root
-        }
-
+    
         enabled_tools_names = list(TOOL_REGISTRY.keys())
         if not prompt_name.startswith("sl_explore_validation_agent"):
             if prompt_name.startswith("sl_explore_agent"):
@@ -74,10 +77,10 @@ class SchemaLinkingAgentPipeline:
 
         enabled_tools = get_enabled_tools(enabled_tools_names)
         self.agent = SchemaLinkingAgent(
-            model=self._get_model(),
+            model=self._get_model(model_name, base_url, api_key, temperature),
             tools=enabled_tools,
             config=agent_config,
-            cache_dir=self.run_path / "schema_linking" / "retrieval_cache"
+            cache_dir=self.run_path / "schema_linking"
         )
 
     def _load_dialect_rules(self) -> Optional[Dict[str, str]]:
@@ -110,11 +113,53 @@ class SchemaLinkingAgentPipeline:
             if instance_id in used_indices:
                 del used_indices[instance_id]
         
+        db_docs = {}
+        docs_path = self.storage_root / self.input_data_root / "schema_cache"
+        for doc_file in docs_path.glob("*_docs.json"):
+            db_id = doc_file.stem.replace("_docs", "")
+            with open(doc_file, "r", encoding="utf-8") as f:
+                docs_data = json.load(f)
+                db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
+            
         # Удаляем примеры, для которых больше не требуется добавлять столбцов
-        # TODO
+        for instance_id in list(used_indices.keys()):
+            db_id = used_indices[instance_id]["db_id"]
+            cand_file = self.agent.cache_dir / "candidates" / f"{instance_id}.json"
+            if len(used_indices[instance_id]["used_indices"]) == len(db_docs[db_id]) and not cand_file.exists():
+                cand_data = {
+                    "instance_id": instance_id,
+                    "db_id": db_id,
+                    "column_ids": used_indices[instance_id]["used_indices"],
+                    "tables": [db_docs[db_id][cid]['metadata']["table_name"] for cid in used_indices[instance_id]["used_indices"]],
+                    "columns": [db_docs[db_id][cid]['metadata']["column_name"] for cid in used_indices[instance_id]["used_indices"]],
+                    "joins": []
+                }
+                cand_file.write_text(json.dumps(cand_data, indent=2, ensure_ascii=False), encoding="utf-8")
+                del used_indices[instance_id]
 
-        # TODO Дабавляем недостающие метаданные
-
+        # Дабавляем недостающие метаданные
+        tasks = [json.loads(line) 
+                 for line in (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+                             .read_text(encoding="utf-8").split("\n")]
+        tasks = {t["instance_id"]: {k: v for k, v in t.items() if k != "instance_id"} for t in tasks}
+        for instance_id in list(used_indices.keys()):
+            used_indices[instance_id]["question"] = tasks[instance_id].get("question", tasks[instance_id].get("instruction"))
+            used_indices[instance_id]["all_tables"] = list({db_docs[db_id][cid]['metadata']["table_name"] for cid in used_indices[instance_id]["used_indices"]})
+            used_indices[instance_id]["table_schemas"] = json.dumps(
+                {table_name: [
+                    {"column": db_docs[db_id][cid]['metadata']["column_name"], 
+                     "type": db_docs[db_id][cid]['metadata']["column_type"]}
+                    for cid in db_docs[db_id]
+                    if db_docs[db_id][cid]['metadata']["table_name"] == table_name
+                 ]
+                 for table_name in used_indices[instance_id]["all_tables"]}, 
+                indent=2, ensure_ascii=False
+            )
+            used_indices[instance_id]["external_knowledge"] = (
+                self.data_root / self.input_data_root / "resource" / "documents" 
+                / tasks[instance_id]["external_knowledge"]
+            ).read_text(encoding="utf-8") if tasks[instance_id]["external_knowledge"] else "None"
+        
         return used_indices
 
     def _process_single_instance(self, instance_id: str, instance_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -129,12 +174,11 @@ class SchemaLinkingAgentPipeline:
             
             # 1. Предобработка
             context = {
-                "USER_QUESTION": instance_data.get("question", ""),
-                "RETRIEVED_SCHEMA": None,
-                "ALL_TABLES": instance_data.get("all_tables", []),
-                "TABLE_SCHEMAS": None,
-                "EXTERNAL_KNOWLEDGE": open(instance_data["external_knowledge"], encoding="utf-8").read() 
-                                      if instance_data.get("external_knowledge") else None
+                "USER_QUESTION": instance_data.get("question", "None"),
+                # "RETRIEVED_SCHEMA": None,  # будет загружено в preprocessor.build_messages
+                "ALL_TABLES": str(instance_data.get("all_tables", [])),
+                "TABLE_SCHEMAS": instance_data.get("table_schemas", "None"),
+                "EXTERNAL_KNOWLEDGE": instance_data.get("external_knowledge", "None")
             }
             
             system_prompt, user_prompt = self.preprocessor.build_messages(
@@ -227,7 +271,7 @@ class SchemaLinkingAgentPipeline:
         """
         cfg = self._load_llm_config(model_name)
         final_base_url = base_url or cfg.get("base_url")
-        final_api_key = api_key or cfg.get("api_key", None)
+        final_api_key = api_key or cfg.get("api_key")
 
         if not final_base_url:
             raise ValueError(f"base_url is not specified for model '{model_name}' and not provided via override.")
@@ -293,7 +337,7 @@ class SchemaLinkingAgentPipeline:
             "success_rate": successful / total if total > 0 else 0
         }
         
-        stats_path = self.run_path / "schema_linking" / "pipeline_stats.json"
+        stats_path = self.run_path / "schema_linking" / "agent_pipeline_stats.json"
         stats_path.parent.mkdir(parents=True, exist_ok=True)
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
@@ -301,3 +345,151 @@ class SchemaLinkingAgentPipeline:
         self.logger.info(f"Pipeline finished. Success: {successful}/{total}")
         return results
     
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv(".env")
+
+    import argparse
+
+    def parse_dialect_path_pair(value: str) -> tuple[str, str]:
+        if ':' in value:
+            dialect, path = value.split(':', 1)
+        elif '=' in value:
+            dialect, path = value.split('=', 1)
+        else:
+            raise argparse.ArgumentTypeError(
+                f"Invalid format '{value}'. Use 'dialect:path' or 'dialect=path'"
+            )
+        
+        dialect = dialect.strip().lower()
+        path = path.strip().rstrip('/') 
+        
+        if not dialect or not path:
+            raise argparse.ArgumentTypeError("Both dialect and path must be non-empty")
+        
+        return dialect, path
+
+    parser = argparse.ArgumentParser(description="Запуск schema linking агента для дополнения итоговой схемы БД")
+    parser.add_argument(
+        "input-data-root", type=str, default="Spider2/spider2-lite",
+        help="Относительный путь к папке датасета внутри data_root. "
+             "Используется для получения вопросов."
+    )
+    parser.add_argument(
+        "run-name", type=str, default="", 
+        help="Название запуска, использовавшегося для формирования логов в logs/runs директории."
+    )
+    parser.add_argument(
+        "--data-root", type=str, default="data",
+        help="Путь к папке с входными данными"
+    )
+    parser.add_argument(
+        "--storage-root", type=str, default="storage",
+        help="Корневая директория для кэшированных схем и векторных баз данных."
+    )
+
+    # Параметры агента
+    parser.add_argument(
+        "--prompt-dir", type=str, default="config/prompts/schema_linking",
+        help="Путь к директории с шаблонами промптов (по умолчанию: config/prompts/schema_linking)"
+    )
+    parser.add_argument(
+        "--prompt-name", type=str, default="sl_explore_validation_agent",
+        help="Вариант промпта агента в папке prompt-dir (по умолчанию: sl_explore_validation_agent)"
+    )
+    parser.add_argument(
+        "--max-turns", type=int, default=10,
+        help="Максимальное количество ходов рассуждения агента (по умолчанию: 10)"
+    )
+    parser.add_argument(
+        "--max-draft-calls", type=int, default=3,
+        help="Максимальное число вызовов инструмента @sql_draft за сессию (по умолчанию: 3)"
+    )
+    parser.add_argument(
+        "--additional-k", type=int, default=5,
+        help="Число столбцов для возврата через инструмент @schema_retrieval (по умолчанию: 5)"
+    )
+    parser.add_argument(
+        "--max-workers", type=int, default=4,
+        help="Количество потоков для параллельной обработки примеров (по умолчанию: 4)"
+    )
+
+    # Параметры модели
+    parser.add_argument(
+        "--model-name", type=str, default="qwen-local",
+        help="Имя модели из configs/llm.json (по умолчанию: qwen-local)"
+    )
+    parser.add_argument(
+        "--base-url", type=str, default=None,
+        help="Переопределение base_url API"
+    )
+    parser.add_argument(
+        "--api-key", type=str, default=None,
+        help="Переопределение API-ключа или имя env-переменной с ключом"
+    )
+    parser.add_argument(
+        "--temperature", type=float, default=1.0,
+        help="Температура семплирования (по умолчанию: 1.0)"
+    )
+
+    # Параметры исполнения запросов
+    parser.add_argument(
+        "--local-dbs",
+        type=parse_dialect_path_pair,
+        nargs="*",  # Принимает 0 или более значений
+        default=None,  # None означает "использовать дефолты из SQLExecutor"
+        metavar="DIALECT:PATH",
+        help="Пути к папкам локальных БД относительно data_root/input_data_root. "
+            "Формат: 'dialect:path' (можно указать несколько через пробел). "
+            "Пример: --local-dbs sqlite:databases snowflake:sf_data bigquery:local_bq"
+    )
+
+    # Параметны векторной БД
+    parser.add_argument(
+        "--location", type=str, default=None,
+        help="URL локального сервера с векторной базой данных."
+    )
+    parser.add_argument(
+        "--embedding_model", type=str, default="microsoft/harrier-oss-v1-270m",
+        help="Идентификатор HuggingFace модели или локальный путь для создания эмбеддингов. "
+             "Поддерживает модели с prompt-based кодированием (Harrier, Qwen3 и др.)."
+    )
+    parser.add_argument(
+        "--device", type=str, default="cpu",  # choices=["cpu", "cuda", "cuda:0", "mps"],
+        help="Устройство для инференса модели эмбеддингов. "
+             "'cuda' использует доступный GPU, 'cpu' — процессор, 'mps' — Apple Silicon."
+    )
+    parser.add_argument(
+        "--max_cached_sessions", type=int, default=2,
+        help="Максимальное число сессий векторного хранилища (разных датасетов) в RAM. "
+             "Использует LRU-вытеснение для предотвращения OOM при работе с несколькими контекстами."
+    )
+    parser.add_argument(
+        "--quantization", action="store_true",
+        help="Включить int8 скалярное квантование векторов. Сокращает потребление RAM/диска в ~4 раза "
+             "с минимальным влиянием на точность поиска. Рекомендуется для датасетов >50k столбцов."
+    )
+    parser.add_argument(
+        "--backend", type=str, default="qdrant", choices=["qdrant"],
+        help="Движок векторной базы данных. На текущий момент поддерживается только Qdrant."
+    )
+    args = parser.parse_args()
+
+    run_id = resolve_run_id(input_data_root=args.input_data_root, custom_suffix=args.run_name)
+    vsm = VectorStoreManager(
+        args.storage_root, args.location, args.max_cached_sessions, 
+        args.embedding_model, backend=args.backend, device=args.device, 
+        quantization=args.quantization, log_path=os.path.join("logs", "dbs", args.input_data_root)
+    )
+    executor = SQLExecutor(args.input_data_root, args.data_root, args.storage_root, 
+                           dict(args.local_dbs) if args.local_dbs else None)
+
+    pipeline = SchemaLinkingAgentPipeline(
+        run_id, args.model_name, vsm, executor, 
+        input_data_root=args.input_data_root, data_root=args.data_root, storage_root=args.storage_root,
+        base_url=args.base_url, api_key=args.api_key, temperature=args.temperature,
+        prompt_name=args.prompt_name, prompt_dir=args.prompt_dir, max_turns=args.max_turns, 
+        max_draft_calls=args.max_draft_calls, additional_k=args.additional_k, max_workers=args.max_workers
+    )
+    pipeline.run()

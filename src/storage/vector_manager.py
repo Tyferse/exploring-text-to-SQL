@@ -29,10 +29,10 @@ class VectorStoreManager:
         storage_root: str = "storage",
         location: str = None,
         max_cached_sessions: int = 3,
-        embedding_model: str = "BAAI/bge-small-en-v1.5",
+        embedding_model: str = "microsoft/harrier-oss-v1-270m",
         backend: str = "qdrant",
         device: str = "cpu",
-        quantization: bool = True,
+        quantization: bool = False,
         dtype: str = "auto",
         log_path: str = None
     ):
