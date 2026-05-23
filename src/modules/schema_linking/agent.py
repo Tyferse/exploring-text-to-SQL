@@ -79,7 +79,7 @@ class SchemaLinkingAgentPipeline:
         self.agent = SchemaLinkingAgent(
             model=self._get_model(model_name, base_url, api_key, temperature),
             tools=enabled_tools,
-            config=agent_config,
+            config=self.config,
             cache_dir=self.run_path / "schema_linking"
         )
 
