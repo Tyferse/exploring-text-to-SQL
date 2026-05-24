@@ -9,11 +9,13 @@ Analyze the user's natural language question and select the exact database table
 ## User Question
 {{USER_QUESTION}}
 
-## External Knowledge (Optional)
+## External Knowledge
 {{EXTERNAL_KNOWLEDGE}}
 
 ## Available Database Tables
-{{TABLES_LIST}}
+{{TABLE_SCHEMAS}}
+
+---
 
 # INSTRUCTIONS
 

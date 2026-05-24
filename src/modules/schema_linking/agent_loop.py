@@ -4,8 +4,9 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage, BaseMessage
+# from langchain_core.rate_limiters import BaseRateLimiter
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage, BaseMessage
 
 from src.utils.logger import get_logger
 
@@ -191,8 +192,12 @@ class SchemaLinkingAgent:
             
             # 1. Вызов LLM
             if state["log"]: state["log"].info(f"Turn {state['turn']} | Invoke model")
-            response = self.model.invoke(initial_content + state["messages"])
-            ai_text = response.content
+            try:
+                response = self.model.invoke(initial_content + state["messages"])
+                ai_text = response.content
+            except Exception:
+                continue
+
             if state["log"]: state["log"].info(f"Turn {state['turn']} | Model has been invoked")
             
             # 2. Парсинг инструментов

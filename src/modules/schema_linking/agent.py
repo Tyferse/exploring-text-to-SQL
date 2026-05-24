@@ -18,6 +18,7 @@ from .agent_loop import SchemaLinkingAgent
 from .tools import get_enabled_tools, TOOL_REGISTRY
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
+from src.utils.models import get_model
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor 
 
@@ -79,11 +80,12 @@ class SchemaLinkingAgentPipeline:
 
         enabled_tools = get_enabled_tools(enabled_tools_names)
         self.agent = SchemaLinkingAgent(
-            model=self._get_model(model_name, base_url, api_key, temperature),
+            model=get_model(model_name, base_url, api_key, temperature),
             tools=enabled_tools,
             config=self.config,
             cache_dir=self.run_path / "schema_linking"
         )
+        self.logger.info(f"LLM Initialized: {model_name} | {base_url}")
 
     def _load_dialect_rules(self) -> Optional[Dict[str, str]]:
         """Загружает правила для конкретного диалекта."""
@@ -237,65 +239,6 @@ class SchemaLinkingAgentPipeline:
                 "status": "critical_error",
                 "error": str(e)
             }
-
-    def _load_llm_config(self, model_name: str) -> Dict[str, Any]:
-        """
-        Загружает конфигурацию модели из configs/llm.json.
-        """
-        config_path = Path("configs/llm.json")
-        if not config_path.exists():
-            # raise FileNotFoundError(f"LLM config not found at {config_path}")
-            return {}
-        
-        with open(config_path, "r", encoding="utf-8") as f:
-            full_config = json.load(f)
-            
-        models_cfg = full_config.get("models", {})
-        if model_name not in models_cfg:
-            raise ValueError(f"Model '{model_name}' not found in configs/llm.json. Available: {list(models_cfg.keys())}")
-        
-        return models_cfg[model_name]
-
-    def _get_model(
-        self, 
-        model_name: str = "qwen-local", 
-        base_url: Optional[str] = None,
-        api_key: Optional[str] = None,
-        temperature: float = 1.0
-    ) -> ChatOpenAI:
-        """
-        Инициализирует LLM через стандартный OpenAI API клиент.
-        
-        Args:
-            model_name: Ключ модели в configs/llm.json
-            base_url: Если передан, заменяет URL из конфига
-            api_key: Если передан, заменяет API Key из конфига
-            temperature: Если передан, заменяет температуру
-            
-        Returns:
-            Экземпляр ChatOpenAI
-        """
-        cfg = self._load_llm_config(model_name)
-        final_base_url = base_url or cfg.get("base_url")
-        final_api_key = api_key or cfg.get("api_key")
-
-        if not final_base_url:
-            raise ValueError(f"base_url is not specified for model '{model_name}' and not provided via override.")
-
-        if final_api_key is not None:
-            normalized_api = final_api_key.replace("_", "")
-            if normalized_api.isupper() and normalized_api.isalnum():
-                final_api_key = os.environ.get(final_api_key)
-
-        llm = ChatOpenAI(
-            model=model_name,
-            base_url=final_base_url,
-            api_key=final_api_key,
-            temperature=temperature,
-            disable_streaming=True 
-        )
-        self.logger.info(f"LLM Initialized: {model_name} | {final_base_url}")
-        return llm
 
     def run(self):
         """Запускает параллельную обработку всех примеров."""

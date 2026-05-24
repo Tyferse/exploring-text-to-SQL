@@ -3,6 +3,9 @@
 ## User Question
 {{USER_QUESTION}}
 
+## External Knowledge / Domain Context
+{{EXTERNAL_KNOWLEDGE}}
+
 ## Initially Retrieved Schema Candidates
 {{RETRIEVED_SCHEMA}}
 
@@ -11,9 +14,6 @@
 
 ## Complete Table Schemas (for referenced tables)
 {{TABLE_SCHEMAS}}
-
-## External Knowledge / Domain Context
-{{EXTERNAL_KNOWLEDGE}}
 
 ---
 

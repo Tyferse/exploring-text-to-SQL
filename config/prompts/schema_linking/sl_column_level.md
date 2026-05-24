@@ -9,16 +9,13 @@ Given a user question and a set of database table schemas, identify the exact ta
 ## User Question
 {{USER_QUESTION}}
 
+## External Knowledge
+{{EXTERNAL_KNOWLEDGE}}
+
 ## Available Database Tables and Schemas
 {{TABLE_SCHEMAS}}
-// Format: Each table includes:
-// - table_name: exact identifier
-// - description: table-level business purpose
-// - columns: list of {column_name, data_type, description, sample_values?, is_pk?, is_fk?}
-// NOTE: Table order and column order within each table are intentionally randomized. Position does NOT indicate relevance or priority. Evaluate every element independently based on its metadata.
 
-## External Knowledge (Optional)
-{{EXTERNAL_KNOWLEDGE}}
+---
 
 # INSTRUCTIONS
 
