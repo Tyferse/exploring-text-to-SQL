@@ -1,7 +1,9 @@
 import sys
 sys.path.insert(0, ".")
 
+import numpy as np
 import os
+import random
 
 from dotenv import load_dotenv
 
@@ -19,6 +21,9 @@ from src.utils.sql_execution import SQLExecutor
 
 if __name__ == "__main__":
     load_dotenv(".env")
+    
+    random.seed(42)
+    np.random.seed(42)
 
     input_data_root = "Spider2/spider2-lite"
     run_name = "test"

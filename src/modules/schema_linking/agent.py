@@ -3,6 +3,8 @@ sys.path.insert(0, ".")
 
 import json
 import os
+import random
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, Optional, Any
@@ -129,9 +131,9 @@ class SchemaLinkingAgentPipeline:
                 cand_data = {
                     "instance_id": instance_id,
                     "db_id": db_id,
-                    "column_ids": used_indices[instance_id]["used_indices"],
-                    "tables": [db_docs[db_id][cid]['metadata']["table_name"] for cid in used_indices[instance_id]["used_indices"]],
-                    "columns": [db_docs[db_id][cid]['metadata']["column_name"] for cid in used_indices[instance_id]["used_indices"]],
+                    "column_ids": [],
+                    "tables": [],
+                    "columns": [],
                     "joins": []
                 }
                 cand_file.write_text(json.dumps(cand_data, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -145,15 +147,19 @@ class SchemaLinkingAgentPipeline:
         for instance_id in list(used_indices.keys()):
             used_indices[instance_id]["question"] = tasks[instance_id].get("question", tasks[instance_id].get("instruction"))
             used_indices[instance_id]["all_tables"] = list({db_docs[db_id][cid]['metadata']["table_name"] for cid in used_indices[instance_id]["used_indices"]})
-            used_indices[instance_id]["table_schemas"] = json.dumps(
-                {table_name: [
+            table_schemas = {
+                table_name: [
                     {"column": db_docs[db_id][cid]['metadata']["column_name"], 
                      "type": db_docs[db_id][cid]['metadata']["column_type"]}
                     for cid in db_docs[db_id]
                     if db_docs[db_id][cid]['metadata']["table_name"] == table_name
-                 ]
-                 for table_name in used_indices[instance_id]["all_tables"]}, 
-                indent=2, ensure_ascii=False
+                ]
+                for table_name in used_indices[instance_id]["all_tables"]
+            }
+            table_schemas = list(table_schemas.items())
+            random.shuffle(table_schemas)  # Перемешиваем для предотвращения влияния порядка таблиц на ответ модели
+            used_indices[instance_id]["table_schemas"] = json.dumps(
+                OrderedDict(table_schemas), indent=2, ensure_ascii=False
             )
             used_indices[instance_id]["external_knowledge"] = (
                 self.data_root / self.input_data_root / "resource" / "documents" 

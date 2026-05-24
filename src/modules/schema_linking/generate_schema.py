@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import random
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Literal
 from tqdm import tqdm
@@ -9,6 +10,8 @@ from src.utils.logger import get_logger
 from src.utils.preprocessing import remove_digits
 from src.utils.run_manager import resolve_run_id
 
+
+random.shuffle()
 
 def estimate_prompt_length(text: str, chars_per_token: float = 4.0) -> int:
     """
@@ -185,13 +188,13 @@ def format_schema_block(table_name: str, columns: List[Dict[str, Any]], similar_
     lines.append("")
     return "\n".join(lines)
 
-def process_single_instance(
+def generate_single_schema(
     instance_id: str,
     col_ids: List[str],
     doc_data: Dict[int, Dict[str, Any]],
-    output_path: Path,
     target_max_tokens: int = 64_000,
     similar_tables: Optional[Dict[str, Dict[str, List[str]]]] = None,
+    output_path: Optional[Path] = None,
     log: Optional[logging.Logger] = None
 ) -> Tuple[bool, Dict[str, Any]]:
     """
@@ -208,7 +211,7 @@ def process_single_instance(
     Returns:
         Tuple[успех: bool, метаданные: dict]
     """
-    if log is None:
+    if log is None and output_path is not None:
         log = get_logger(output_path.parent / "gen_schema" / (instance_id + ".log"))
 
     log.info(f"Begin processing | {instance_id}")
@@ -259,10 +262,12 @@ def process_single_instance(
             log.info(f"Применены стратегии сжатия: {strategies}")
 
         # 2. Форматирование и финальная оценка
-        schema_text = "".join(
+        schema_blocks = [
             format_schema_block(tbl, cols, similar_tables.get(tbl, []) if similar_tables else None) 
             for tbl, cols in compressed_mapping.items()
-        )
+        ]
+        random.shuffle(schema_blocks)  # Перемешиваем для предотвращения влияния порядка таблиц
+        schema_text = "".join(schema_blocks)
         final_tokens = estimate_prompt_length(schema_text)
         metadata["final_token_estimate"] = final_tokens
         
@@ -374,7 +379,7 @@ def generate_schemas(
     stats = {"success": 0, "failed": 0, "strategies_count": {}, "token_stats": []}
     
     for instance_id, inst_retrival_data in tqdm(indices_data.items(), desc="Schema generation"):    
-        schema_text, meta = process_single_instance(
+        schema_text, meta = generate_single_schema(
             instance_id=instance_id,
             col_ids=inst_retrival_data["used_indices"],
             doc_data=db_docs[inst_retrival_data["db_id"]],
