@@ -2,14 +2,20 @@ import json
 import random
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field, asdict
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
+from langchain_core.messages import HumanMessage
+from tqdm import tqdm
 
 from src.utils.logger import get_logger
+from src.utils.models import get_model
+from src.utils.preprocessing import remove_digits
+from src.utils.run_manager import resolve_run_id
 
 
 DEFAULT_PROMPT = """You are a database schema expert. 
@@ -38,7 +44,7 @@ DEFAULT_RETRY_CONFIG = {
 
 
 @dataclass
-class TableSelectionAttempt:
+class TableLinkingAttempt:
     """Запись одной попытки отбора таблиц."""
     attempt_number: int
     prompt: str
@@ -51,12 +57,12 @@ class TableSelectionAttempt:
 
 
 @dataclass
-class TableSelectionResult:
+class TableLinkingResult:
     """Итоговый результат отбора с полной историей."""
     instance_id: str
     selected_tables: List[str]
     success: bool
-    attempts: List[TableSelectionAttempt] = field(default_factory=list)
+    attempts: List[TableLinkingAttempt] = field(default_factory=list)
     final_error: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -87,10 +93,13 @@ class TableLinking:
         self,
         run_id: str,
         model: BaseChatModel,
+        tasks: Optional[List[Dict[str, str]]],
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
+        data_root: str = "data",
         storage_root: str = "storage",
-        user_prompt: Optional[str] = None,
+        prompt_name: Optional[str] = None,
+        prompt_dir: str = "configs/prompts/schema_linking",
         retry_config: Optional[Dict[str, float]] = None,
         require_json_output: bool = True,
         max_workers: int = 4,
@@ -100,35 +109,218 @@ class TableLinking:
         Args:
             run_id: Идентификатор запуска и название папки в runs_root
             model: Инициализированная LLM-модель (ChatOpenAI и аналоги)
+            tasks: Список задач, для которых требуется найти таблицы 
             run_root: Папка с запусками
-            input_data_root: Папка с входными данными
+            input_data_root: Папка с текущими входными данными в data_root
+            data_root: Директория со всеми входными данными
             storage_root: Папка с метаданными схем баз данных
-            user_prompt: Кастомный системный промпт (опционально)
+            prompt_name: Название .md файла (без расширения) с промптом пользователя
+            prompt_dir: Папка с .md файлами промптов
             retry_config: Настройки повторных попыток
             require_json_output: Требовать строгого JSON-вывода от LLM
             max_workers: Максимальное число параллельных процессов генерации
             max_tables: Опциональное ограничение числа таблиц в результате
         """
         self.model = model
+        self.tasks = tasks
         self.input_data_root = input_data_root
-        self.storage_root = storage_root
-        self.user_prompt = user_prompt or self.DEFAULT_PROMPT
-        self.retry_config = {**self.DEFAULT_RETRY_CONFIG, **(retry_config or {})}
+        self.data_root = Path(data_root)
+        self.storage_root = Path(storage_root)
+        self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
         self.require_json_output = require_json_output
         self.max_workers = max_workers
         self.max_tables = max_tables
+        self.user_prompt = ((Path(prompt_dir) / f"{prompt_name}.md").read_text(encoding="utf-8") 
+                            if prompt_name is not None else DEFAULT_PROMPT)
 
         self.log_dir = Path(run_root) / run_id / "schema_linking"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.logger = get_logger("table_linking", self.log_dir / "table_selection.log")
+
+    def _load_instances(self) -> Dict[str, Any]:
+        ids_data = {}
+        # Если есть данные schema linking на уровне столбцов,загружаем их
+        if (self.log_dir / "column_candidates.json").exists():
+            with open(self.log_dir / "column_candidates.json", "r", encoding="utf-8") as f:
+                ids_data = json.load(f)
+        
+        # Иначе проверяем, если ли результаты векторного (или иного) поиска
+        if not ids_data and (self.log_dir / "retrieved_indices.json").exists():
+            with open(self.log_dir / "retrieved_indices.json", "r", encoding="utf-8") as f:
+                ids_data = json.load(f)
+        
+        # Загружаем примеры
+        if self.tasks is None:
+            tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+            with open(tasks_file, "r", encoding="utf-8") as f:
+                tasks = [json.loads(line.strip()) for line in f.readlines()]
+        else:
+            tasks = deepcopy(self.tasks)
+
+        q_key = "question"
+        if "question" not in tasks[0]:
+            q_key = "instruction"
+
+        if self.input_data_root == "Spider2/spider2-lite":
+            inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+            tasks = {
+                instance["instance_id"]: {
+                    "db_id": inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"], 
+                    "question": instance[q_key],
+                    "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
+                                                / instance["external_knowledge"]) 
+                                          if instance.get("external_knowledge") else None),
+                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", None)
+                } 
+                for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
+            }
+        else:
+            tasks = {
+                instance["instance_id"]: {
+                    "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
+                    "question": instance[q_key],
+                    "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents"
+                                                / instance["external_knowledge"])
+                                          if instance.get("external_knowledge") else None,
+                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", None)
+                }
+                for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
+            }
+
+        return tasks
     
+    def _load_schemas(self) -> Dict[str, Dict[str, Dict[int: List[Dict[str, Any]]]]]:
+        """Загружает и парсит *_docs.json в формат {table_name: [{column, type}]}"""
+        schemas = {}
+        docs_dir = self.storage_root / self.input_data_root / "schema_cache"
+        if not docs_dir.exists():
+            self.logger.warning(f"Schema cache not found: {docs_dir}")
+            return schemas
+
+        for doc_file in docs_dir.glob("*_docs.json"):
+            db_id = doc_file.stem[:-5]
+            with open(doc_file, "r", encoding="utf-8") as f:
+                docs = json.load(f)
+            
+            table_map: Dict[str, List[Dict[str, Any]]] = {}
+            for col in docs:
+                meta = col.get("metadata", {})
+                tn = meta.get("table_name")
+                if not tn: continue
+                if tn not in table_map:
+                    table_map[tn] = {}
+
+                table_map[tn][col["id"]] = {
+                    "column": meta.get("column_name", col["id"]),
+                    "type": meta.get("column_type", "?")
+                }
+
+            schemas[db_id] = table_map
+
+        return schemas
+
+    def _format_table_list(self, tables: Dict[str, List[Dict]], max_tables: Optional[int]) -> str:
+        """Формирует компактный список таблиц для промпта."""
+        names = list(tables.keys())
+        if max_tables and len(names) > max_tables:
+            names = names[:max_tables]
+        return ", ".join(f"`{name}`" for name in names)
+    
+    def _format_table_schemas(self, tables: Dict[str, List[Dict]]) -> str:
+        """Формирует описание схем таблиц для промпта."""
+        lines = []
+        for table_name, columns in tables.items():
+            cols_str = ", ".join(f"{c['column']}:{c.get('type', '?')}" for c in columns)
+            lines.append(f"{table_name}: [{cols_str}]")
+        
+        random.shuffle(lines)
+        return "\n".join(lines)
+    
+    def _parse_llm_response(self, response: str) -> Tuple[Optional[List[str]], Optional[str]]:
+        """
+        Парсит ответ LLM как список имён таблиц.
+        
+        Returns:
+            (parsed_list_or_None, error_message_or_None)
+        """
+        if not response:
+            return None, "Empty response"
+        
+        json_match = re.search(r'\{[\s\S]*\}', response)
+        if json_match:
+            try:
+                parsed = json.loads(json_match.group(0))
+                # Формат: {"selected_tables": [...]}
+                if isinstance(parsed, dict) and "selected_tables" in parsed:
+                    tables = [
+                        t.get("table_name") 
+                        for t in parsed["selected_tables"] 
+                        if isinstance(t, dict) and t.get("table_name")
+                    ]
+                    return tables if tables else None, None
+                
+                # формат массива
+                if isinstance(parsed, list) and all(isinstance(t, str) for t in parsed):
+                    return parsed, None
+            except json.JSONDecodeError:
+                pass
+        
+        # Fallback: ищем массив [...]
+        array_match = re.search(r'\[([^\[\]]*?)\]', response, re.DOTALL)
+        if array_match:
+            try:
+                parsed = json.loads(array_match.group(0).replace("'", '"'))
+                if isinstance(parsed, list) and all(isinstance(t, str) for t in parsed):
+                    return parsed, None
+            except json.JSONDecodeError:
+                pass
+        
+        # Fallback: если ответ — просто список через запятую
+        if ',' in response or '\n' in response:
+            # Разбиваем по запятым, переносам, точкам с запятой
+            tokens = re.split(r'[,;\n]', response)
+            tables = [t.strip().strip('"\'`') for t in tokens if t.strip()]
+            if tables:
+                return tables, None
+        
+        # Если ничего не получилось
+        return None, f"Could not parse table list from: {response[:200]}"
+    
+    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]]):
+        """Сохраняет историю сообщений в отдельный JSON-файл."""
+        history_file = self.log_dir / "table_linking" / f"{instance_id}.json"
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(history_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "instance_id": instance_id,
+                "timestamp": time.time(),
+                "history": history
+            }, f, indent=2, ensure_ascii=False)
+    
+    def extract_all_candidates(self, results: Dict[str, Any]):
+        if not hasattr(self, "instances"): self.instances = self._load_instances()
+        if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
+
+        with open(self.log_dir / "all_candidates.json", "w", encoding="utf-8") as f:
+            data = {
+                iid: {
+                    "db_id": self.instances[iid]["db_id"],
+                    "used_indices": [cid for tn in results[iid]["selected_tables"] 
+                                     for cid in self.schemas[self.instances[iid]["db_id"]][tn].keys()]
+                } 
+                for iid in results
+            }
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
     def select_tables(
         self,
         instance_id: str,
         user_question: str,
         available_tables: Dict[str, List[Dict[str, Any]]],
+        external_knowledge: Optional[str] = None,
         max_tables: Optional[int] = None
-    ) -> TableSelectionResult:
+    ) -> TableLinkingResult:
         """
         Основной метод: отбирает таблицы через LLM с повторными попытками.
         
@@ -139,9 +331,9 @@ class TableLinking:
             max_tables: Опциональный лимит на число возвращаемых таблиц
             
         Returns:
-            TableSelectionResult с историей попыток и результатом
+            TableLinkingResult с историей попыток и результатом
         """
-        result = TableSelectionResult(instance_id=instance_id, selected_tables=[], success=False)
+        result = TableLinkingResult(instance_id=instance_id, selected_tables=[], success=False)
         
         # Подготовка контекста для промпта
         table_schemas = self._format_table_schemas(available_tables)
@@ -149,12 +341,14 @@ class TableLinking:
         
         for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
             try:
-                self.logger.info(f"{instance_id} | Call model")
+                self.logger.info(f"{instance_id} | Invoke model")
                 start_time = time.perf_counter()
                 
                 # 1. Формирование промпта
                 prompt = self.user_prompt.replace("{{USER_QUESTION}}", user_question)
-                prompt = self.user_prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
+                prompt = prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
+                if external_knowledge is not None:
+                    prompt = prompt.replace("{{external_knowledge}}", external_knowledge)
             
                 # 2. Отправка запроса к LLM
                 messages = [HumanMessage(content=prompt)]
@@ -163,7 +357,7 @@ class TableLinking:
                 llm_response = response.content.strip()
                 
                 latency_ms = (time.perf_counter() - start_time) * 1000
-                self.logger.info(f"{instance_id} | Model has been called successfully")
+                self.logger.info(f"{instance_id} | Model has been invoked")
                 
                 # 3. Парсинг ответа
                 parsed_tables, parse_error = self._parse_llm_response(llm_response)
@@ -172,16 +366,25 @@ class TableLinking:
                 validation_errors = []
                 if parsed_tables:
                     valid_names = set(available_tables.keys())
+                    if isinstance(parsed_tables, dict):  # Если результат - JSON объект
+                        parsed_tables = [tb["table_name"] for tb in parsed_tables.get("selected_tables", []) 
+                                         if tb.get("table_name")]
+
+                    validated_tables = []
                     for name in parsed_tables:
                         if name not in valid_names:
                             validation_errors.append(f"Table '{name}' not found in schema")
+                        else:
+                            validated_tables.append(name)
+
+                    parsed_tables = validated_tables
                     
                     # Применяем лимит если указан
                     if max_tables and len(parsed_tables) > max_tables:
                         parsed_tables = parsed_tables[:max_tables]
                 
                 # 5. Формирование записи попытки
-                attempt = TableSelectionAttempt(
+                attempt = TableLinkingAttempt(
                     attempt_number=attempt_num,
                     prompt=prompt,
                     llm_response=llm_response,
@@ -231,7 +434,7 @@ class TableLinking:
                     
             except Exception as e:
                 latency_ms = (time.perf_counter() - start_time) * 1000 if 'start_time' in locals() else None
-                attempt = TableSelectionAttempt(
+                attempt = TableLinkingAttempt(
                     attempt_number=attempt_num,
                     prompt=prompt if 'prompt' in locals() else "",
                     llm_response=f"[ERROR] {str(e)}",
@@ -274,66 +477,184 @@ class TableLinking:
         
         return result
     
-    def _format_table_list(self, tables: Dict[str, List[Dict]], max_tables: Optional[int]) -> str:
-        """Формирует компактный список таблиц для промпта."""
-        names = list(tables.keys())
-        if max_tables and len(names) > max_tables:
-            names = names[:max_tables]
-        return ", ".join(f"`{name}`" for name in names)
-    
-    def _format_table_schemas(self, tables: Dict[str, List[Dict]]) -> str:
-        """Формирует описание схем таблиц для промпта."""
-        lines = []
-        for table_name, columns in tables.items():
-            cols_str = ", ".join(f"{c['column']}:{c.get('type', '?')}" for c in columns)
-            lines.append(f"{table_name}: [{cols_str}]")
-        
-        random.shuffle(lines)
-        return "\n".join(lines)
-    
-    def _parse_llm_response(self, response: str) -> Tuple[Optional[List[str]], Optional[str]]:
-        """
-        Парсит ответ LLM как список имён таблиц.
-        
-        Returns:
-            (parsed_list_or_None, error_message_or_None)
-        """
-        if not response:
-            return None, "Empty response"
-        
-        # Ищем паттерн ["table1", "table2"] или ['table1', 'table2']
-        json_match = re.search(r'\[([^\[\]]*?)\]', response, re.DOTALL)
-        if json_match:
-            json_str = json_match.group(0)
-            json_str = json_str.replace("'", '"')
-            try:
-                parsed = json.loads(json_str)
-                if isinstance(parsed, list) and all(isinstance(t, str) for t in parsed):
-                    return parsed, None
-            except json.JSONDecodeError:
-                pass
-        
-        # Fallback: если ответ — просто список через запятую
-        if ',' in response or '\n' in response:
-            # Разбиваем по запятым, переносам, точкам с запятой
-            tokens = re.split(r'[,;\n]', response)
-            tables = [t.strip().strip('"\'`') for t in tokens if t.strip()]
-            if tables:
-                return tables, None
-        
-        # Если ничего не получилось
-        return None, f"Could not parse table list from: {response[:200]}"
-    
-    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]]):
-        """Сохраняет историю сообщений в отдельный JSON-файл."""
-        history_file = self.log_dir / "messages" / f"{instance_id}.json"
-        history_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(history_file, "w", encoding="utf-8") as f:
-            json.dump({
-                "instance_id": instance_id,
-                "timestamp": time.time(),
-                "history": history
-            }, f, indent=2, ensure_ascii=False)
-    
+    def _process_single_instance(self, instance_id: str, data: Dict[str, Any]) -> TableLinkingResult:
+        try:
+            db_id = data.get("db_id", instance_id.split("_", 1)[0])
+            question = data.get("question", data.get("instruction", "None"))
+            external_knowledge = "None"
+            if data.get("external_knowledge") is not None:
+                external_knowledge = open(data["external_knowledge"], "r", encoding="utf-8").read()
 
+            available_tables = self.schemas.get(db_id, {})
+            available_ids = data.get("available_ids")
+            if available_ids is None:
+                available_tables = {tn: list(available_tables[tn].values()) for tn in available_tables}
+            else:
+                available_ids = data["available_ids"]
+                available_tables = {
+                    tn: [
+                        column_data 
+                        for cid, column_data in available_tables[tn].items() 
+                        if cid in available_ids
+                    ] 
+                    for tn in available_tables
+                }
+
+            if not available_tables:
+                self.logger.warning(f"No schema for {instance_id} (db_id: {db_id})")
+                return TableLinkingResult(instance_id, [], False, final_error="Schema not found")
+                
+            return self.select_tables(
+                instance_id=instance_id,
+                user_question=question,
+                external_knowledge=external_knowledge,
+                available_tables=available_tables,
+                max_tables=self.max_tables
+            )
+        except Exception as e:
+            self.logger.exception(f"Critical error for {instance_id}")
+            return TableLinkingResult(instance_id, [], False, final_error=str(e))
+
+    def run(self) -> Dict[str, Any]:
+        self.logger.info(f"Starting pipeline for {len(self.instances)} instances | Workers: {self.max_workers}")
+        self.instances = self._load_instances()
+        self.schemas = self._load_schemas()
+        results = {}
+        successful = 0
+        failed = 0
+        
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = {executor.submit(self._process_single_instance, iid, data): iid for iid, data in self.instances.items()}
+            
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Selecting Tables"):
+                iid = futures[future]
+                try:
+                    res = future.result()
+                    results[iid] = res.to_dict()
+                    if res.success: successful += 1
+                    else: failed += 1
+                except Exception as e:
+                    failed += 1
+                    self.logger.exception(f"Unhandled exception for {iid}")
+                    results[iid] = TableLinkingResult(iid, [], False, final_error=str(e)).to_dict()
+
+        stats = {
+            "total": len(self.instances),
+            "successful": successful,
+            "failed": failed,
+            "success_rate": successful / len(self.instances) if self.instances else 0.0,
+            "completed_at": time.time()
+        }
+        
+        with open(self.log_dir / "table_selection_stats.json", "w", encoding="utf-8") as f:
+            json.dump(stats, f, indent=2, ensure_ascii=False)
+        
+        with open(self.log_dir / "table_candidates.json", "w", encoding="utf-8") as f:
+            data = {
+                iid: {
+                    "db_id": self.instances[iid]["db_id"],
+                    "used_tables": results[iid]["selected_tables"]
+                } 
+                for iid in results
+            }
+            json.dump(data, f, indent=2, ensure_ascii=False)
+            
+        self.logger.info(f"Pipeline finished. Success: {successful}/{stats['total']}")
+        return results
+
+
+if __name__ == "__main__":
+    import argparse
+    from dotenv import load_dotenv
+    load_dotenv(".env")
+
+    parser = argparse.ArgumentParser(description="Parallel LLM-based Table Selection Pipeline")
+    parser.add_argument(
+        "input_data_root", type=str, default="Spider2/spider2-lite",
+        help="Относительный путь к папке датасета внутри data_root. "
+             "Используется для получения вопросов."
+    )
+    parser.add_argument(
+        "run_name", type=str, default="", 
+        help="Название запуска, использовавшегося для формирования логов в logs/runs директории."
+    )
+    parser.add_argument(
+        "--data_root", type=str, default="data",
+        help="Путь к папке с входными данными"
+    )
+    parser.add_argument(
+        "--storage_root", type=str, default="storage",
+        help="Корневая директория для кэшированных схем и векторных баз данных."
+    )
+    
+    # Model
+    parser.add_argument(
+        "--model-name", type=str, default="qwen-local",
+        help="Имя модели из configs/llm.json (по умолчанию: qwen-local)"
+    )
+    parser.add_argument(
+        "--base-url", type=str, default=None,
+        help="Переопределение base_url API"
+    )
+    parser.add_argument(
+        "--api-key", type=str, default=None,
+        help="Переопределение API-ключа или имя env-переменной с ключом"
+    )
+    parser.add_argument(
+        "--temperature", type=float, default=0.0,
+        help="Температура семплирования (по умолчанию: 0.0 для детерменированности ответов)"
+    )
+    
+    # Pipeline
+    parser.add_argument(
+        "--prompt-dir", type=str, default="config/prompts/schema_linking",
+        help="Путь к директории с шаблонами промптов (по умолчанию: config/prompts/schema_linking)"
+    )
+    parser.add_argument(
+        "--prompt-name", type=str, default="sl_table_level",
+        help="Вариант промпта агента в папке prompt-dir (по умолчанию: sl_table_level)"
+    )
+    parser.add_argument(
+        "--max-workers", type=int, default=4, 
+        help="Максимальное число потоков для параллельной генерации для примеров"
+    )
+    parser.add_argument(
+        "--max-tables", type=int, default=None, 
+        help="Максимальное число таблиц, возвращаемых моделью"
+    )
+    parser.add_argument(
+        "--max-attempts", type=int, default=4, 
+        help="Максимальное число попыток генерации"
+    )
+    parser.add_argument(
+        "--initial-delay", type=float, default=1.0, 
+        help="Начальная задержка до следующей попытки генерации"
+    )
+    parser.add_argument(
+        "--max-delay", type=float, default=30.0,
+        help="Максимальная задержка перед попыткой генерации"
+    )
+    args = parser.parse_args()
+    
+    run_id = resolve_run_id(input_data_root=args.input_data_root, custom_suffix=args.run_name)
+    model = get_model(args.model_name, args.base_url, args.api_key, args.temperature)
+    pipeline = TableLinking(
+        run_id=run_id,
+        model=model,
+        run_root=args.run_root,
+        input_data_root=args.input_data_root,
+        data_root=args.data_root,
+        storage_root=args.storage_root,
+        prompt_name=args.prompt_name,
+        prompt_dir=args.prompt_dir,
+        max_workers=args.max_workers,
+        max_tables=args.max_tables,
+        retry_config={
+            "max_attempts": args.max_attempts,
+            "initial_delay": args.initial_delay,
+            "max_delay": args.max_delay,
+            "backoff_multiplier": 2.0
+        }
+    )
+    results = pipeline.run()
+    pipeline.extract_all_candidates(results)

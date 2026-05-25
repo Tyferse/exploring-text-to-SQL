@@ -1,6 +1,7 @@
 import inspect
 import json
 import re
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -15,6 +16,14 @@ TOOL_CALL_PATTERN = re.compile(
     r"@(\w+)\s*\((.+?)\)\s*(?:\n|$)", 
     re.DOTALL
 )
+
+DEFAULT_RETRY_CONFIG = {
+    "max_attempts": 3,
+    "initial_delay": 2.0,
+    "max_delay": 30.0,
+    "backoff_multiplier": 2.0,
+}
+
 
 def parse_tool_calls(llm_text: str) -> List[Dict[str, Any]]:
     """Извлекает вызовы инструментов из текста ответа LLM."""
@@ -48,7 +57,8 @@ class SchemaLinkingAgent:
         model: BaseChatModel, 
         tools: Dict[str, Any], 
         config: Dict[str, Any],
-        cache_dir: Optional[Path] = None
+        cache_dir: Optional[Path] = None,
+        retry_config: Optional[Dict[str, Any]] = None
     ):
         assert all(key in config for key in ["max_turns", "max_draft_calls", "additional_k", 
                                              "input_data_root", "vsm", "executor"])
@@ -58,6 +68,7 @@ class SchemaLinkingAgent:
         self.max_turns = config.get("max_turns", 10)
         self.max_draft_calls = config.get("max_draft_calls", 3)
         self.cache_dir = Path(cache_dir) if cache_dir else None
+        self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
         
     def _check_tool_limits(self, tool_name: str, state: Dict[str, Any]) -> Tuple[bool, str]:
         if tool_name == "sql_draft":
@@ -192,11 +203,23 @@ class SchemaLinkingAgent:
             
             # 1. Вызов LLM
             if state["log"]: state["log"].info(f"Turn {state['turn']} | Invoke model")
-            try:
-                response = self.model.invoke(initial_content + state["messages"])
-                ai_text = response.content
-            except Exception:
-                continue
+            for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
+                try:
+                    response = self.model.invoke(initial_content + state["messages"])
+                    ai_text = response.content
+                    break
+                except Exception as e:
+                    if attempt_num == self.retry_config["max_attempts"]:
+                        ai_text = "[Error] " + str(e)
+                        if state["log"]: state["log"].info(f"Turn {state['turn']} | {ai_text}")
+                        break
+                    
+                    delay = min(
+                        self.retry_config["initial_delay"] * 
+                        (self.retry_config["backoff_multiplier"] ** (attempt_num - 1)),
+                        self.retry_config["max_delay"]
+                    )
+                    time.sleep(delay)
 
             if state["log"]: state["log"].info(f"Turn {state['turn']} | Model has been invoked")
             

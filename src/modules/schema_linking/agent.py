@@ -42,6 +42,7 @@ class SchemaLinkingAgentPipeline:
         max_turns: int = 10,
         max_draft_calls: Optional[int] = 3,
         additional_k: int = 5,
+        retry_config: Optional[Dict[str: Any]] = None,
         max_workers: int = 4
     ):
         self.run_id = run_id
@@ -58,8 +59,8 @@ class SchemaLinkingAgentPipeline:
             "input_data_root": input_data_root, 
             "vsm": vsm, 
             "executor": executor
-        }        
-               
+        }
+              
         self.dialect_rules = self._load_dialect_rules()
         self.logger = get_logger("sl_agent", str(self.run_path / "schema_linking" / "agent.log"))
         self.preprocessor = SchemaLinkingPreprocessor(
@@ -83,7 +84,8 @@ class SchemaLinkingAgentPipeline:
             model=get_model(model_name, base_url, api_key, temperature),
             tools=enabled_tools,
             config=self.config,
-            cache_dir=self.run_path / "schema_linking"
+            cache_dir=self.run_path / "schema_linking",
+            retry_config=retry_config
         )
         self.logger.info(f"LLM Initialized: {model_name} | {base_url}")
 
@@ -104,7 +106,7 @@ class SchemaLinkingAgentPipeline:
 
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает список примеров и их метаданные."""
-        indices_path = self.run_path / "schema_linking" / "retrieval_cache" / "used_indices.json"
+        indices_path = self.run_path / "schema_linking" / "retrieved_indices.json"
         if not indices_path.exists():
             raise FileNotFoundError(f"Indices file not found: {indices_path}")
         
@@ -163,12 +165,25 @@ class SchemaLinkingAgentPipeline:
             used_indices[instance_id]["table_schemas"] = json.dumps(
                 OrderedDict(table_schemas), indent=2, ensure_ascii=False
             )
-            used_indices[instance_id]["external_knowledge"] = (
+            used_indices[instance_id]["external_knowledge"] = str(
                 self.data_root / self.input_data_root / "resource" / "documents" 
                 / tasks[instance_id]["external_knowledge"]
-            ).read_text(encoding="utf-8") if tasks[instance_id]["external_knowledge"] else "None"
+            ) if tasks[instance_id]["external_knowledge"] else None
         
         return used_indices
+    
+    def extract_all_candidates(self):
+        cand_dir = self.agent.cache_dir / "candidates"
+        all_candidates = {}
+        for file in cand_dir.iterdir():
+            instance_id = file.stem
+            with open(cand_dir / file, "r", encoding="utf-8") as f:
+                cand_data = json.load(f)
+            
+            all_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}
+
+        with open(cand_dir.parent / "all_candidates.json", "w", encoding="utf-8") as f:
+            json.dump(all_candidates, f)
 
     def _process_single_instance(self, instance_id: str, instance_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -177,8 +192,11 @@ class SchemaLinkingAgentPipeline:
         try:
             db_id = instance_data.get("db_id", instance_id.split("_", 1)[0])
             dialect, db_name = db_id.split("_", 1)
-            schema_dir = self.run_path / "schema_linking" / "initial_schema"
-            # cache_dir = self.run_path / "schema_linking" / "retrieval_cache"
+            external_knowledge = "None"
+            if instance_data.get("external_knowledge") is not None:
+                external_knowledge = open(instance_data["external_knowledge"], "r", encoding="utf-8").read()
+
+            schema_dir = self.agent.cache_dir / "initial_schema"
             
             # 1. Предобработка
             context = {
@@ -186,7 +204,7 @@ class SchemaLinkingAgentPipeline:
                 # "RETRIEVED_SCHEMA": None,  # будет загружено в preprocessor.build_messages
                 "ALL_TABLES": str(instance_data.get("all_tables", [])),
                 "TABLE_SCHEMAS": instance_data.get("table_schemas", "None"),
-                "EXTERNAL_KNOWLEDGE": instance_data.get("external_knowledge", "None")
+                "EXTERNAL_KNOWLEDGE": external_knowledge
             }
             
             system_prompt, user_prompt = self.preprocessor.build_messages(
@@ -247,7 +265,7 @@ class SchemaLinkingAgentPipeline:
         
         self.logger.info(f"Starting pipeline for {total} instances with {self.max_workers} workers.")
         
-        results = []
+        results = {}
         successful = 0
         failed = 0
         
@@ -258,25 +276,25 @@ class SchemaLinkingAgentPipeline:
             }
             
             for future in tqdm(as_completed(future_to_id), total=total, desc="Processing Instances"):
-                instance_id = future_to_id[future]
+                iid = future_to_id[future]
                 try:
                     result = future.result()
-                    results.append(result)
+                    results[iid] = result
                     
                     if result["status"] == "success":
                         successful += 1
                     else:
                         failed += 1
-                        self.logger.warning(f"Instance {instance_id} failed with status: {result['status']}")
+                        self.logger.warning(f"Instance {iid} failed with status: {result['status']}")
                         
                 except Exception as e:
                     failed += 1
-                    self.logger.exception(f"Unhandled exception for {instance_id}")
-                    results.append({
-                        "instance_id": instance_id,
+                    self.logger.exception(f"Unhandled exception for {iid}")
+                    results[iid] = {
+                        "instance_id": iid,
                         "status": "exception",
                         "error": str(e)
-                    })
+                    }
 
         # Сохранение сводной статистики
         stats = {
@@ -291,19 +309,6 @@ class SchemaLinkingAgentPipeline:
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
 
-        # Собираем все id в один файл
-        cand_dir = self.run_path / "schema_linking" / "candidates"
-        all_candidates = {}
-        for file in cand_dir.iterdir():
-            instance_id = file.stem
-            with open(cand_dir / file, "r", encoding="utf-8") as f:
-                cand_data = json.load(f)
-            
-            all_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}
-
-        with open(cand_dir.parent / "all_candidates.json", "w", encoding="utf-8") as f:
-            json.dump(all_candidates, f)
-            
         self.logger.info(f"Pipeline finished. Success: {successful}/{total}")
         return results
     
@@ -375,6 +380,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max-workers", type=int, default=4,
         help="Количество потоков для параллельной обработки примеров (по умолчанию: 4)"
+    )
+    parser.add_argument(
+        "--max-attempts", type=int, default=3, 
+        help="Максимальное число попыток генерации"
+    )
+    parser.add_argument(
+        "--initial-delay", type=float, default=1.0, 
+        help="Начальная задержка до следующей попытки генерации"
+    )
+    parser.add_argument(
+        "--max-delay", type=float, default=30.0,
+        help="Максимальная задержка перед попыткой генерации"
     )
 
     # Параметры модели
@@ -452,6 +469,13 @@ if __name__ == "__main__":
         input_data_root=args.input_data_root, data_root=args.data_root, storage_root=args.storage_root,
         base_url=args.base_url, api_key=args.api_key, temperature=args.temperature,
         prompt_name=args.prompt_name, prompt_dir=args.prompt_dir, max_turns=args.max_turns, 
-        max_draft_calls=args.max_draft_calls, additional_k=args.additional_k, max_workers=args.max_workers
+        max_draft_calls=args.max_draft_calls, additional_k=args.additional_k, max_workers=args.max_workers,
+        retry_config={
+            "max_attempts": args.max_attempts,
+            "initial_delay": args.initial_delay,
+            "max_delay": args.max_delay,
+            "backoff_multiplier": 2.0
+        }
     )
     pipeline.run()
+    pipeline.extract_all_candidates()

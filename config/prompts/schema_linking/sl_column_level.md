@@ -50,19 +50,14 @@ Estimate confidence:
 - `medium`: Semantic alignment only OR lexical match with ambiguous type
 - `low`: Weak semantic hint OR required for structural completeness only
 
-## Step 4: Join Path Construction
-If multiple relevant tables are identified, explicitly identify column pairs that form valid join conditions:
-- Prefer explicit PK/FK markers in schema metadata
-- Use naming conventions (e.g., `table_a.id` ↔ `table_b.table_a_id`)
-- Verify type compatibility + semantic coherence
-- If uncertain, mark join confidence as `low` and include reasoning
-
 ## Strict Constraints
 - Table and column names MUST EXACTLY match the input schemas.
 - NEVER invent, guess, or modify identifiers.
 - Exclude tables and columns that do not directly contribute to answering the question.
 - Ignore input order; relevance is determined solely by semantic and structural alignment.
 - If a required operation cannot be satisfied by available schema, note it in `blocking_issues`.
+
+---
 
 # OUTPUT FORMAT
 Return ONLY a valid JSON object matching the exact structure below. Do NOT use markdown code blocks, do NOT add explanations, and do NOT include trailing commas.
@@ -81,18 +76,7 @@ Return ONLY a valid JSON object matching the exact structure below. Do NOT use m
       "role": "select|filter|join_key|join_foreign|group_by|order_by|aggregate_source",
       "confidence": "high|medium|low",
       "reasoning": "One-sentence justification linking column to question intent",
-      "literal_value": "extracted value or pattern from question",
-      "suggested_operator": "=|LIKE|>|<|IN|BETWEEN|IS_NULL"
-    }
-  ],
-  "inferred_joins": [
-    {
-      "left_table": "table_a",
-      "left_column": "col_x",
-      "right_table": "table_b",
-      "right_column": "col_y",
-      "confidence": "high|medium|low",
-      "evidence": "explicit_fk|naming_convention|type_match|semantic_hint"
+      "literal_value": "extracted value or pattern from question"
     }
   ],
   "blocking_issues": [

@@ -257,7 +257,7 @@ class RetrievalCache:
         path = self._get_cache_path(instance_id)
         if os.path.exists(path):
             try:
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     return set(int(idx) for idx in data.get("used_indices", []))
             except Exception as e:
@@ -271,7 +271,7 @@ class RetrievalCache:
         
         path = self._get_cache_path(instance_id)
         try:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump({"used_indices": sorted(list(existing))}, f, indent=2)
         except Exception as e:
             self.logger.warning(f"Failed to save cache for {instance_id}: {e}")
@@ -306,13 +306,13 @@ class RetrievalCache:
     def cache_union(self, instance_db: Dict[str, str]):
         all_indices = {}
         for file in os.listdir(self.cache_dir):
-            with open(self.cache_dir, file, encoding="utf-8") as f:
+            with open(os.path.join(self.cache_dir, file), encoding="utf-8") as f:
                 used_indices = json.load(f).get("used_indices")
             
             instance_id = file.rsplit(".", 1)[0]
             all_indices[instance_id] = {"db_id": instance_db[instance_id], "used_indices": used_indices}
         
-        with open(Path(self.cache_dir).parent / "used_indices.json", "w", encoding='utf-8') as f:
+        with open(Path(self.cache_dir).parent / "retrieved_indices.json", "w", encoding='utf-8') as f:
             json.dump(all_indices, f)
 
 
@@ -430,7 +430,7 @@ def retrieve_columns(
 
     q_key = "question"
     if "question" not in tasks[0]:
-        q_key = "instuction"
+        q_key = "instruction"
 
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}

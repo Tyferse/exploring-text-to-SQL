@@ -327,7 +327,7 @@ def generate_schemas(
         indices_data = {}
 
         # Получаем начальные id
-        indices_path = run_path / "schema_linking" / "used_indices.json"
+        indices_path = run_path / "schema_linking" / "retrieved_indices.json"
         if not indices_path.exists():
             raise FileNotFoundError(f"used_indices.json not found: {indices_path}")
 
