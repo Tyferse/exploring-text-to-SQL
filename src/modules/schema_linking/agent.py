@@ -5,11 +5,12 @@ import json
 import os
 import random
 from collections import OrderedDict
+from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import BaseChatModel
 from tqdm import tqdm
 
 from .agent_postprocessor import parse_and_validate_output, format_for_downstream
@@ -27,16 +28,14 @@ class SchemaLinkingAgentPipeline:
     def __init__(
         self,
         run_id: str,
-        model_name: str,
+        model: BaseChatModel,
         vsm: VectorStoreManager,
         executor: SQLExecutor,
+        tasks: Optional[List[Dict[str, Any]]] = None,
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
-        base_url: Optional[str] = None,
-        api_key: Optional[str] = None,
-        temperature: float = 1.0,
         prompt_name: str = "sl_explore_validation_agent",
         prompt_dir: str = "config/prompts/schema_linking",
         max_turns: int = 10,
@@ -49,6 +48,7 @@ class SchemaLinkingAgentPipeline:
         self.run_path = Path(run_root) / run_id
         self.data_root = Path(data_root)
         self.storage_root = Path(storage_root)
+        self.tasks = tasks
         self.prompt_path = Path(prompt_dir)
         self.input_data_root = input_data_root
         self.max_workers = max_workers
@@ -81,13 +81,13 @@ class SchemaLinkingAgentPipeline:
 
         enabled_tools = get_enabled_tools(enabled_tools_names)
         self.agent = SchemaLinkingAgent(
-            model=get_model(model_name, base_url, api_key, temperature),
+            model=model,
             tools=enabled_tools,
             config=self.config,
             cache_dir=self.run_path / "schema_linking",
             retry_config=retry_config
         )
-        self.logger.info(f"LLM Initialized: {model_name} | {base_url}")
+        self.logger.info(f"LLM Initialized: {model}")
 
     def _load_dialect_rules(self) -> Optional[Dict[str, str]]:
         """Загружает правила для конкретного диалекта."""
@@ -106,15 +106,26 @@ class SchemaLinkingAgentPipeline:
 
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает список примеров и их метаданные."""
+        # Загружаем примеры
+        if self.tasks is None:
+            tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+            with open(tasks_file, "r", encoding="utf-8") as f:
+                tasks = [json.loads(line.strip()) for line in f.readlines()]
+        else:
+            tasks = deepcopy(self.tasks)
+
+        tasks = {t["instance_id"]: {k: v for k, v in t.items() if k != "instance_id"} for t in tasks}
+
+        # Загружаем найденные индексы
         indices_path = self.run_path / "schema_linking" / "retrieved_indices.json"
-        if not indices_path.exists():
-            raise FileNotFoundError(f"Indices file not found: {indices_path}")
-        
-        with open(indices_path, "r", encoding="utf-8") as f:
-            used_indices = json.load(f)
+        if indices_path.exists():
+            with open(indices_path, "r", encoding="utf-8") as f:
+                used_indices = json.load(f)
+        else:
+            used_indices = {iid: {"db_id": tasks[iid]["db_id"], "used_indices": []} for iid in tasks}
         
         # Удаляем примеры, если они уже обработаны
-        for file in (self.run_path / "schema_linking" / "candidates").iterdir():
+        for file in (self.run_path / "schema_linking" / "agent_candidates").iterdir():
             instance_id = file.rsplit(".", 1)[0]
             if instance_id in used_indices:
                 del used_indices[instance_id]
@@ -130,7 +141,7 @@ class SchemaLinkingAgentPipeline:
         # Удаляем примеры, для которых больше не требуется добавлять столбцов
         for instance_id in list(used_indices.keys()):
             db_id = used_indices[instance_id]["db_id"]
-            cand_file = self.agent.cache_dir / "candidates" / f"{instance_id}.json"
+            cand_file = self.agent.cache_dir / "agent_candidates" / f"{instance_id}.json"
             if len(used_indices[instance_id]["used_indices"]) == len(db_docs[db_id]) and not cand_file.exists():
                 cand_data = {
                     "instance_id": instance_id,
@@ -144,13 +155,9 @@ class SchemaLinkingAgentPipeline:
                 del used_indices[instance_id]
 
         # Дабавляем недостающие метаданные
-        tasks = [json.loads(line) 
-                 for line in (self.data_root / self.input_data_root).glob("*.jsonl")[0]
-                             .read_text(encoding="utf-8").split("\n")]
-        tasks = {t["instance_id"]: {k: v for k, v in t.items() if k != "instance_id"} for t in tasks}
         for instance_id in list(used_indices.keys()):
             used_indices[instance_id]["question"] = tasks[instance_id].get("question", tasks[instance_id].get("instruction"))
-            used_indices[instance_id]["all_tables"] = list({db_docs[db_id][cid]['metadata']["table_name"] for cid in used_indices[instance_id]["used_indices"]})
+            used_indices[instance_id]["all_tables"] = list({db_docs[db_id][cid]['metadata']["table_name"] for cid in db_docs[db_id]})
             table_schemas = {
                 table_name: [
                     {"column": db_docs[db_id][cid]['metadata']["column_name"], 
@@ -173,17 +180,17 @@ class SchemaLinkingAgentPipeline:
         return used_indices
     
     def extract_all_candidates(self):
-        cand_dir = self.agent.cache_dir / "candidates"
-        all_candidates = {}
+        cand_dir = self.agent.cache_dir / "agent_candidates"
+        agent_candidates = {}
         for file in cand_dir.iterdir():
             instance_id = file.stem
             with open(cand_dir / file, "r", encoding="utf-8") as f:
                 cand_data = json.load(f)
             
-            all_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}
+            agent_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}
 
-        with open(cand_dir.parent / "all_candidates.json", "w", encoding="utf-8") as f:
-            json.dump(all_candidates, f)
+        with open(self.agent.cache_dir / "agent_candidates.json", "w", encoding="utf-8") as f:
+            json.dump(agent_candidates, f)
 
     def _process_single_instance(self, instance_id: str, instance_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -456,6 +463,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_id = resolve_run_id(input_data_root=args.input_data_root, custom_suffix=args.run_name)
+    model = get_model(args.model_name, args.base_url, args.api_key, args.temperature)
     vsm = VectorStoreManager(
         args.storage_root, args.location, args.max_cached_sessions, 
         args.embedding_model, backend=args.backend, device=args.device, 
@@ -465,9 +473,8 @@ if __name__ == "__main__":
                            dict(args.local_dbs) if args.local_dbs else None)
 
     pipeline = SchemaLinkingAgentPipeline(
-        run_id, args.model_name, vsm, executor, 
+        run_id, model, vsm, executor, 
         input_data_root=args.input_data_root, data_root=args.data_root, storage_root=args.storage_root,
-        base_url=args.base_url, api_key=args.api_key, temperature=args.temperature,
         prompt_name=args.prompt_name, prompt_dir=args.prompt_dir, max_turns=args.max_turns, 
         max_draft_calls=args.max_draft_calls, additional_k=args.additional_k, max_workers=args.max_workers,
         retry_config={

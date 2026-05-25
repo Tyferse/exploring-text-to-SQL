@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, ".")
+
 import json
 import random
 import re
@@ -187,6 +190,16 @@ class TableLinking:
                 for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
             }
 
+        # Если столбцов ранее не было найдено, используем полную схему
+        if not ids_data:
+            if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
+            
+            for iid in tasks:
+                tasks[iid]["available_ids"] = [
+                    cid for tn in self.schemas[tasks[iid]["db_id"]] 
+                    for cid in self.schemas[tasks[iid]["db_id"]][tn].keys()
+                ]
+
         return tasks
     
     def _load_schemas(self) -> Dict[str, Dict[str, Dict[int: List[Dict[str, Any]]]]]:
@@ -299,15 +312,11 @@ class TableLinking:
             }, f, indent=2, ensure_ascii=False)
     
     def extract_all_candidates(self, results: Dict[str, Any]):
-        if not hasattr(self, "instances"): self.instances = self._load_instances()
-        if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
-
-        with open(self.log_dir / "all_candidates.json", "w", encoding="utf-8") as f:
+        with open(self.log_dir / "table_candidates.json", "w", encoding="utf-8") as f:
             data = {
                 iid: {
                     "db_id": self.instances[iid]["db_id"],
-                    "used_indices": [cid for tn in results[iid]["selected_tables"] 
-                                     for cid in self.schemas[self.instances[iid]["db_id"]][tn].keys()]
+                    "used_tables": results[iid]["selected_tables"]
                 } 
                 for iid in results
             }
@@ -517,8 +526,8 @@ class TableLinking:
 
     def run(self) -> Dict[str, Any]:
         self.logger.info(f"Starting pipeline for {len(self.instances)} instances | Workers: {self.max_workers}")
+        self.schemas = self._load_schemas() if not hasattr(self, "schemas") else self.schemas
         self.instances = self._load_instances()
-        self.schemas = self._load_schemas()
         results = {}
         successful = 0
         failed = 0
@@ -548,16 +557,6 @@ class TableLinking:
         
         with open(self.log_dir / "table_selection_stats.json", "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
-        
-        with open(self.log_dir / "table_candidates.json", "w", encoding="utf-8") as f:
-            data = {
-                iid: {
-                    "db_id": self.instances[iid]["db_id"],
-                    "used_tables": results[iid]["selected_tables"]
-                } 
-                for iid in results
-            }
-            json.dump(data, f, indent=2, ensure_ascii=False)
             
         self.logger.info(f"Pipeline finished. Success: {successful}/{stats['total']}")
         return results

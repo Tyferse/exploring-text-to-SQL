@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import random
+from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Literal
 from tqdm import tqdm
@@ -289,21 +290,23 @@ def generate_single_schema(
 
 def generate_schemas(
     run_id: str,
+    tasks: Optional[Dict[str, Any]] = None,
     run_root: str = "logs/runs",
     data_root: str = "data",
     input_data_root: str = "Spider2/spider2-lite",
     output_dir: str = "initial_schema",
     docs_path: Optional[str] = None,
-    included: Literal["retrieved", "full"] = "full",
+    included: Literal["retrieved", "tables", "full"] = "full",
     target_max_tokens: int = 64_000
 ):
     """
-    Читает used_indices.json, загружает *_docs.json, 
+    Читает *_indices.json, загружает *_docs.json, 
     итерирует по примерам и вызывает process_single_instance с контролем контекста.
     """
     run_path = Path(run_root) / run_id
     output_path = run_path / "schema_linking" / output_dir
     log_dir = run_path / "schema_linking"
+    schema_tasks = deepcopy(tasks) if tasks is not None else None
 
     # Загрузка документов схем
     docs_path = Path(docs_path)
@@ -318,25 +321,44 @@ def generate_schemas(
         
         with open(doc_file.replace("_docs", "_meta"), "r", encoding="utf-8") as f:
             meta_data = json.load(f)["tables"]
-            similar_tables[db_id] = {meta_data[table]["similar_table"] for table in meta_data if meta_data[table]["similar_table"]}
+            similar_tables[db_id] = {meta_data[table]["similar_table"] for table in meta_data 
+                                     if meta_data[table]["similar_table"]}
     
     if not db_docs:
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
 
+    # Загружаем примеры
+    if schema_tasks is None:
+        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
+                      if file.endswith('.jsonl')][0]
+        with open(Path(data_root) / input_data_root / tasks_file, encoding="utf-8") as f:
+            schema_tasks = [json.loads(line.strip()) for line in f.readlines()]
+    
+    if input_data_root == "Spider2/spider2-lite":
+        inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+        schema_tasks = [(instance["instance_id"], 
+                         inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"])
+                        for instance in schema_tasks]
+    else:
+        schema_tasks = [(instance["instance_id"], 
+                         instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"])
+                        for instance in schema_tasks]
+
     if included == "retrieved":
         indices_data = {}
-
         # Получаем начальные id
         indices_path = run_path / "schema_linking" / "retrieved_indices.json"
-        if not indices_path.exists():
-            raise FileNotFoundError(f"used_indices.json not found: {indices_path}")
+        if indices_path.exists():
+            # Загрузка индексов 
+            with open(indices_path, "r", encoding="utf-8") as f:
+                indices_data = json.load(f)
 
-        # Загрузка индексов
-        with open(indices_path, "r", encoding="utf-8") as f:
-            indices_data = json.load(f)
+        if not indices_data:
+            indices_data = {iid: {"db_id": db_id, "used_indices": []} 
+                            for iid, db_id in schema_tasks}
 
-        # Добавляем id, найденные в результате работы schema linking
-        candidates_file = run_path / "schema_linking" / "all_candidates.json"
+        # Добавляем id, найденные в результате работы агента
+        candidates_file = run_path / "schema_linking" / "agent_candidates.json"
         if candidates_file.exists():
             with open(candidates_file, "r", encoding="utf-8") as f:
                 all_candidates = json.load(f)
@@ -346,25 +368,61 @@ def generate_schemas(
                     indices_data[instance_id]["used_indices"] 
                     + all_candidates[instance_id]["used_indices"]
                 ))
-                
-    elif included == "full":
-        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                      if file.endswith('.jsonl')][0]
-        with open(Path(data_root) / input_data_root / tasks_file, encoding="utf-8") as f:
-            tasks = [json.loads(line.strip()) for line in f.readlines()]
 
-        if input_data_root == "Spider2/spider2-lite":
-            inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-            tasks = [(instance["instance_id"], 
-                      inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"])
-                     for instance in tasks]
-        else:
-            tasks = [(instance["instance_id"], 
-                      instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"])
-                     for instance in tasks]
-        
+    elif included == "tables":
+        # Получаем начальные id
+        tables_path = run_path / "schema_linking" / "table_candidates.json"
+        if not tables_path.exists():
+            raise FileNotFoundError(f"table_candidates.json not found: {indices_path}")
+
+        # Загрузка индексов
+        with open(tables_path, "r", encoding="utf-8") as f:
+            tables_data = json.load(f)
+
+        indices_data = {iid: {
+                "db_id": tables_data["db_id"], 
+                "used_indices": [
+                    cid for cid in db_docs[db_id] 
+                    if db_docs[db_id][cid]["metadata"]["table_name"] in tables_data[iid]["used_tables"]
+                ]
+            } 
+            for iid in tables_data
+        }
+    
+    elif included == "selected":
+        indices_path_list = (run_path / "schema_linking").glob("*_indices.json")
+        indices_path_list += (run_path / "schema_linking").glob("*_candidates.json") 
+        indices_data = {}
+        for file in indices_path_list:
+            with open(file, "r", encoding="utf-8") as f:
+                partial_data = json.load(f)
+
+            if file.endswith("table_candidates.json"):
+                partial_data = {
+                    iid: {
+                        "db_id": partial_data["db_id"], 
+                        "used_indices": [
+                            cid for cid in db_docs[db_id] 
+                            if db_docs[db_id][cid]["metadata"]["table_name"] in partial_data[iid]["used_tables"]
+                        ]
+                    }
+                    for iid in partial_data
+                }
+            
+            for instance_id in partial_data:
+                if instance_id in indices_data:
+                    indices_data[instance_id]["used_indices"] = list(set(
+                        indices_data[instance_id]["used_indices"] 
+                        + partial_data[instance_id]["used_indices"]
+                    ))
+                else:
+                    indices_data[instance_id]["used_indices"] = list(set(
+                        partial_data[instance_id]["used_indices"]
+                    ))
+
+    elif included == "full":
         indices_data = {instance_id: {"db_id": db_id, "used_indices": list(db_docs[db_id].keys())} 
-                        for instance_id, db_id in tasks}
+                        for instance_id, db_id in schema_tasks}
 
     # Подготовка директорий
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -452,8 +510,12 @@ if __name__ == "__main__":
         help="Максимальное длина схемы базы данных в токенах (оценочно)."
     )
     parser.add_argument(
-        "--full_schema", type=bool, action="store_true",
-        help="Использовать полную схему."
+        "--included", type=bool, action="store_true",
+        help="""Режим загрузки индексов столбцов: 
+        retrieved - столбцы, найденные через векторный поиск и\или итоговые из all_columns.json;
+        tables - найденные таблицы, для которых используются все их столбцы;
+        selected - объединение результатов поиска во всех *_indices.json и *_candidates.json файлах
+        full - используются все столбцы."""
     )
     args = parser.parse_args()
 

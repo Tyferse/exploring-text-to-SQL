@@ -131,8 +131,8 @@ class SchemaLinkingAgent:
         if not self.cache_dir:
             return
     
-        candidates_dir = self.cache_dir / "candidates"
-        messages_dir = self.cache_dir / "messages"
+        candidates_dir = self.cache_dir / "agent-candidates"
+        messages_dir = self.cache_dir / "agent_messages"
         tool_log_dir = self.cache_dir / "tool_calls"
         
         for d in [candidates_dir, messages_dir, tool_log_dir]:
@@ -190,7 +190,7 @@ class SchemaLinkingAgent:
         }
 
         if self.cache_dir:
-            state["log"] = get_logger("schema_linking", str(self.cache_dir / "events" / f"{instance_id}.log"))
+            state["log"] = get_logger("schema_linking", str(self.cache_dir / "agent_events" / f"{instance_id}.log"))
             state["log"].info(f"Agent started for {instance_id}")
         
         initial_content = [
