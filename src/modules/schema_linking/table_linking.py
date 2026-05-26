@@ -107,7 +107,7 @@ class TableLinking:
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_name: Optional[str] = None,
-        prompt_dir: str = "configs/prompts/schema_linking",
+        prompt_dir: str = "config/prompts/schema_linking",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         require_json_output: bool = True,
@@ -179,7 +179,7 @@ class TableLinking:
                     "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
                                                 / instance["external_knowledge"]) 
                                           if instance.get("external_knowledge") else None),
-                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", None)
+                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
                 } 
                 for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
             }
@@ -191,7 +191,7 @@ class TableLinking:
                     "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents"
                                                 / instance["external_knowledge"])
                                           if instance.get("external_knowledge") else None,
-                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", None)
+                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
                 }
                 for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
             }
@@ -295,9 +295,9 @@ class TableLinking:
         # Если ничего не получилось
         return None, f"Could not parse table list from: {response[:200]}"
     
-    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]]):
+    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]], result: Dict[str, Any]):
         """Сохраняет историю сообщений в отдельный JSON-файл."""
-        history_file = self.log_dir / "table_linking" / f"{instance_id}.json"
+        history_file = self.log_dir / "table_linking_history" / f"{instance_id}.json"
         history_file.parent.mkdir(parents=True, exist_ok=True)
         
         with open(history_file, "w", encoding="utf-8") as f:
@@ -306,16 +306,26 @@ class TableLinking:
                 "timestamp": time.time(),
                 "history": history
             }, f, indent=2, ensure_ascii=False)
+        
+        result_file = self.log_dir / "table_linking_results" / f"{instance_id}.json"
+        result_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(result_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+
     
-    def extract_all_candidates(self, results: Dict[str, Any]):
+    def extract_all_candidates(self):
         with open(self.log_dir / "table_candidates.json", "w", encoding="utf-8") as f:
-            data = {
-                iid: {
-                    "db_id": self.instances[iid]["db_id"],
-                    "used_tables": results[iid]["selected_tables"]
-                } 
-                for iid in results
-            }
+            data = {}
+            for file in (self.log_dir / "table_linking_results").glob("*.json"):
+                with open(file, "r", encoding="utf-8") as indf:
+                    result = json.load(indf)
+                
+                iid = result["instance_id"]
+                data[iid] = {
+                        "db_id": self.instances[iid]["db_id"],
+                        "used_tables": results.get("selected_tables", [])
+                    } 
+                
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     def select_tables(
@@ -353,18 +363,18 @@ class TableLinking:
             include_descriptions=False, 
             log=self.logger
         )
+        # 1. Формирование промпта
+        prompt = self.user_prompt.replace("{{USER_QUESTION}}", user_question)
+        prompt = prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
+        if external_knowledge is not None:
+            prompt = prompt.replace("{{external_knowledge}}", external_knowledge)
+
         messages_history: List[Dict[str, str]] = []
         
         for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
             try:
                 self.logger.info(f"{instance_id} | Invoke model")
                 start_time = time.perf_counter()
-                
-                # 1. Формирование промпта
-                prompt = self.user_prompt.replace("{{USER_QUESTION}}", user_question)
-                prompt = prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
-                if external_knowledge is not None:
-                    prompt = prompt.replace("{{external_knowledge}}", external_knowledge)
             
                 # 2. Отправка запроса к LLM
                 messages = [HumanMessage(content=prompt)]
@@ -414,7 +424,7 @@ class TableLinking:
                 # 6. Сохранение истории сообщений
                 messages_history.append({
                     "attempt": attempt_num,
-                    "timestamp": time.time(),
+                    "timestamp": time.perf_counter(),
                     "user_message": prompt,
                     "llm_response": llm_response,
                     "parsed_tables": parsed_tables,
@@ -452,7 +462,7 @@ class TableLinking:
                 latency_ms = (time.perf_counter() - start_time) * 1000 if 'start_time' in locals() else None
                 attempt = TableLinkingAttempt(
                     attempt_number=attempt_num,
-                    prompt=prompt if 'prompt' in locals() else "",
+                    prompt=prompt,
                     llm_response=f"[ERROR] {str(e)}",
                     parsed_tables=None,
                     validation_errors=[f"Request failed: {str(e)}"],
@@ -489,7 +499,7 @@ class TableLinking:
             )
         
         # Сохранение истории сообщений
-        self._save_message_history(instance_id, messages_history)
+        self._save_message_history(instance_id, messages_history, {k: v for k, v in result.to_dict().items() if k != "attempts"})
         
         return result
     
@@ -601,7 +611,7 @@ if __name__ == "__main__":
     # Model
     parser.add_argument(
         "--model-name", type=str, default="qwen-local",
-        help="Имя модели из configs/llm.json (по умолчанию: qwen-local)"
+        help="Имя модели из config/llm.json (по умолчанию: qwen-local)"
     )
     parser.add_argument(
         "--base-url", type=str, default=None,

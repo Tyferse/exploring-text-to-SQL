@@ -136,6 +136,7 @@ class ColumnLinkingResult:
     instance_id: str
     tables_selected: List[Dict[str, str]]
     columns_mapped: List[Dict[str, Any]]
+    column_ids: Optional[List[int]] = None
     blocking_issues: List[str]
     success: bool
     attempts: List[ColumnLinkingAttempt] = field(default_factory=list)
@@ -146,6 +147,7 @@ class ColumnLinkingResult:
             "instance_id": self.instance_id,
             "tables_selected": self.tables_selected,
             "columns_mapped": self.columns_mapped,
+            "column_ids": self.column_ids,
             "blocking_issues": self.blocking_issues,
             "success": self.success,
             "final_error": self.final_error,
@@ -253,32 +255,34 @@ class ColumnLinking:
                 continue
 
             tasks_dict[iid] = {
+                "dialect": instance.get("dialect", ""),
+                "db_id": instance["db_id"],
                 "question": instance.get(q_key, ""),
                 "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents" / instance["external_knowledge"])
                     if instance.get("external_knowledge") else None,
-                "available_tables": ids_data.get(iid, {}).get("used_indices", None)
+                "available_ids": ids_data.get(iid, {}).get("used_indices", [])
             }
 
         # Если были загружены названия таблиц, добавляем все принадлежащие им столбцы
         if self.input_data_root == "Spider2/spider2-lite":
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
             for iid in tasks_dict:
-                db_id = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + instance["db_id"]
+                db_id = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks_dict[iid]["db_id"]
                 tasks_dict[iid]["db_id"] = db_id
                 if "used_tables" in ids_data.get(iid, {}):
-                    tasks_dict[iid]["available_tables"] = [
+                    tasks_dict[iid]["available_ids"] = [
                         cid for tn in self.schemas[db_id] 
-                        if tn in ids_data[iid]["used_tables"]
+                        if tn in ids_data[iid].get("used_tables", [])
                         for cid in self.schemas[db_id][tn].keys()                        
                     ]
         else:
             for iid in tasks_dict:
-                db_id = instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"]
+                db_id = tasks_dict[iid].get("dialect", "") + ("_" if tasks_dict[iid].get("dialect") else "") + tasks_dict[iid]["db_id"]
                 tasks_dict[iid]["db_id"] = db_id
                 if "used_tables" in ids_data.get(iid, {}):
-                    tasks_dict[iid]["available_tables"] = [
+                    tasks_dict[iid]["available_ids"] = [
                         cid for tn in self.schemas[db_id] 
-                        if tn in ids_data[iid]["used_tables"]
+                        if tn in ids_data[iid].get("used_tables", [])
                         for cid in self.schemas[db_id][tn].keys()                        
                     ]
         
@@ -418,8 +422,10 @@ class ColumnLinking:
         
         return None, f"Could not parse structured output from: {response[:300]}"
     
-    def _validate_result(self, result: Dict[str, Any], available_columns: Dict[str, List[str]]) -> List[str]:
+    def _validate_result(self, result: Dict[str, Any], available_columns: Dict[str, List[str]], db_id: str) -> Tuple[List[int], List[str]]:
         """Валидирует результат: имена таблиц/колонок, роли, структура."""
+        
+        ids = []
         errors = []
         valid_tables = set(available_columns.keys())
         
@@ -444,19 +450,25 @@ class ColumnLinking:
             if cn and cn not in available_columns[tn]:
                 errors.append(f"Column '{cn}' not found in table '{tn}'")
             
+            all_ids = self.schemas.get(db_id, {}).get(tn, {})
+            if all_ids:
+                for cid, cmeta in all_ids.items():
+                    if cmeta["column_name"] == cn:
+                        ids.append(cid)
+                        break
+            
             if role and role not in VALID_ROLES:
                 errors.append(f"Invalid role '{role}' for column '{tn}.{cn}'")
             
             if conf and conf not in VALID_CONFIDENCE:
                 errors.append(f"Invalid confidence '{conf}' for column '{tn}.{cn}'")
         
-        return errors
+        return ids, errors
     
-    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]]):
+    def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]], result: Dict[str, Any]):
         """Сохраняет историю сообщений в отдельный JSON."""
-        history_dir = self.log_dir / "column_linking"
-        history_dir.mkdir(parents=True, exist_ok=True)
-        history_file = history_dir / f"{instance_id}.json"
+        history_file = self.log_dir / "column_linking_history" / f"{instance_id}.json"
+        history_file.parent.mkdir(parents=True, exist_ok=True)
         
         with open(history_file, "w", encoding="utf-8") as f:
             json.dump({
@@ -464,29 +476,38 @@ class ColumnLinking:
                 "timestamp": time.time(),
                 "history": history
             }, f, indent=2, ensure_ascii=False)
-    
-    def extract_all_candidates(self, results):
-        candidates_path = self.log_dir / "column_candidates.json"
-        with open(candidates_path, "w", encoding="utf-8") as f:
-            data = {
-                iid: {
-                    "db_id": self.instances[iid]["db_id"],
-                    "tables": res["tables_selected"],
-                    "columns": [
-                        {"table": c["table_name"], "column": c["column_name"], "role": c["role"]}
-                        for c in res["columns_mapped"]
-                    ]
-                }
-                for iid, res in results.items()
-            }
-            json.dump(data, f, indent=2, ensure_ascii=False)
 
+        result_file = self.log_dir / "column_linking_results" / f"{instance_id}.json"
+        result_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(result_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+    
+    def extract_all_candidates(self):
+        with open(self.log_dir / "column_candidates.json", "w", encoding="utf-8") as f:
+            data = {}
+            for file in (self.log_dir / "column_linking_results").glob("*.json"):
+                with open(file, "r", encoding="utf-8") as indf:
+                    result = json.load(indf)
+
+                iid = result["instance_id"]
+                data[iid] = {
+                    "db_id": self.instances[iid]["db_id"],
+                    "tables": result.get("tables_selected", []),
+                    "columns": [
+                        {"table": c.get("table_name", ""), "column": c.get("column_name", ""), "role": c.get("role", "")}
+                        for c in result.get("columns_mapped", {})
+                    ],
+                    "used_indices": result.get("column_ids", [])
+                }
+            
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
     def select_columns(
         self,
         instance_id: str,
         db_id: str,
         user_question: str,
-        available_columns: Dict[str, List[Dict[str, Any]]],
+        available_columns: Dict[str, List[str]],
         external_knowledge: Optional[str] = None,
         max_columns: Optional[int] = None
     ) -> ColumnLinkingResult:
@@ -508,24 +529,24 @@ class ColumnLinking:
             doc_data=self.schemas.get(db_id, {}),
             target_max_tokens=self.max_schema_length,
             block_formatter=format_detailed_block, 
-            similar_tables=self.similar_tables[db_id], 
+            similar_tables=self.similar_tables.get(db_id, {}), 
             include_samples=False,
             include_descriptions=False, 
             log=self.logger
         )
+        # Формирование промпта
+        prompt = self.user_prompt.replace("{{USER_QUESTION}}", user_question)
+        prompt = prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
+        if external_knowledge and "{{EXTERNAL_KNOWLEDGE}}" in prompt:
+            prompt = prompt.replace("{{EXTERNAL_KNOWLEDGE}}", external_knowledge)
+
         messages_history: List[Dict[str, Any]] = []
         
         for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
             try:
                 self.logger.info(f"{instance_id} | Invoke model (attempt {attempt_num})")
                 start_time = time.perf_counter()
-                
-                # Формирование промпта
-                prompt = self.user_prompt.replace("{{USER_QUESTION}}", user_question)
-                prompt = prompt.replace("{{TABLE_SCHEMAS}}", table_schemas)
-                if external_knowledge and "{{EXTERNAL_KNOWLEDGE}}" in prompt:
-                    prompt = prompt.replace("{{EXTERNAL_KNOWLEDGE}}", external_knowledge)
-                
+    
                 # Запрос к LLM
                 messages = [HumanMessage(content=prompt)]
                 response = self.model.invoke(messages)
@@ -540,7 +561,7 @@ class ColumnLinking:
                 # Валидация
                 validation_errors = []
                 if parsed:
-                    validation_errors = self._validate_result(parsed, available_columns)
+                    ids, validation_errors = self._validate_result(parsed, available_columns, db_id)
                     
                     # Лимит на число колонок
                     if max_columns and len(parsed.get("columns_mapped", [])) > max_columns:
@@ -575,6 +596,7 @@ class ColumnLinking:
                 if attempt.success:
                     result.tables_selected = parsed.get("tables_selected", [])
                     result.columns_mapped = parsed.get("columns_mapped", [])
+                    result.column_ids = ids
                     result.blocking_issues = parsed.get("blocking_issues", [])
                     result.success = True
                     self.logger.info(
@@ -602,7 +624,7 @@ class ColumnLinking:
                 latency_ms = (time.perf_counter() - start_time) * 1000 if 'start_time' in locals() else None
                 attempt = ColumnLinkingAttempt(
                     attempt_number=attempt_num,
-                    prompt=prompt if 'prompt' in locals() else "",
+                    prompt=prompt,
                     llm_response=f"[ERROR] {str(e)}",
                     parsed_result=None,
                     validation_errors=[f"Request failed: {str(e)}"],
@@ -634,7 +656,7 @@ class ColumnLinking:
                 f"Error: {result.final_error}"
             )
         
-        self._save_message_history(instance_id, messages_history)
+        self._save_message_history(instance_id, messages_history, {k: v for k, v in result.to_dict().items() if k != "attempts"})
         return result
     
     def _process_single_instance(self, instance_id: str, data: Dict[str, Any]) -> ColumnLinkingResult:
@@ -658,7 +680,7 @@ class ColumnLinking:
             
             available_columns = self.schemas.get(db_id, {})
             available_ids = data.get("available_ids")
-            if available_ids is None:
+            if not available_ids:
                 available_columns = {
                     tn: [available_columns[tn][cid]["column_name"] 
                          for cid in available_columns[tn]] 
@@ -673,7 +695,7 @@ class ColumnLinking:
 
             # Добавляем все похожие таблицы для получения полного списка
             if self.similar_tables:
-                for tn in self.similar_tables[db_id]:
+                for tn in self.similar_tables.get(db_id, {}):
                     if tn in available_columns:
                         for stn in self.similar_tables[db_id][tn]:
                             available_columns[stn] = available_columns[tn].copy()
