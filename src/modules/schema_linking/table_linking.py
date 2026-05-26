@@ -15,6 +15,8 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from tqdm import tqdm
 
+from .generate_schema import generate_single_schema
+from .schema_formatter import load_similar_tables, format_compact_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
@@ -33,6 +35,9 @@ Rules:
 
 User Question:
 {{USER_QUESTION}}
+
+External Knowledge:
+{{EXTERNAL_KNOWLEDGE}}
 
 Table schemas:
 {{TABLE_SCHEMAS}}
@@ -103,6 +108,7 @@ class TableLinking:
         storage_root: str = "storage",
         prompt_name: Optional[str] = None,
         prompt_dir: str = "configs/prompts/schema_linking",
+        max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         require_json_output: bool = True,
         max_workers: int = 4,
@@ -119,6 +125,7 @@ class TableLinking:
             storage_root: Папка с метаданными схем баз данных
             prompt_name: Название .md файла (без расширения) с промптом пользователя
             prompt_dir: Папка с .md файлами промптов
+            max_schema_length: максимальное оценочное число токенов для схемы
             retry_config: Настройки повторных попыток
             require_json_output: Требовать строгого JSON-вывода от LLM
             max_workers: Максимальное число параллельных процессов генерации
@@ -129,6 +136,7 @@ class TableLinking:
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
         self.storage_root = Path(storage_root)
+        self.max_schema_length = max_schema_length
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
         self.require_json_output = require_json_output
         self.max_workers = max_workers
@@ -139,6 +147,7 @@ class TableLinking:
         self.log_dir = Path(run_root) / run_id / "schema_linking"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.logger = get_logger("table_linking", self.log_dir / "table_selection.log")
+        self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
     def _load_instances(self) -> Dict[str, Any]:
         ids_data = {}
@@ -160,10 +169,7 @@ class TableLinking:
         else:
             tasks = deepcopy(self.tasks)
 
-        q_key = "question"
-        if "question" not in tasks[0]:
-            q_key = "instruction"
-
+        q_key = "question" if "question" in tasks[0] else "instruction"
         if self.input_data_root == "Spider2/spider2-lite":
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
             tasks = {
@@ -238,17 +244,7 @@ class TableLinking:
         if max_tables and len(names) > max_tables:
             names = names[:max_tables]
         return ", ".join(f"`{name}`" for name in names)
-    
-    def _format_table_schemas(self, tables: Dict[str, List[Dict]]) -> str:
-        """Формирует описание схем таблиц для промпта."""
-        lines = []
-        for table_name, columns in tables.items():
-            cols_str = ", ".join(f"{c['column']}:{c.get('type', '?')}" for c in columns)
-            lines.append(f"{table_name}: [{cols_str}]")
         
-        random.shuffle(lines)
-        return "\n".join(lines)
-    
     def _parse_llm_response(self, response: str) -> Tuple[Optional[List[str]], Optional[str]]:
         """
         Парсит ответ LLM как список имён таблиц.
@@ -325,8 +321,9 @@ class TableLinking:
     def select_tables(
         self,
         instance_id: str,
+        db_id: str,
         user_question: str,
-        available_tables: Dict[str, List[Dict[str, Any]]],
+        available_tables: List[str],
         external_knowledge: Optional[str] = None,
         max_tables: Optional[int] = None
     ) -> TableLinkingResult:
@@ -336,7 +333,7 @@ class TableLinking:
         Args:
             instance_id: Уникальный идентификатор примера (для логирования)
             user_question: Вопрос пользователя
-            available_tables: {table_name: [{"column": str, "type": str}, ...]}
+            available_tables: [table_name, ...]
             max_tables: Опциональный лимит на число возвращаемых таблиц
             
         Returns:
@@ -345,7 +342,17 @@ class TableLinking:
         result = TableLinkingResult(instance_id=instance_id, selected_tables=[], success=False)
         
         # Подготовка контекста для промпта
-        table_schemas = self._format_table_schemas(available_tables)
+        table_schemas, _ = generate_single_schema(
+            instance_id=instance_id,
+            col_ids=self.instances[instance_id].get("available_ids", []),
+            doc_data=self.schemas.get(db_id, {}),
+            target_max_tokens=self.max_schema_length,
+            block_formatter=format_compact_block,
+            similar_tables=self.similar_tables[db_id], 
+            include_samples=False,
+            include_descriptions=False, 
+            log=self.logger
+        )
         messages_history: List[Dict[str, str]] = []
         
         for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
@@ -374,7 +381,7 @@ class TableLinking:
                 # 4. Валидация имён таблиц
                 validation_errors = []
                 if parsed_tables:
-                    valid_names = set(available_tables.keys())
+                    valid_names = available_tables
                     if isinstance(parsed_tables, dict):  # Если результат - JSON объект
                         parsed_tables = [tb["table_name"] for tb in parsed_tables.get("selected_tables", []) 
                                          if tb.get("table_name")]
@@ -497,17 +504,21 @@ class TableLinking:
             available_tables = self.schemas.get(db_id, {})
             available_ids = data.get("available_ids")
             if available_ids is None:
-                available_tables = {tn: list(available_tables[tn].values()) for tn in available_tables}
+                available_tables = list(available_tables.keys())
             else:
-                available_ids = data["available_ids"]
-                available_tables = {
-                    tn: [
-                        column_data 
-                        for cid, column_data in available_tables[tn].items() 
-                        if cid in available_ids
-                    ] 
-                    for tn in available_tables
-                }
+                available_tables = [
+                    tn for tn in available_tables 
+                    if [column_data for cid, column_data in available_tables[tn].items() 
+                        if cid in available_ids] 
+                ]
+
+            # Добавляем все похожие таблицы для получения полного списка
+            if self.similar_tables:
+                for tn in self.similar_tables[db_id]:
+                    if tn in available_tables:
+                        available_tables += self.similar_tables[db_id][tn]
+                
+                available_tables = list(set(available_tables))
 
             if not available_tables:
                 self.logger.warning(f"No schema for {instance_id} (db_id: {db_id})")
@@ -515,6 +526,7 @@ class TableLinking:
                 
             return self.select_tables(
                 instance_id=instance_id,
+                db_id=db_id,
                 user_question=question,
                 external_knowledge=external_knowledge,
                 available_tables=available_tables,
@@ -614,6 +626,10 @@ if __name__ == "__main__":
         help="Вариант промпта агента в папке prompt-dir (по умолчанию: sl_table_level)"
     )
     parser.add_argument(
+        "--max-schema-length", type=str, default=64000,
+        help="Максимальное оценочное число токенов для схемы (по умолчанию: 64000)"
+    )
+    parser.add_argument(
         "--max-workers", type=int, default=4, 
         help="Максимальное число потоков для параллельной генерации для примеров"
     )
@@ -646,6 +662,7 @@ if __name__ == "__main__":
         storage_root=args.storage_root,
         prompt_name=args.prompt_name,
         prompt_dir=args.prompt_dir,
+        max_schema_length=args.max_schema_length,
         max_workers=args.max_workers,
         max_tables=args.max_tables,
         retry_config={

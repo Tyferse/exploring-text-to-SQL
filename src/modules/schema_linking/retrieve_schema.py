@@ -428,10 +428,7 @@ def retrieve_columns(
         with open(os.path.join(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
             tasks = [json.loads(line.strip()) for line in f.readlines()]
 
-    q_key = "question"
-    if "question" not in tasks[0]:
-        q_key = "instruction"
-
+    q_key = "question" if "question" in tasks[0] else "instruction"
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         tasks = [(instance["instance_id"], 

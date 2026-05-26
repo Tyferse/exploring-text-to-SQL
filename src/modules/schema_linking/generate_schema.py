@@ -4,226 +4,56 @@ import logging
 import random
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Literal
+from typing import Dict, List, Any, Optional, Tuple, Literal, Callable
+
 from tqdm import tqdm
 
+from .schema_formatter import format_detailed_block, compress_schema_to_fit, load_similar_tables, estimate_prompt_length
 from src.utils.logger import get_logger
 from src.utils.preprocessing import remove_digits
 from src.utils.run_manager import resolve_run_id
 
 
-random.shuffle()
-
-def estimate_prompt_length(text: str, chars_per_token: float = 4.0) -> int:
-    """
-    Приблизительная оценка количества токенов по длине строки.
-    
-    Args:
-        text: Текст промпта
-        chars_per_token: Среднее количество символов на токен (эмпирически ~3.5-4.5 для смешанного текста)
-        
-    Returns:
-        Примерное количество токенов
-    """
-    return max(1, int(len(text) / chars_per_token))
-
-def remove_sample_values(columns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Удаляет поле column_vals из всех колонок."""
-    result = []
-    for col in columns:
-        new_col = {k: v for k, v in col.items() if k != "column_vals"}
-        result.append(new_col)
-    return result
-
-def remove_descriptions(columns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Удаляет поле description из всех колонок."""
-    result = []
-    for col in columns:
-        new_col = {k: v for k, v in col.items() if k != "description"}
-        result.append(new_col)
-    return result
-
-def limit_columns_per_table(
-    table_mapping: Dict[str, List[Dict[str, Any]]], 
-    k: int
-) -> Dict[str, List[Dict[str, Any]]]:
-    """
-    Оставляет только первые k колонок в каждой таблице.
-    
-    Args:
-        table_mapping: {table_name: [col_info, ...]}
-        k: Максимальное количество колонок на таблицу
-        
-    Returns:
-        Обрезанное отображение таблиц
-    """
-    result = {}
-    for table_name, columns in table_mapping.items():
-        result[table_name] = columns[:k] if len(columns) > k else columns
-
-    return result
-
-def compress_schema_to_fit(
-    table_mapping: Dict[str, List[Dict[str, Any]]],
-    target_max_tokens: int,
-    chars_per_token: float = 3.0,
-    min_columns: int = 1,
-    similar_tables = Optional[Dict[str, Dict[str, List[str]]]] = None
-) -> Tuple[Dict[str, List[Dict[str, Any]]], List[str]]:
-    """
-    Поэтапно сжимает схему до целевого размера в токенах.
-    
-    Этапы сжатия (применяются последовательно):
-    1. Удаление значений
-    2. Удаление описаний  
-    3. Ограничение колонок на таблицу (итеративное уменьшение k)
-    
-    Args:
-        table_mapping: Исходное отображение таблиц и колонок
-        target_max_tokens: Целевой лимит токенов (обычно 70% от context_length)
-        chars_per_token: Коэффициент для оценки токенов
-        min_columns: Минимальное количество колонок, которое нужно оставить в таблице
-        
-    Returns:
-        Tuple[сжатое_отображение, список_применённых_стратегий]
-    """
-    strategies_applied = []
-    similar_tables = similar_tables if similar_tables else {}
-    current_mapping = {tbl: [col.copy() for col in cols] for tbl, cols in table_mapping.items()}
-    
-    # Вспомогательная функция для оценки
-    def current_length(mapping: Dict, similar_tables: Dict = {}) -> int:
-        schema_text = "".join(format_schema_block(tbl, cols, similar_tables.get(tbl, [])) for tbl, cols in mapping.items())
-        return estimate_prompt_length(schema_text, chars_per_token)
-    
-    # Этап 1: Удаление примеров значений
-    if current_length(current_mapping, similar_tables) > target_max_tokens:
-        current_mapping = {tbl: remove_sample_values(cols) for tbl, cols in current_mapping.items()}
-        strategies_applied.append("removed_sample_values")
-    
-    # Этап 2: Удаление descriptions
-    if current_length(current_mapping, similar_tables) > target_max_tokens:
-        current_mapping = {tbl: remove_descriptions(cols) for tbl, cols in current_mapping.items()}
-        strategies_applied.append("removed_descriptions")
-    
-    # Этап 3: Итеративное ограничение колонок
-    if current_length(current_mapping, similar_tables) > target_max_tokens:
-        # Находим максимальное количество колонок в любой таблице
-        max_cols = max(len(cols) for cols in current_mapping.values()) if current_mapping else 0
-        
-        # Бинарный поиск оптимального k
-        low, high = min_columns, max_cols
-        best_mapping = current_mapping
-        
-        while low <= high:
-            mid = (low + high) // 2
-            trial_mapping = limit_columns_per_table(current_mapping, mid)
-            
-            if estimate_prompt_length(
-                "".join(format_schema_block(tbl, cols, similar_tables.get(tbl, [])) for tbl, cols in trial_mapping.items()),
-                chars_per_token
-            ) <= target_max_tokens:
-                best_mapping = trial_mapping
-                high = mid - 1  # Пробуем ещё сильнее сжать
-            else:
-                low = mid + 1   # Нужно оставить больше колонок
-        
-        if best_mapping != current_mapping:
-            current_mapping = best_mapping
-            strategies_applied.append(f"limited_columns_to_k={low}")
-    
-    if current_length(current_mapping, similar_tables) > target_max_tokens:
-        current_mapping = limit_columns_per_table(current_mapping, min_columns)
-        if not any(s.startswith("limited_columns_to_k=") for s in strategies_applied):
-            strategies_applied.append(f"forced_min_columns_{min_columns}")
-    
-    return current_mapping, strategies_applied
-
-def truncate_value(val: Any, max_len: int = 250) -> str:
-    """Безопасное приведение значения к строке с обрезкой длинных значений."""
-    s = str(val).replace("\n", " ").replace("\r", " ")
-    if len(s) > max_len:
-        return s[:max_len] + "...(truncated)"
-    return s
-
-def process_column_values(values: List[Any], max_samples: int = 3, max_len: int = 250) -> List[str]:
-    """
-    Извлекает до max_samples примеров, сериализует сложные типы (dict/list),
-    обрезает длинные строки.
-    """
-    if not values:
-        return []
-    result = []
-    for v in values[:max_samples]:
-        if isinstance(v, (dict, list)):
-            try:
-                v_str = json.dumps(v, ensure_ascii=False)
-            except TypeError:
-                v_str = str(v)
-        else:
-            v_str = str(v)
-        result.append(truncate_value(v_str, max_len))
-    return result
-
-def format_schema_block(table_name: str, columns: List[Dict[str, Any]], similar_tables: Optional[List] = None) -> str:
-    """Формирует текстовый блок схемы по заданному шаблону."""
-    lines = [f"###Table full name: {table_name}", "["]
-    
-    if similar_tables:
-        lines.insert(1, f"**Some other tables have the similar structure: [{', '.join(similar_tables)}]**")
-
-    for col in columns:
-        col_name = col.get("column_name", "unknown")
-        col_type = col.get("data_type", "TEXT")
-        desc = col.get("description", "")
-        samples = process_column_values(col.get("sample_values", []))
-        samples_str = f"Sample values: {samples}" if samples else ""
-        desc_str = f"Description: {desc}" if desc else ""
-        
-        parts = [col_name, f"Type: {col_type}", samples_str, desc_str]
-        content = "; ".join(p for p in parts[1:] if p)
-        lines.append(f"\t{parts[0]} ({content})")
-        
-    lines.append("]")
-    lines.append("-" * 50)
-    lines.append("")
-    return "\n".join(lines)
-
 def generate_single_schema(
     instance_id: str,
     col_ids: List[str],
     doc_data: Dict[int, Dict[str, Any]],
+    format_schema_block: Callable = format_detailed_block,
     target_max_tokens: int = 64_000,
     similar_tables: Optional[Dict[str, Dict[str, List[str]]]] = None,
+    chars_per_token: float = 4.0,
     output_path: Optional[Path] = None,
-    log: Optional[logging.Logger] = None
-) -> Tuple[bool, Dict[str, Any]]:
+    log: Optional[logging.Logger] = None,
+    **formatter_kwargs
+) -> Tuple[str, Dict[str, Any]]:
     """
     Обрабатывает один пример: строит текстовое описание схемы с учётом лимита контекста.
     
     Args:
         instance_id: Уникальный идентификатор примера
+        db_id; Идентификатор базы данных
         col_ids: Список ID столбцов для включения в схему
-        doc_data: Загруженные словари {db_id: {col_id: col_info}}
-        output_dir: Директория для сохранения .txt файлов
+        doc_data: Загруженный словарь {col_id: col_info}
         target_max_tokens: Максимальная длина описания схемы в токенах.
+        similar_tables: Словарь отображения таблиц в список похожих таблиц
+        output_path: Директория для сохранения .txt файлов
         log: Опциональный логгер. Если None, создаётся автоматически.
         
     Returns:
-        Tuple[успех: bool, метаданные: dict]
+        Tuple[текст схемы: str, метаданные: dict]
     """
     if log is None and output_path is not None:
-        log = get_logger(output_path.parent / "gen_schema" / (instance_id + ".log"))
+        log = get_logger("gen_single_schema", output_path.parent / "gen_schema" / (instance_id + ".log"))
 
-    log.info(f"Begin processing | {instance_id}")
+    if log: log.info(f"Begin processing | {instance_id}")
     metadata = {"instance_id": instance_id, "strategies_applied": [], "final_token_estimate": 0}
 
     if not col_ids:
-        log.warning(f"List col_ids is empty. Skip. | {instance_id}")
+        if log: log.warning(f"List col_ids is empty. Skip. | {instance_id}")
         return False, metadata
 
     try:
-        log.info(f"Target: {target_max_tokens} tokens | {instance_id}")
+        if log: log.info(f"Target: {target_max_tokens} tokens | {instance_id}")
         table_mapping: Dict[str, List[Dict[str, Any]]] = {}
 
         # 1. Сбор данных по столбцам
@@ -240,51 +70,55 @@ def generate_single_schema(
 
             desc = col_info.get("text", "")
             desc = desc.split("Description: ", 1)[1] if desc else ""
+
+            colmeta = col_info["metadata"]
             table_mapping[table_name].append({
-                "column_name": col_info["metadata"].get("column_name", cid),
-                "data_type": col_info["metadata"].get("data_type", "TEXT"),
+                "column_name": colmeta.get("column_name", cid),
+                "data_type": colmeta.get("data_type", "TEXT"),
                 "description": desc,
-                "sample_values": col_info["metadata"].get("sample_values", [])
+                "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
             })
             valid_columns_found += 1
 
         if valid_columns_found == 0:
-            log.warning(f"Valid columns have not been found in metadata | {instance_id}")
+            if log: log.warning(f"Valid columns have not been found in metadata | {instance_id}")
             return False, metadata
 
         # 2. Сжатие схемы до целевого размера
         compressed_mapping, strategies = compress_schema_to_fit(
             table_mapping=table_mapping,
+            block_formatter=format_schema_block,
             target_max_tokens=target_max_tokens,
-            similar_tables=similar_tables
+            similar_tables=similar_tables,
+            **formatter_kwargs
         )
         metadata["strategies_applied"] = strategies
         if strategies:
-            log.info(f"Применены стратегии сжатия: {strategies}")
+            if log: log.info(f"Применены стратегии сжатия: {strategies}")
 
         # 2. Форматирование и финальная оценка
         schema_blocks = [
-            format_schema_block(tbl, cols, similar_tables.get(tbl, []) if similar_tables else None) 
+            format_schema_block(tbl, cols, similar_tables.get(tbl, {}), **formatter_kwargs) 
             for tbl, cols in compressed_mapping.items()
         ]
         random.shuffle(schema_blocks)  # Перемешиваем для предотвращения влияния порядка таблиц
         schema_text = "".join(schema_blocks)
-        final_tokens = estimate_prompt_length(schema_text)
+        final_tokens = estimate_prompt_length(schema_text, chars_per_token)
         metadata["final_token_estimate"] = final_tokens
         
         if final_tokens > target_max_tokens:
-            log.warning(f"Scheme is still over limit: {final_tokens} > {target_max_tokens} | {instance_id}")
+            if log: log.warning(f"Scheme is still over limit: {final_tokens} > {target_max_tokens} | {instance_id}")
         else:
-            log.info(f"Schema is in limit: {final_tokens}/{target_max_tokens} tokens | {instance_id}")
+            if log: log.info(f"Schema is in limit: {final_tokens}/{target_max_tokens} tokens | {instance_id}")
         
         tables_count = len(compressed_mapping)
         cols_count = sum(len(cols) for cols in compressed_mapping.values())
-        log.info(f"Tables: {tables_count} | Columns: {cols_count} | tokens: {final_tokens} | {instance_id}")
+        if log: log.info(f"Tables: {tables_count} | Columns: {cols_count} | tokens: {final_tokens} | {instance_id}")
         
         return schema_text, metadata
 
     except Exception as e:
-        log.exception(f"Critical processing error {instance_id}: {e}")
+        if log: log.exception(f"Critical processing error {instance_id}: {e}")
         metadata["error"] = str(e)
         return "", metadata
 
@@ -304,8 +138,8 @@ def generate_schemas(
     итерирует по примерам и вызывает process_single_instance с контролем контекста.
     """
     run_path = Path(run_root) / run_id
-    output_path = run_path / "schema_linking" / output_dir
     log_dir = run_path / "schema_linking"
+    output_path = log_dir / output_dir
     schema_tasks = deepcopy(tasks) if tasks is not None else None
 
     # Загрузка документов схем
@@ -318,11 +152,8 @@ def generate_schemas(
         with open(doc_file, "r", encoding="utf-8") as f:
             docs_data = json.load(f)
             db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
-        
-        with open(doc_file.replace("_docs", "_meta"), "r", encoding="utf-8") as f:
-            meta_data = json.load(f)["tables"]
-            similar_tables[db_id] = {meta_data[table]["similar_table"] for table in meta_data 
-                                     if meta_data[table]["similar_table"]}
+
+    similar_tables = load_similar_tables(docs_path)    
     
     if not db_docs:
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
@@ -380,10 +211,10 @@ def generate_schemas(
             tables_data = json.load(f)
 
         indices_data = {iid: {
-                "db_id": tables_data["db_id"], 
+                "db_id": tables_data[iid]["db_id"], 
                 "used_indices": [
-                    cid for cid in db_docs[db_id] 
-                    if db_docs[db_id][cid]["metadata"]["table_name"] in tables_data[iid]["used_tables"]
+                    cid for cid in db_docs[tables_data["db_id"]] 
+                    if db_docs[tables_data[iid]["db_id"]][cid]["metadata"]["table_name"] in tables_data[iid]["used_tables"]
                 ]
             } 
             for iid in tables_data
@@ -400,10 +231,10 @@ def generate_schemas(
             if file.endswith("table_candidates.json"):
                 partial_data = {
                     iid: {
-                        "db_id": partial_data["db_id"], 
+                        "db_id": partial_data[iid]["db_id"], 
                         "used_indices": [
-                            cid for cid in db_docs[db_id] 
-                            if db_docs[db_id][cid]["metadata"]["table_name"] in partial_data[iid]["used_tables"]
+                            cid for cid in db_docs[partial_data[iid]["db_id"]] 
+                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in partial_data[iid]["used_tables"]
                         ]
                     }
                     for iid in partial_data
@@ -523,5 +354,5 @@ if __name__ == "__main__":
     generate_schemas(
         run_id, data_root=args.data_root, input_data_root=args.input_data_root, 
         output_dir=args.output_dir, docs_dir=str(Path(args.storage_root) / args.input_data_dir / "schema_cache"), 
-        included="full" in args.full_schema else "retrieved", target_max_tokens=args.max_tokens
+        included=args.included, target_max_tokens=args.max_tokens
     )

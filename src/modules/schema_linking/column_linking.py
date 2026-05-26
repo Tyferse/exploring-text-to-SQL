@@ -12,6 +12,8 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from tqdm import tqdm
 
+from .generate_schema import generate_single_schema
+from .schema_formatter import load_similar_tables, format_detailed_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
@@ -175,7 +177,9 @@ class ColumnLinking:
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
-        user_prompt: Optional[str] = None,
+        prompt_name: Optional[str] = None,
+        prompt_dir: str = "configs/prompts/schema_linking",
+        max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
         max_columns: Optional[int] = None
@@ -187,9 +191,11 @@ class ColumnLinking:
             tasks: Список задач для обработки
             run_root: Папка с запусками
             input_data_root: Папка с входными данными внутри data_root
-            data_root: Корень с данными
+            data_root: Корневая папка со всеми входными данными
             storage_root: Папка с метаданными схем
-            user_prompt: Кастомный промпт (опционально)
+            prompt_name: Название .md файла (без расширения) с промптом пользователя
+            prompt_dir: Папка с .md файлами промптов
+            max_schema_length: максимальное оценочное число токенов для схемы
             retry_config: Настройки повторных попыток
             max_workers: Число параллельных потоков
             max_columns: Опциональный лимит на число столбцов в результате
@@ -199,7 +205,9 @@ class ColumnLinking:
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
         self.storage_root = Path(storage_root)
-        self.user_prompt = user_prompt or DEFAULT_PROMPT
+        self.user_prompt = ((Path(prompt_dir) / f"{prompt_name}.md").read_text(encoding="utf-8") 
+                            if prompt_name is not None else DEFAULT_PROMPT)
+        self.max_schema_length = max_schema_length
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
         self.max_workers = max_workers
         self.max_columns = max_columns
@@ -210,63 +218,73 @@ class ColumnLinking:
         
         self.instances = self._load_instances()
         self.schemas = self._load_schemas()
+        self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает инстансы из кэша или задач."""
-        ids_data = {}
-        
-        # Пробуем загрузить результаты table_linking
-        if (self.log_dir / "table_candidates.json").exists():
-            with open(self.log_dir / "table_candidates.json", "r", encoding="utf-8") as f:
-                ids_data = json.load(f)
-        
         # Загружаем задачи
         if self.tasks is None:
             tasks_files = list((self.data_root / self.input_data_root).glob("*.jsonl"))
             if not tasks_files:
                 raise FileNotFoundError(f"No .jsonl tasks found in {self.data_root / self.input_data_root}")
+            
             tasks_file = tasks_files[0]
             with open(tasks_file, "r", encoding="utf-8") as f:
                 tasks = [json.loads(line.strip()) for line in f if line.strip()]
         else:
             tasks = deepcopy(self.tasks)
 
-        q_key = "question" if any("question" in t for t in tasks) else "instruction"
-        
+        ids_data = {}
+        if (self.log_dir / "retrieved_indices.json").exists():
+            with open(self.log_dir / "retrieved_indices.json", "r", encoding="utf-8") as f:
+                ids_data = json.load(f)
+
+        # Пробуем загрузить результаты table_linking
+        elif (self.log_dir / "table_candidates.json").exists():
+            with open(self.log_dir / "table_candidates.json", "r", encoding="utf-8") as f:
+                ids_data = json.load(f)
+
+        q_key = "question" if "question" in tasks[0] else "instruction"
+        tasks_dict = {}
+        for instance in tasks:
+            iid = instance["instance_id"]
+            # Пропускаем уже обработанные
+            if (self.log_dir / "column_linking" / f"{iid}.json").exists():
+                continue
+
+            tasks_dict[iid] = {
+                "question": instance.get(q_key, ""),
+                "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents" / instance["external_knowledge"])
+                    if instance.get("external_knowledge") else None,
+                "available_tables": ids_data.get(iid, {}).get("used_indices", None)
+            }
+
+        # Если были загружены названия таблиц, добавляем все принадлежащие им столбцы
         if self.input_data_root == "Spider2/spider2-lite":
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-            tasks_dict = {}
-            for instance in tasks:
-                iid = instance["instance_id"]
-                # Пропускаем уже обработанные
-                if (self.log_dir / "column_linking" / f"{iid}.json").exists():
-                    continue
+            for iid in tasks_dict:
                 db_id = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + instance["db_id"]
-                tasks_dict[iid] = {
-                    "db_id": db_id,
-                    "question": instance.get(q_key, ""),
-                    "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents" / instance["external_knowledge"])
-                        if instance.get("external_knowledge") else None,
-                    "available_tables": ids_data.get(iid, {}).get("used_tables", None)
-                }
+                tasks_dict[iid]["db_id"] = db_id
+                if "used_tables" in ids_data.get(iid, {}):
+                    tasks_dict[iid]["available_tables"] = [
+                        cid for tn in self.schemas[db_id] 
+                        if tn in ids_data[iid]["used_tables"]
+                        for cid in self.schemas[db_id][tn].keys()                        
+                    ]
         else:
-            tasks_dict = {}
-            for instance in tasks:
-                iid = instance["instance_id"]
-                if (self.log_dir / "column_linking" / f"{iid}.json").exists():
-                    continue
+            for iid in tasks_dict:
                 db_id = instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"]
-                tasks_dict[iid] = {
-                    "db_id": db_id,
-                    "question": instance.get(q_key, ""),
-                    "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents" / instance["external_knowledge"])
-                        if instance.get("external_knowledge") else None,
-                    "available_tables": ids_data.get(iid, {}).get("used_tables", None)
-                }
+                tasks_dict[iid]["db_id"] = db_id
+                if "used_tables" in ids_data.get(iid, {}):
+                    tasks_dict[iid]["available_tables"] = [
+                        cid for tn in self.schemas[db_id] 
+                        if tn in ids_data[iid]["used_tables"]
+                        for cid in self.schemas[db_id][tn].keys()                        
+                    ]
         
         return tasks_dict
     
-    def _load_schemas(self) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    def _load_schemas(self) -> Dict[str, Dict[str, Dict[int, Dict[str, Any]]]]:
         """Загружает *_docs.json в формат {db_id: {table_name: [{column, type, id, ...}]}}."""
         schemas = {}
         docs_dir = self.storage_root / self.input_data_root / "schema_cache"
@@ -286,41 +304,18 @@ class ColumnLinking:
                 if not tn:
                     continue
                 if tn not in table_map:
-                    table_map[tn] = []
+                    table_map[tn] = {}
                 
-                table_map[tn].append({
-                    "column_name": meta.get("column_name", col.get("id")),
+                table_map[tn][col["id"]] = {
+                    "column_name": meta.get("column_name", col["id"]),
                     "data_type": meta.get("data_type", meta.get("column_type", "TEXT")),
-                    "description": meta.get("description", ""),
-                    "sample_values": meta.get("sample_values", []),
-                    "column_id": col.get("id")
-                })
+                    "description": meta.get("description", "None"),
+                    "sample_values": meta.get("column_vals", []),
+                }
+
             schemas[db_id] = table_map
         
         return schemas
-
-    def _format_table_schemas(
-        self, 
-        tables: Dict[str, List[Dict[str, Any]]], 
-        available_tables: Optional[List[str]] = None
-    ) -> str:
-        """Формирует текстовое описание схем для промпта."""
-        # Фильтруем таблицы если указан список
-        if available_tables:
-            tables = {tn: cols for tn, cols in tables.items() if tn in available_tables}
-        
-        lines = []
-        for table_name, columns in tables.items():
-            cols_str = "; ".join(
-                f"{c['column_name']}:{c.get('data_type', '?')}" + 
-                (f" [{', '.join(map(str, c.get('sample_values', [])[:3]))}]" if c.get('sample_values') else "")
-                for c in columns
-            )
-            lines.append(f"{table_name}: [{cols_str}]")
-        
-        # Детерминированный порядок для воспроизводимости
-        lines.sort()
-        return "\n".join(lines)
     
     def _parse_llm_response(self, response: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
         """
@@ -335,14 +330,11 @@ class ColumnLinking:
         if not response:
             return None, "Empty response"
         
-        import json as json_lib
-        import re
-        
         # 1. Пробуем найти полный JSON-объект
         json_match = re.search(r'\{[\s\S]*\}', response)
         if json_match:
             try:
-                parsed = json_lib.loads(json_match.group(0))
+                parsed = json.loads(json_match.group(0))
                 if isinstance(parsed, dict):
                     # Валидируем обязательные поля
                     if "columns_mapped" in parsed and isinstance(parsed["columns_mapped"], list):
@@ -354,21 +346,22 @@ class ColumnLinking:
                                 col["confidence"] = "medium"  # default
                             if "literal_value" not in col:
                                 col["literal_value"] = None
+
                         return parsed, None
-            except json_lib.JSONDecodeError:
+            except json.JSONDecodeError:
                 pass
         
         # 2. Пробуем распарсить как список колонок
         array_match = re.search(r'\[([^\[\]]*?)\]', response, re.DOTALL)
         if array_match:
             try:
-                parsed = json_lib.loads(array_match.group(0).replace("'", '"'))
+                parsed = json.loads(array_match.group(0).replace("'", '"'))
                 if isinstance(parsed, list):
                     # Формат: [{"table_name": "t", "column_name": "c"}, ...]
                     if all(isinstance(c, dict) and "column_name" in c for c in parsed):
                         return {
                             "tables_selected": [{"table_name": c.get("table_name"), "relevance_reasoning": "auto-selected"} 
-                                               for c in parsed if c.get("table_name")],
+                                                for c in parsed if c.get("table_name")],
                             "columns_mapped": [
                                 {**c, "role": c.get("role", "select"), "confidence": c.get("confidence", "medium"), "literal_value": None}
                                 for c in parsed
@@ -396,7 +389,7 @@ class ColumnLinking:
                             "blocking_issues": [],
                             "analysis_summary": "Parsed from table.column list"
                         }, None
-            except json_lib.JSONDecodeError:
+            except json.JSONDecodeError:
                 pass
         
         # 3. Fallback: парсинг через запятую
@@ -425,10 +418,10 @@ class ColumnLinking:
         
         return None, f"Could not parse structured output from: {response[:300]}"
     
-    def _validate_result(self, result: Dict[str, Any], available_tables: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    def _validate_result(self, result: Dict[str, Any], available_columns: Dict[str, List[str]]) -> List[str]:
         """Валидирует результат: имена таблиц/колонок, роли, структура."""
         errors = []
-        valid_tables = set(available_tables.keys())
+        valid_tables = set(available_columns.keys())
         
         # Валидация таблиц
         for tbl in result.get("tables_selected", []):
@@ -448,8 +441,7 @@ class ColumnLinking:
                 continue
             
             # Проверяем существование колонки в таблице
-            table_cols = {c["column_name"] for c in available_tables[tn]}
-            if cn and cn not in table_cols:
+            if cn and cn not in available_columns[tn]:
                 errors.append(f"Column '{cn}' not found in table '{tn}'")
             
             if role and role not in VALID_ROLES:
@@ -473,11 +465,28 @@ class ColumnLinking:
                 "history": history
             }, f, indent=2, ensure_ascii=False)
     
-    def link_columns(
+    def extract_all_candidates(self, results):
+        candidates_path = self.log_dir / "column_candidates.json"
+        with open(candidates_path, "w", encoding="utf-8") as f:
+            data = {
+                iid: {
+                    "db_id": self.instances[iid]["db_id"],
+                    "tables": res["tables_selected"],
+                    "columns": [
+                        {"table": c["table_name"], "column": c["column_name"], "role": c["role"]}
+                        for c in res["columns_mapped"]
+                    ]
+                }
+                for iid, res in results.items()
+            }
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    def select_columns(
         self,
         instance_id: str,
+        db_id: str,
         user_question: str,
-        available_tables: Dict[str, List[Dict[str, Any]]],
+        available_columns: Dict[str, List[Dict[str, Any]]],
         external_knowledge: Optional[str] = None,
         max_columns: Optional[int] = None
     ) -> ColumnLinkingResult:
@@ -493,7 +502,17 @@ class ColumnLinking:
         )
         
         # Подготовка контекста
-        table_schemas = self._format_table_schemas(available_tables)
+        table_schemas, _ = generate_single_schema(
+            instance_id=instance_id,
+            col_ids=self.instances[instance_id].get("available_ids", []),
+            doc_data=self.schemas.get(db_id, {}),
+            target_max_tokens=self.max_schema_length,
+            block_formatter=format_detailed_block, 
+            similar_tables=self.similar_tables[db_id], 
+            include_samples=False,
+            include_descriptions=False, 
+            log=self.logger
+        )
         messages_history: List[Dict[str, Any]] = []
         
         for attempt_num in range(1, self.retry_config["max_attempts"] + 1):
@@ -521,12 +540,12 @@ class ColumnLinking:
                 # Валидация
                 validation_errors = []
                 if parsed:
-                    validation_errors = self._validate_result(parsed, available_tables)
+                    validation_errors = self._validate_result(parsed, available_columns)
                     
                     # Лимит на число колонок
                     if max_columns and len(parsed.get("columns_mapped", [])) > max_columns:
                         parsed["columns_mapped"] = parsed["columns_mapped"][:max_columns]
-                        validation_errors.append(f"Limited to {max_columns} columns")
+                        # validation_errors.append(f"Limited to {max_columns} columns")
                 
                 # Запись попытки
                 attempt = ColumnLinkingAttempt(
@@ -619,7 +638,7 @@ class ColumnLinking:
         return result
     
     def _process_single_instance(self, instance_id: str, data: Dict[str, Any]) -> ColumnLinkingResult:
-        """Обработка одного инстанса."""
+        """Обработка одного примера."""
         try:
             db_id = data.get("db_id", instance_id.split("_", 1)[0])
             question = data.get("question", data.get("instruction", ""))
@@ -632,28 +651,38 @@ class ColumnLinking:
                     self.logger.warning(f"{instance_id} | Failed to load external knowledge: {e}")
             
             # Загружаем схему БД
-            full_schema = self.schemas.get(db_id, {})
-            if not full_schema:
+            available_columns = self.schemas.get(db_id, {})
+            if not available_columns:
                 self.logger.warning(f"{instance_id} | Schema not found for db_id: {db_id}")
                 return ColumnLinkingResult(instance_id, [], [], [], False, final_error="Schema not found")
             
-            # Фильтруем таблицы если указан список
-            available_tables = full_schema
-            if data.get("available_tables"):
-                available_tables = {
-                    tn: full_schema[tn] 
-                    for tn in data["available_tables"] 
-                    if tn in full_schema
+            available_columns = self.schemas.get(db_id, {})
+            available_ids = data.get("available_ids")
+            if available_ids is None:
+                available_columns = {
+                    tn: [available_columns[tn][cid]["column_name"] 
+                         for cid in available_columns[tn]] 
+                    for tn in available_columns
                 }
-            
-            if not available_tables:
-                self.logger.warning(f"{instance_id} | No tables available after filtering")
-                return ColumnLinkingResult(instance_id, [], [], [], False, final_error="No tables available")
-            
-            return self.link_columns(
+            else:
+                available_columns = {
+                    tn: [available_columns[tn][cid]["column_name"] 
+                         for cid in available_columns[tn] if cid in available_ids] 
+                    for tn in available_columns
+                }
+
+            # Добавляем все похожие таблицы для получения полного списка
+            if self.similar_tables:
+                for tn in self.similar_tables[db_id]:
+                    if tn in available_columns:
+                        for stn in self.similar_tables[db_id][tn]:
+                            available_columns[stn] = available_columns[tn].copy()
+
+            return self.select_columns(
                 instance_id=instance_id,
+                db_id=db_id,
                 user_question=question,
-                available_tables=available_tables,
+                available_columns=available_columns,
                 external_knowledge=external_knowledge,
                 max_columns=self.max_columns
             )
@@ -703,34 +732,14 @@ class ColumnLinking:
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
         
-        # Сохранение кандидатов
-        candidates_path = self.log_dir / "column_candidates.json"
-        with open(candidates_path, "w", encoding="utf-8") as f:
-            data = {
-                iid: {
-                    "db_id": self.instances[iid]["db_id"],
-                    "tables": res["tables_selected"],
-                    "columns": [
-                        {"table": c["table_name"], "column": c["column_name"], "role": c["role"]}
-                        for c in res["columns_mapped"]
-                    ]
-                }
-                for iid, res in results.items()
-            }
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        
         self.logger.info(f"Column linking finished. Success: {successful}/{stats['total']}")
         return results
 
 
-# ============================================================================
-# CLI
-# ============================================================================
-
 if __name__ == "__main__":
     import argparse
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(".env")
 
     parser = argparse.ArgumentParser(description="Column-level Schema Linking Pipeline")
     parser.add_argument("input_data_root", type=str, default="Spider2/spider2-lite")
@@ -746,6 +755,8 @@ if __name__ == "__main__":
     parser.add_argument("--temperature", type=float, default=0.0)
     
     # Pipeline
+    parser.add_argument("--prompt-name", type=str, default="sl_column_level")
+    parser.add_argument("--prompt-dir", type=str, default="config/prompts/schema_linking")
     parser.add_argument("--max-workers", type=int, default=4)
     parser.add_argument("--max-columns", type=int, default=None, help="Max columns to return per instance")
     parser.add_argument("--max-attempts", type=int, default=4)
@@ -764,6 +775,8 @@ if __name__ == "__main__":
         input_data_root=args.input_data_root,
         data_root=args.data_root,
         storage_root=args.storage_root,
+        prompt_name=args.prompt_name,
+        prompt_dir=args.prompt_dir,
         max_workers=args.max_workers,
         max_columns=args.max_columns,
         retry_config={
@@ -775,3 +788,4 @@ if __name__ == "__main__":
     )
     
     results = pipeline.run()
+    pipeline.extract_all_candidates(results)
