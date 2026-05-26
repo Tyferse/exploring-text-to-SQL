@@ -197,10 +197,10 @@ class TableLinking:
             }
 
         # Если столбцов ранее не было найдено, используем полную схему
-        if not ids_data:
-            if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
+        if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
             
-            for iid in tasks:
+        for iid in tasks:
+            if not tasks[iid]["available_ids"]:
                 tasks[iid]["available_ids"] = [
                     cid for tn in self.schemas[tasks[iid]["db_id"]] 
                     for cid in self.schemas[tasks[iid]["db_id"]][tn].keys()

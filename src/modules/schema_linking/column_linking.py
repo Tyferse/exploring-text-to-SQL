@@ -275,6 +275,7 @@ class ColumnLinking:
                         if tn in ids_data[iid].get("used_tables", [])
                         for cid in self.schemas[db_id][tn].keys()                        
                     ]
+                
         else:
             for iid in tasks_dict:
                 db_id = tasks_dict[iid].get("dialect", "") + ("_" if tasks_dict[iid].get("dialect") else "") + tasks_dict[iid]["db_id"]
@@ -285,6 +286,14 @@ class ColumnLinking:
                         if tn in ids_data[iid].get("used_tables", [])
                         for cid in self.schemas[db_id][tn].keys()                        
                     ]
+        
+        # Если не найденно индексов, добавляем все имеющиеся
+        for iid in tasks_dict:
+            if not tasks_dict[iid]["available_ids"]:
+                tasks_dict[iid]["available_ids"] = [
+                    cid for tn in self.schemas[db_id]
+                    for cid in self.schemas[db_id][tn].keys()
+                ]
         
         return tasks_dict
     
