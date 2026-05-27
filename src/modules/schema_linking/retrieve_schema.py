@@ -7,8 +7,10 @@ import os
 import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
+from pathlib import Path
 from typing import List, Dict, Set, Any, Optional
+
+from tqdm import tqdm
 
 from src.storage.core import VectorSearchResult
 from src.storage.vector_manager import VectorStoreManager
@@ -232,7 +234,7 @@ class RetrievalCache:
         self,
         run_id: str,
         cache_dir: Optional[str] = None,  # Если None, используется runs/{run_id}/cache
-        runs_root: str = "runs"
+        runs_root: str = "logs/runs"
     ):
         self.run_id = run_id
         self.runs_root = runs_root
@@ -244,7 +246,7 @@ class RetrievalCache:
             self.cache_dir = get_run_path(run_id, runs_root, stage="schema_linking/retrieval_cache")
         
         os.makedirs(self.cache_dir, exist_ok=True)
-        self.logger = get_logger("retrieval_cache", file=False)
+        self.logger = get_logger("retrieval_cache", log_file=os.path.join(runs_root, run_id, "schema_linking", "retrieve.log"))
         self.logger.info(f"RetrievalCache initialized at {self.cache_dir} (run_id={run_id})")
     
     def _get_cache_path(self, instance_id: str) -> str:
@@ -255,7 +257,7 @@ class RetrievalCache:
         path = self._get_cache_path(instance_id)
         if os.path.exists(path):
             try:
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     return set(int(idx) for idx in data.get("used_indices", []))
             except Exception as e:
@@ -269,7 +271,7 @@ class RetrievalCache:
         
         path = self._get_cache_path(instance_id)
         try:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump({"used_indices": sorted(list(existing))}, f, indent=2)
         except Exception as e:
             self.logger.warning(f"Failed to save cache for {instance_id}: {e}")
@@ -300,6 +302,18 @@ class RetrievalCache:
             "remaining_count": max(0, total_available - used),
             "is_complete": used >= total_available
         }
+    
+    def cache_union(self, instance_db: Dict[str, str]):
+        all_indices = {}
+        for file in os.listdir(self.cache_dir):
+            with open(os.path.join(self.cache_dir, file), encoding="utf-8") as f:
+                used_indices = json.load(f).get("used_indices")
+            
+            instance_id = file.rsplit(".", 1)[0]
+            all_indices[instance_id] = {"db_id": instance_db[instance_id], "used_indices": used_indices}
+        
+        with open(Path(self.cache_dir).parent / "retrieved_indices.json", "w", encoding='utf-8') as f:
+            json.dump(all_indices, f)
 
 
 class SchemaRetriever:
@@ -391,31 +405,16 @@ class SchemaRetriever:
         )
 
 def retrieve_columns(
-        run_name: str = "", 
+        run_name, 
+        vsm: VectorStoreManager,
         tasks: Optional[List[Dict[str, str]]] = None,
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage", 
-        location: str = None,
-        embedding_model: str = "microsoft/harrier-oss-v1-270m",
-        device: str = "cpu",
-        quantization: bool = False,
         topk: int = 100,
         max_workers: int = 2,
-        max_cached_sessions: int = 2,
-        backend: str = "qdrant",
         force_refresh: bool = False
     ):
-    vsm = vsm = VectorStoreManager(
-        storage_root=storage_root,
-        location=location,
-        max_cached_sessions=max_cached_sessions, 
-        embedding_model=embedding_model,
-        backend=backend,
-        device=device,
-        quantization=quantization,
-        log_path=os.path.join("logs/dbs", input_data_root)
-    )
     run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     cache = RetrievalCache(run_id)
     retriever = SchemaRetriever(
@@ -425,29 +424,31 @@ def retrieve_columns(
 
     if tasks is None:
         tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                    if file.endswith('.jsonl')][0]
+                      if file.endswith('.jsonl')][0]
         with open(os.path.join(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
             tasks = [json.loads(line.strip()) for line in f.readlines()]
 
-    q_key = "question"
-    if "question" not in tasks[0]:
-        q_key = "instuction"
-
+    q_key = "question" if "question" in tasks[0] else "instruction"
     if input_data_root == "Spider2/spider2-lite":
-        inst2dialect = {"sf": "sqnowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-        tasks = [(instance["instance_id"], instance["instance_id"], instance[q_key], 
-                    inst2dialect[remove_digits(instance["instance_id"]).split('_')[0]] 
-                    + "_" + instance["db_id"])
-                    for instance in tasks]
-    else:
-        tasks = [(instance["instance_id"], instance["db_id"], instance[q_key])
+        inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+        tasks = [(instance["instance_id"], 
+                  inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"], 
+                  instance[q_key])
                  for instance in tasks]
+    else:
+        tasks = [(instance["instance_id"], 
+                  instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
+                  instance[q_key])
+                 for instance in tasks]
+    
+    instance_db = {task[0]: task[1] for task in tasks}
+    tasks = [task for task in tasks if os.path.exists(cache._get_cache_path(task[0]))]
 
     def process_instance(instance_data):
         nonlocal retriever, storage_root, input_data_root, force_refresh
         loaded_meta = json.load(open(
-            os.path.join(storage_root, input_data_root, 
-                         "schema_cache", instance_data[1] + "_meta.json"), 
+            os.path.join(storage_root, input_data_root, "schema_cache", 
+                         instance_data[1] + "_meta.json"), 
             encoding='utf-8')
         )
         selected_columns = retriever.select_schema(
@@ -472,6 +473,7 @@ def retrieve_columns(
             for _ in as_completed(futures):
                 pbar.update(1)
     
+    cache.cache_union(instance_db)
     vsm.close_all()
 
 
@@ -544,8 +546,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    vsm = vsm = VectorStoreManager(
+        storage_root=args.storage_root,
+        location=args.location,
+        max_cached_sessions=args.max_cached_sessions, 
+        embedding_model=args.embedding_model,
+        backend=args.backend,
+        device=args.device,
+        quantization=args.quantization,
+        log_path=os.path.join("logs/dbs", args.input_data_root)
+    )
     retrieve_columns(
-        args.run_name, None, args.input_data_root, args.data_root, args.storage_root, args.location,              
-        args.embedding_model, args.device, args.quantization, args.topk, 
-        args.max_workers, args.max_cached_sessions, args.backend, args.force_refresh
+        args.run_name, vsm, None, args.input_data_root, args.data_root, 
+        args.storage_root, args.topk, args.max_workers, args.force_refresh
     )

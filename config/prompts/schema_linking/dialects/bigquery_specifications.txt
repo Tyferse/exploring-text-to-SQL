@@ -1,0 +1,1 @@
+Please use BIGQUERY SQL syntax for your SQL queries.

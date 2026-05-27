@@ -1,0 +1,90 @@
+Snowflake Optimization Strategies:
+- Column Naming:
+    - In Snowflake, unquoted column names are automatically folded to uppercase.
+    - To preserve the exact casing and avoid unintended column resolution issues, you must enclose all column names in double quotes, e.g., "user_id" instead of user_id.
+    This rule applies to:
+    - SELECT, WHERE, GROUP BY, ORDER BY, and all subqueries.
+    - Fields in nested structs or JSON-style objects.
+    ⚠️ Omitting double quotes may lead to runtime errors or mismatches if the actual column names are stored in lowercase or mixed case.
+    For example:
+    -- ❌ Incorrect: column names are unquoted → Snowflake interprets as "USER_ID", "SIGNUP_DATE"
+    ```sql
+    SELECT p.user_id, p.signup_date
+    FROM profiles p
+    WHERE p.region = 'US';
+    ```
+    -- ✅ Correct: column names are quoted → Snowflake preserves original casing
+    ```sql
+    SELECT p."user_id", p."signup_date"
+    FROM "profiles" p
+    WHERE p."region" = 'US';
+    ```
+    - If the column name is an alias you declared with as yourself, please keep it consistent with the alias you declared when you use it.
+    - Use table full name in your query.
+
+- Partitioned Tables:
+    - If the schema contains tables whose table names are only different by date and these tables have the same table structure, when querying these tables, **you cannot query the table names by wildcards but can only use UNION ALL**, for example:
+    ```sql
+    SELECT * FROM "table_1"
+    UNION ALL
+    SELECT * FROM "table_2"
+    UNION ALL
+    SELECT * FROM "table_3";
+    ```
+    - Make sure all the required tables are combined in the UNION ALL, and do not use ["-- Include all", "-- Omit", "-- Continue", "-- Union all", "-- ...", "-- List all", "-- Replace this", "-- Each table", "-- Add other"] to omit any table.
+
+- VARIANT columns:
+    - Values of any other Snowflake data type can be stored in VARIANT columns.
+    - For columns in json nested format: e.g. SELECT t.\"column_name\", f.value::VARIANT:\"key_name\"::STRING AS \"abstract_text\" FROM PATENTS.PATENTS.PUBLICATIONS t, LATERAL FLATTEN(input => t.\"json_column_name\") f; For nested columns like event_params, when you don't know the structure of it, first watch the whole column: SELECT f.value FROM table, LATERAL FLATTEN(input => t.\"event_params\") f;\n"
+
+- Decimal Precision:
+    - If user do not specify the precision, you should use `ROUND(value, 4)` to round the value to four decimal places.
+    - If user specify the precision, you should use `ROUND(value, precision)` to round the value to the specified decimal places.
+
+- String Matching:
+    - Don't directly match strings if you are not convinced. Use LOWER for fuzzy queries: WHERE LOWER(str) LIKE LOWER('%target_str%'). For example, to match 'meat lovers', use LOWER(str) LIKE '%meat%lovers%'.
+    - For string-matching scenarios, convert non-standard symbols to '%'. e.g. ('he's to he%s)
+    - You can use `REGEXP_LIKE(col, 'regex')` for complex patterns.
+    
+- Date Handling:
+    - For time-related queries, given the variety of formats, avoid using time converting functions unless you are certain of the specific format being used.
+
+- Hexadecimal String Handling:
+    - When dealing with the hexadecimal string amount_hex, you must first use LTRIM(amount_hex, '0') to remove the leading zeros, and then concatenate the '0x' prefix for conversion to avoid TRY_CAST failure due to too many leading zeros.
+
+- Geospatial Operations:
+    - You can use `ST_GEOMPOINT(longitude, latitude)` to represent a point on Earth.
+    - You can use `ST_DISTANCE( <geography_or_geometry_expression_1> , <geography_or_geometry_expression_2> )` to compute distance in meters between two points.
+    - You can use `ST_WITHIN( <geography_expression_1> , <geography_expression_2> )` or `ST_CONTAINS( <geography_expression_1> , <geography_expression_2> )` to determine spatial inclusion.
+    - You can use `ST_GEOGFROMWKB( <varchar_or_binary_expression> [ , <allow_invalid> ] )` to parses a WKB (well-known binary) or EWKB (extended well-known binary) input and returns a value of type GEOGRAPHY.
+
+- Performance Tips:
+    - Materialize complex expressions in CTEs to avoid recomputation.
+    - You must quote all table names and column names in double quotes.
+    - Filter early using WHERE clauses before applying aggregations.
+    
+- Schema & Data Exploration (Snowflake):
+    - The table full name format is `<DATABASE>.<SCHEMA>.<TABLE>`.
+    - To get column names of a table, query INFORMATION_SCHEMA.COLUMNS:
+        ```sql
+        SELECT column_name
+        FROM <DATABASE>.INFORMATION_SCHEMA.COLUMNS
+        WHERE table_schema = '<SCHEMA>'
+          AND table_name = '<TABLE>'
+          AND LOWER(column_name) LIKE '%user%';
+        ```
+    - To get random rows from a table for data inspection, use ORDER BY RANDOM():
+        ```sql
+        SELECT *
+        FROM <DATABASE>.<SCHEMA>.<TABLE>
+        ORDER BY RANDOM()
+        LIMIT 5;
+        ```
+    - To get a random non-null value from a specific column:
+        ```sql
+        SELECT <COLUMN>
+        FROM <DATABASE>.<SCHEMA>.<TABLE>
+        WHERE <COLUMN> IS NOT NULL
+        ORDER BY RANDOM()
+        LIMIT 1;
+        ```

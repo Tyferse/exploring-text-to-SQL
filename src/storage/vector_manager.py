@@ -29,10 +29,10 @@ class VectorStoreManager:
         storage_root: str = "storage",
         location: str = None,
         max_cached_sessions: int = 3,
-        embedding_model: str = "BAAI/bge-small-en-v1.5",
+        embedding_model: str = "microsoft/harrier-oss-v1-270m",
         backend: str = "qdrant",
         device: str = "cpu",
-        quantization: bool = True,
+        quantization: bool = False,
         dtype: str = "auto",
         log_path: str = None
     ):
@@ -241,7 +241,8 @@ class VectorStoreManager:
         queries_by_db: Dict[str, List[str]],
         top_k: int = 10,
         batch_size: int = 32,
-        filters: Optional[Dict[str, Any]] = None
+        filters: Optional[Dict[str, Any]] = None,
+        is_query: bool = True
     ) -> Dict[str, Dict[str, List[VectorSearchResult]]]:
         """
         Выполняет поиск для групп вопросов, сгруппированных по db_id.
@@ -273,7 +274,8 @@ class VectorStoreManager:
                 queries=queries,
                 top_k=top_k,
                 filters=search_filters,
-                batch_size=batch_size
+                batch_size=batch_size,
+                is_query=is_query
             )
             
             results[db_id] = search_results

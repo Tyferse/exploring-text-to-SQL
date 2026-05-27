@@ -278,7 +278,8 @@ class QdrantVectorStore(BaseVectorStore):
         queries: List[str],
         top_k: int = 10,
         filters: Optional[Dict[str, Any]] = None,
-        batch_size: int = 32
+        batch_size: int = 32,
+        is_query: bool = True
     ) -> Dict[str, List[VectorSearchResult]]:
         """Поиск. Запросы кодируются С query-промптом (если задан)."""
         if not self.is_loaded:
@@ -288,7 +289,7 @@ class QdrantVectorStore(BaseVectorStore):
         
         for i in range(0, len(queries), batch_size):
             batch_queries = queries[i:i + batch_size]
-            vectors = self._encode_texts(batch_queries, is_query=True)
+            vectors = self._encode_texts(batch_queries, is_query=is_query)
 
             # Формируем фильтр Qdrant
             qdrant_filter = None
