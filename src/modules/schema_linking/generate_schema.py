@@ -202,7 +202,7 @@ def generate_schemas(
 
     elif included == "tables":
         # Получаем начальные id
-        tables_path = run_path / "schema_linking" / "table_candidates.json"
+        tables_path = run_path / "schema_linking" / "table_linking_candidates.json"
         if not tables_path.exists():
             raise FileNotFoundError(f"table_candidates.json not found: {indices_path}")
 
@@ -228,7 +228,7 @@ def generate_schemas(
             with open(file, "r", encoding="utf-8") as f:
                 partial_data = json.load(f)
 
-            if file.endswith("table_candidates.json"):
+            if file.endswith("table_linking_candidates.json") and not file.endswith("column_table_linking_candidates.json"):
                 partial_data = {
                     iid: {
                         "db_id": partial_data[iid]["db_id"], 

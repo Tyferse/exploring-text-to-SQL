@@ -184,7 +184,8 @@ class ColumnLinking:
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
-        max_columns: Optional[int] = None
+        max_columns: Optional[int] = None,
+        stage: Optional[str] = "column_linking"
     ):
         """
         Args:
@@ -213,13 +214,14 @@ class ColumnLinking:
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
         self.max_workers = max_workers
         self.max_columns = max_columns
+        self.stage = stage
 
         self.log_dir = Path(run_root) / run_id / "schema_linking"
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.logger = get_logger("column_linking", str(self.log_dir / "column_selection.log"))
+        self.logger = get_logger("column_linking", str(self.log_dir / f"{self.stage}.log"))
         
-        self.instances = self._load_instances()
         self.schemas = self._load_schemas()
+        self.instances = self._load_instances()
         self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
     def _load_instances(self) -> Dict[str, Any]:
@@ -251,7 +253,7 @@ class ColumnLinking:
         for instance in tasks:
             iid = instance["instance_id"]
             # Пропускаем уже обработанные
-            if (self.log_dir / "column_linking" / f"{iid}.json").exists():
+            if (self.log_dir / f"{self.stage}_results" / f"{iid}.json").exists():
                 continue
 
             tasks_dict[iid] = {
@@ -274,8 +276,7 @@ class ColumnLinking:
                         cid for tn in self.schemas[db_id] 
                         if tn in ids_data[iid].get("used_tables", [])
                         for cid in self.schemas[db_id][tn].keys()                        
-                    ]
-                
+                    ]   
         else:
             for iid in tasks_dict:
                 db_id = tasks_dict[iid].get("dialect", "") + ("_" if tasks_dict[iid].get("dialect") else "") + tasks_dict[iid]["db_id"]
@@ -476,7 +477,7 @@ class ColumnLinking:
     
     def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]], result: Dict[str, Any]):
         """Сохраняет историю сообщений в отдельный JSON."""
-        history_file = self.log_dir / "column_linking_history" / f"{instance_id}.json"
+        history_file = self.log_dir / f"{self.stage}_history" / f"{instance_id}.json"
         history_file.parent.mkdir(parents=True, exist_ok=True)
         
         with open(history_file, "w", encoding="utf-8") as f:
@@ -486,15 +487,15 @@ class ColumnLinking:
                 "history": history
             }, f, indent=2, ensure_ascii=False)
 
-        result_file = self.log_dir / "column_linking_results" / f"{instance_id}.json"
+        result_file = self.log_dir / f"{self.stage}_results" / f"{instance_id}.json"
         result_file.parent.mkdir(parents=True, exist_ok=True)
         with open(result_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
     
     def extract_all_candidates(self):
-        with open(self.log_dir / "column_candidates.json", "w", encoding="utf-8") as f:
+        with open(self.log_dir / f"{self.stage}_candidates.json", "w", encoding="utf-8") as f:
             data = {}
-            for file in (self.log_dir / "column_linking_results").glob("*.json"):
+            for file in (self.log_dir / f"{self.stage}_results").glob("*.json"):
                 with open(file, "r", encoding="utf-8") as indf:
                     result = json.load(indf)
 
@@ -687,7 +688,6 @@ class ColumnLinking:
                 self.logger.warning(f"{instance_id} | Schema not found for db_id: {db_id}")
                 return ColumnLinkingResult(instance_id, [], [], [], False, final_error="Schema not found")
             
-            available_columns = self.schemas.get(db_id, {})
             available_ids = data.get("available_ids")
             if not available_ids:
                 available_columns = {
@@ -759,7 +759,7 @@ class ColumnLinking:
             "completed_at": time.time()
         }
         
-        stats_path = self.log_dir / "column_linking_stats.json"
+        stats_path = self.log_dir / f"{self.stage}_stats.json"
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
         
@@ -817,6 +817,5 @@ if __name__ == "__main__":
             "backoff_multiplier": 2.0
         }
     )
-    
-    results = pipeline.run()
-    pipeline.extract_all_candidates(results)
+    pipeline.run()
+    pipeline.extract_all_candidates()

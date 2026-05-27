@@ -112,7 +112,8 @@ class TableLinking:
         retry_config: Optional[Dict[str, float]] = None,
         require_json_output: bool = True,
         max_workers: int = 4,
-        max_tables: Optional[int] = None
+        max_tables: Optional[int] = None,
+        stage: Optional[str] = "table_linking"
     ):
         """
         Args:
@@ -130,6 +131,7 @@ class TableLinking:
             require_json_output: Требовать строгого JSON-вывода от LLM
             max_workers: Максимальное число параллельных процессов генерации
             max_tables: Опциональное ограничение числа таблиц в результате
+            stage: Префикс папки, в которые будут сохранены промежуточные результаты
         """
         self.model = model
         self.tasks = tasks
@@ -141,12 +143,15 @@ class TableLinking:
         self.require_json_output = require_json_output
         self.max_workers = max_workers
         self.max_tables = max_tables
+        self.stage = stage
         self.user_prompt = ((Path(prompt_dir) / f"{prompt_name}.md").read_text(encoding="utf-8") 
                             if prompt_name is not None else DEFAULT_PROMPT)
 
         self.log_dir = Path(run_root) / run_id / "schema_linking"
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.logger = get_logger("table_linking", self.log_dir / "table_selection.log")
+        self.logger = get_logger("table_linking", self.log_dir / f"{self.stage}.log")
+        self.schemas = self._load_schemas()
+        self.instances = self._load_instances()
         self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
     def _load_instances(self) -> Dict[str, Any]:
@@ -170,31 +175,25 @@ class TableLinking:
             tasks = deepcopy(self.tasks)
 
         q_key = "question" if "question" in tasks[0] else "instruction"
+        tasks = {
+            instance["instance_id"]: {
+                "dialect": self.instance.get("dialect", ""),
+                "db_id": instance["db_id"], 
+                "question": instance[q_key],
+                "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
+                                            / instance["external_knowledge"]) 
+                                        if instance.get("external_knowledge") else None),
+                "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
+            } 
+            for instance in tasks if not (self.log_dir / f"{self.stage}_results" / f"{instance['instance_id']}.json").exists()
+        }
         if self.input_data_root == "Spider2/spider2-lite":
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-            tasks = {
-                instance["instance_id"]: {
-                    "db_id": inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"], 
-                    "question": instance[q_key],
-                    "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
-                                                / instance["external_knowledge"]) 
-                                          if instance.get("external_knowledge") else None),
-                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
-                } 
-                for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
-            }
+            for iid in tasks:
+                tasks[iid]["db_id"] = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks[iid]["db_id"],
         else:
-            tasks = {
-                instance["instance_id"]: {
-                    "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
-                    "question": instance[q_key],
-                    "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents"
-                                                / instance["external_knowledge"])
-                                          if instance.get("external_knowledge") else None,
-                    "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
-                }
-                for instance in tasks if not (self.log_dir / "table_linking" / f"{instance['instance_id']}.json").exists()
-            }
+            for iid in tasks:
+                tasks[iid]["db_id"] = tasks[iid].get("dialect", "") + ("_" if tasks[iid].get("dialect") else "") + tasks[iid]["db_id"]
 
         # Если столбцов ранее не было найдено, используем полную схему
         if not hasattr(self, "schemas"): self.schemas = self._load_schemas()
@@ -297,7 +296,7 @@ class TableLinking:
     
     def _save_message_history(self, instance_id: str, history: List[Dict[str, Any]], result: Dict[str, Any]):
         """Сохраняет историю сообщений в отдельный JSON-файл."""
-        history_file = self.log_dir / "table_linking_history" / f"{instance_id}.json"
+        history_file = self.log_dir / f"{self.stage}_history" / f"{instance_id}.json"
         history_file.parent.mkdir(parents=True, exist_ok=True)
         
         with open(history_file, "w", encoding="utf-8") as f:
@@ -307,24 +306,24 @@ class TableLinking:
                 "history": history
             }, f, indent=2, ensure_ascii=False)
         
-        result_file = self.log_dir / "table_linking_results" / f"{instance_id}.json"
+        result_file = self.log_dir / f"{self.stage}_results" / f"{instance_id}.json"
         result_file.parent.mkdir(parents=True, exist_ok=True)
         with open(result_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
 
     
     def extract_all_candidates(self):
-        with open(self.log_dir / "table_candidates.json", "w", encoding="utf-8") as f:
+        with open(self.log_dir / f"{self.stage}_candidates.json", "w", encoding="utf-8") as f:
             data = {}
-            for file in (self.log_dir / "table_linking_results").glob("*.json"):
+            for file in (self.log_dir / f"{self.stage}_results").glob("*.json"):
                 with open(file, "r", encoding="utf-8") as indf:
                     result = json.load(indf)
                 
                 iid = result["instance_id"]
                 data[iid] = {
-                        "db_id": self.instances[iid]["db_id"],
-                        "used_tables": results.get("selected_tables", [])
-                    } 
+                    "db_id": self.instances[iid]["db_id"],
+                    "used_tables": result.get("selected_tables", [])
+                }
                 
             json.dump(data, f, indent=2, ensure_ascii=False)
 
@@ -518,8 +517,7 @@ class TableLinking:
             else:
                 available_tables = [
                     tn for tn in available_tables 
-                    if [column_data for cid, column_data in available_tables[tn].items() 
-                        if cid in available_ids] 
+                    if any(cid in available_ids for cid, _ in available_tables[tn].items())
                 ]
 
             # Добавляем все похожие таблицы для получения полного списка
@@ -577,7 +575,7 @@ class TableLinking:
             "completed_at": time.time()
         }
         
-        with open(self.log_dir / "table_selection_stats.json", "w", encoding="utf-8") as f:
+        with open(self.log_dir / f"{self.stage}_stats.json", "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
             
         self.logger.info(f"Pipeline finished. Success: {successful}/{stats['total']}")
@@ -682,5 +680,5 @@ if __name__ == "__main__":
             "backoff_multiplier": 2.0
         }
     )
-    results = pipeline.run()
-    pipeline.extract_all_candidates(results)
+    pipeline.run()
+    pipeline.extract_all_candidates()
