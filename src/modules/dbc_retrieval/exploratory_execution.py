@@ -151,6 +151,8 @@ def _process_single_example(
     run_id: str,
     prompt_dir: str,
     prompt_name: str,
+    max_queries: int = 10,
+    max_rows: int = 20,
     retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG
 ) -> List[Dict[str, str]]:
     """
@@ -182,8 +184,8 @@ def _process_single_example(
     # Формирование replacements для промпта
     replacements = {
         "{{DIALECT}}": dialect,
-        "{{MAX_QUERIES}}": str(task.get("max_queries", 5)),
-        "{{MAX_ROWS}}": str(task.get("max_rows", 20)),
+        "{{MAX_QUERIES}}": max_queries,
+        "{{MAX_ROWS}}": max_rows,
         "{{QUESTION}}": question,
         "{{SCHEMA}}": schema_text,
     }
@@ -312,6 +314,8 @@ def exec_exploration(
     input_data_root: str = "input",
     prompt_dir: str = "config/prompts/dbc_retrieval",
     prompt_name: str = "exploratory_execution",
+    max_queries: int = 10,
+    max_rows: int = 20,
     retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG
 ) -> Dict[str, List[Dict[str, str]]]:
     """
@@ -361,6 +365,8 @@ def exec_exploration(
                 run_id=run_id,
                 prompt_dir=prompt_dir,
                 prompt_name=prompt_name,
+                max_queries=max_queries,
+                max_rows=max_rows,
                 retry_config=retry_config
             ): iid for iid in tasks}
         
@@ -447,7 +453,19 @@ if __name__ == "__main__":
     
     # Опции выполнения
     parser.add_argument(
-        "--max_workers", "-w", 
+        "--max_queries",
+        type=int, 
+        default=10,
+        help="Maximal namber of generated SQL queries"
+    )
+    parser.add_argument(
+        "--max_rows",
+        type=int, 
+        default=4,
+        help="Maximal namber of rows in generated SQL queries execution results"
+    )
+    parser.add_argument(
+        "--max_workers",
         type=int, 
         default=4,
         help="Number of parallel worker threads"
@@ -565,6 +583,8 @@ if __name__ == "__main__":
             input_data_root=args.input_data_root,
             prompt_dir=args.prompt_dir,
             prompt_name=args.prompt_name,
+            max_queries=args.max_queries,
+            max_rows=args.max_rows,
             retry_config=retry_config,
         )
         
