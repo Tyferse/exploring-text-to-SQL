@@ -1,0 +1,1 @@
+```sql\nSELECT DISTINCT "column_name" FROM "table_name" WHERE ... LIMIT 20\n```

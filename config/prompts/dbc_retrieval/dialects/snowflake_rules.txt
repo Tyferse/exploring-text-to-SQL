@@ -1,0 +1,13 @@
+SYNTAX BASICS:
+- Use double quotes for all identifiers and ensure fully qualified names are correct:
+SELECT "COLUMN_NAME" FROM DATABASE.SCHEMA.TABLE WHERE ...
+
+NESTED JSON HANDLING:
+- For columns in JSON nested format, use variant casting and lateral flatten:
+SELECT t."column_name", f.value::VARIANT:"key_name"::STRING AS "alias" FROM DB.SCHEMA.TABLE t, LATERAL FLATTEN(input => t."json_column_name") f;
+- DO NOT directly answer the task. When the structure of the nested column (e.g., event_params) is unknown, first inspect the whole column:
+SELECT f.value FROM DB.SCHEMA.TABLE t, LATERAL FLATTEN(input => t."json_column_name") f;
+
+STRING MATCHING & FUZZY LOGIC:
+- Don't directly match strings if you are not convinced. Use case-insensitive fuzzy query first: WHERE column ILIKE '%target_string%'
+- For multi-word targets (e.g., "meat lovers"), replace spaces with wildcards: WHERE column ILIKE '%meat%lovers%'

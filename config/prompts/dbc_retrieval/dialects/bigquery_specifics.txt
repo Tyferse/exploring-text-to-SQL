@@ -1,0 +1,1 @@
+```sql\nSELECT `column_name` FROM `project.dataset.table` WHERE ... LIMIT 20\n```
