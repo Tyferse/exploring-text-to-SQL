@@ -3,7 +3,7 @@ import json
 import os
 import sqlite3
 import threading
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -44,7 +44,7 @@ class SQLExecutor:
         else:
             return self.sql_execution(sql, db_name, dialect)
 
-    def sql_execution(self, sql, db_name, dialect="sqlite"):
+    def sql_execution(self, sql, db_name, dialect="sqlite") -> Tuple[str, pd.DataFrame]:
         if dialect == "bigquery":
             used_credential = []
             bigquery_credential_path = self.get_least_used_credential()
