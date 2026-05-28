@@ -209,12 +209,19 @@ def generate_schemas(
         # Загрузка индексов
         with open(tables_path, "r", encoding="utf-8") as f:
             tables_data = json.load(f)
+            used_tables = {
+                iid: tables_data[iid]["used_tables"] + [
+                    stn for tn in tables_data[iid]["used_tables"] 
+                    for stn in similar_tables[tables_data[iid]["db_id"]].get(tn, [])
+                ] 
+                for iid in tables_data
+            }
 
         indices_data = {iid: {
                 "db_id": tables_data[iid]["db_id"], 
                 "used_indices": [
                     cid for cid in db_docs[tables_data["db_id"]] 
-                    if db_docs[tables_data[iid]["db_id"]][cid]["metadata"]["table_name"] in tables_data[iid]["used_tables"]
+                    if db_docs[tables_data[iid]["db_id"]][cid]["metadata"]["table_name"] in used_tables
                 ]
             } 
             for iid in tables_data

@@ -44,13 +44,12 @@ def _save_cached_result(cache_dir: Path, instance_id: str, stage: str, result: D
 
 def _filter_columns_by_tables(
     all_columns: Dict[str, List[Tuple[int, str]]], 
-    selected_tables: List[Dict[str, str]]
+    selected_tables: List[str]
 ) -> Dict[str, List[Tuple[int, str]]]:
-    """Фильтрует словарь колонок, оставляя только те, что принадлежат выбранным таблицам."""
-    table_names = {t["table_name"] for t in selected_tables if t.get("table_name")}
+    """Фильтрует словарь колонок, оставляя только те, что принадлежат выбранным (репрезентативным) таблицам."""
     return {
         tn: cols for tn, cols in all_columns.items() 
-        if tn in table_names
+        if tn in selected_tables
     }
 
 
@@ -111,11 +110,31 @@ class TableColumnLinking:
             max_workers=max_workers, max_columns=max_columns,
             stage = cache_prefix + "column_linking"
         )
-        self.column_linker.schemas = self.table_linker.schemas
-        self.column_linker.similar_tables = self.table_linker.similar_tables
+        self.column_linker._schemas = self.table_linker.schemas
+        self.column_linker._similar_tables = self.table_linker.similar_tables
 
         self.logger = get_logger("double_linking", str(self.cache_dir / "table_column_linking.log"))
 
+    @property
+    def schemas(self):
+        return self.table_linker.schemas
+
+    @property
+    def similar_tables(self):
+        return self.table_linker.similar_tables
+
+    @property
+    def inverse_similar_tables(self):
+        if not hasattr(self, "_inverse_similar_tables"):
+            self._inverse_similar_tables = {}
+            for db_id in self.similar_tables:
+                self._inverse_similar_tables[db_id] = {}
+                for tn in self.similar_tables[db_id]:
+                    self._inverse_similar_tables[db_id][tn] = tn
+                    for stn in self.similar_tables[db_id][tn]:
+                        self._inverse_similar_tables[db_id][stn] = tn
+        else:
+            return self._inverse_similar_tables
 
     def _merge_results(
         self,
@@ -140,7 +159,7 @@ class TableColumnLinking:
                 "table_latency_ms": table_result.get("total_latency_ms", 0),
                 "column_latency_ms": column_result.get("total_latency_ms", 0),
                 "total_latency_ms": (table_result.get("total_latency_ms", 0) + 
-                                    column_result.get("total_latency_ms", 0)),
+                                     column_result.get("total_latency_ms", 0)),
             }
         }
     
@@ -208,7 +227,7 @@ class TableColumnLinking:
             # Шаг 2: Подготовка фильтра для column linking
             # Загружаем полную схему для этой БД (из колонк-линкера, чтобы не дублировать)
             db_id = instance_data.get("db_id", instance_id.split("_", 1)[0])
-            full_schema = self.column_linker.schemas.get(db_id, {})
+            full_schema = self.schemas.get(db_id, {})
             
             if not full_schema:
                 self.logger.warning(f"{instance_id} | Schema not found for db_id: {db_id}")
@@ -222,6 +241,7 @@ class TableColumnLinking:
             
             # Фильтруем: оставляем только колонки из выбранных таблиц
             selected_tables = table_result_dict.get("tables_selected", [])
+            selected_tables = list({self.inverse_similar_tables[db_id][tn] for tn in selected_tables})
             filtered_columns = _filter_columns_by_tables(all_columns, selected_tables)
             
             if not filtered_columns:
@@ -295,7 +315,7 @@ class TableColumnLinking:
         """
         self.logger.info(f"Starting Table Column linking pipeline | Run: {self.run_id}")
         
-        # Загрузка инстансов (берём из column_linker, т.к. он загружает все задачи)
+        # Загрузка инстансов (берём из table_linker, т.к. он загружает все задачи)
         instances = self.table_linker.instances
         self.logger.info(f"Loaded {len(instances)} instances for processing")
         
@@ -396,7 +416,7 @@ class ColumnTableLinking:
             retry_config={k: v if k != "max_attempts" else column_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_columns=max_columns,
-            stage=cache_prefix + "table_linking"
+            stage=cache_prefix + "column_linking"
         )
         self.table_linker = TableLinking(
             run_id, model, tasks,
@@ -406,14 +426,33 @@ class ColumnTableLinking:
             retry_config={k: v if k != "max_attempts" else table_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_tables=max_tables,
-            stage=cache_prefix + "column_linking"
+            stage=cache_prefix + "table_linking"
         )
-        
-        # Синхронизация схем (чтобы не грузить дважды)
-        self.table_linker.schemas = self.column_linker.schemas
-        self.table_linker.similar_tables = self.column_linker.similar_tables
+        self.column_linker._schemas = self.table_linker.schemas
+        self.column_linker._similar_tables = self.table_linker.similar_tables
 
         self.logger = get_logger("column_table_linking", str(self.cache_dir / "column_table_linking.log"))
+
+    @property
+    def schemas(self):
+        return self.table_linker.schemas
+
+    @property
+    def similar_tables(self):
+        return self.table_linker.similar_tables
+
+    @property
+    def inverse_similar_tables(self):
+        if not hasattr(self, "_inverse_similar_tables"):
+            self._inverse_similar_tables = {}
+            for db_id in self.similar_tables:
+                self._inverse_similar_tables[db_id] = {}
+                for tn in self.similar_tables[db_id]:
+                    self._inverse_similar_tables[db_id][tn] = tn
+                    for stn in self.similar_tables[db_id][tn]:
+                        self._inverse_similar_tables[db_id][stn] = tn
+        else:
+            return self._inverse_similar_tables
 
     def _merge_results_reverse(
         self,
@@ -425,45 +464,54 @@ class ColumnTableLinking:
         таблицы дополняются описаниями из table-этапа.
         """
         # Приоритет: колонки из column_result, таблицы — объединение
+        db_id = self.column_linker.instances[column_result["instance_id"]]["db_id"]
         columns = column_result.get("columns_mapped", [])
         column_ids = column_result.get("column_ids", [])
         
         # Таблицы из column_result (выведенные из колонок) + дополнения из table_result
-        tables_from_column_stage = {t["table_name"] for t in column_result.get("tables_selected", []) if t.get("table_name")}
-        tables_from_table_stage = {t["table_name"] for t in table_result.get("tables_selected", []) if t.get("table_name")}
+        # tables_from_column_stage = {t["table_name"] for t in column_result.get("tables_selected", []) if t.get("table_name")}
+        # tables_from_table_stage = {t["table_name"] for t in table_result.get("tables_selected", []) if t.get("table_name")}
+        tables_from_column_stage = column_result.get("tables_selected", [])
+        tables_from_table_stage = table_result.get("tables_selected", [])
 
         # Объединяем: если таблица есть в обоих, берём описание из table_result (оно богаче)
-        table_descriptions = {t["table_name"]: t for t in table_result.get("tables_selected", [])}
+        # table_descriptions = {t["table_name"]: t for t in table_result.get("tables_selected", [])}
         merged_tables = []
         merged_columns = []
         merged_indices = []
 
         for tn in tables_from_column_stage:
-            if tn in table_descriptions:
+            if tn in tables_from_table_stage:
                 # Берём богатое описание из table-этапа, но сохраняем статус "подтверждено колонками"
-                merged_tables.append({
-                    **table_descriptions[tn],
-                    "relevance_reasoning": f"Confirmed by columns + {table_descriptions[tn].get('relevance_reasoning', '')}"
-                })
+                # merged_tables.append({
+                #     **table_descriptions[tn],
+                #     "relevance_reasoning": f"Confirmed by columns + {table_descriptions[tn].get('relevance_reasoning', '')}"
+                # })
+                merged_tables.append(tn)
+
+                stn = self.inverse_similar_tables[db_id][tn]
                 merged_indices.extend([
-                    cid for cid in self.table_linker.schemas[table_result["db_id"]][tn].keys() 
+                    cid for cid in self.schemas[table_result["db_id"]][stn].keys() 
                     if cid in column_ids
                 ])
-                for cid, cmeta in self.table_linker.schemas[table_result["db_id"]][tn].items():
+
+                for cid, cmeta in self.schemas[table_result["db_id"]][stn].items():
                     if cid in merged_indices:
                         for c in columns:
-                            if c["table_name"] == tn and c["column_name"] == cmeta["column_name"]:
+                            if c["table_name"] == stn and c["column_name"] == cmeta["column_name"]:
                                 merged_columns.append(c)
                                 break
 
         # Добавляем таблицы из table-этапа, которых не было в column-результате
         for tn in tables_from_table_stage:
             if tn not in tables_from_column_stage:
-                merged_tables.append({
-                    **table_descriptions[tn],
-                    "relevance_reasoning": f"Confirmed by tables + {table_descriptions[tn].get('relevance_reasoning', '')}"
-                })
-                merged_indices.extend(list(self.table_linker.schemas[table_result["db_id"]][tn].keys()))
+                # merged_tables.append({
+                #     **table_descriptions[tn],
+                #     "relevance_reasoning": f"Confirmed by tables + {table_descriptions[tn].get('relevance_reasoning', '')}"
+                # })
+                merged_tables.append(tn)
+                stn = self.inverse_similar_tables[db_id][tn]
+                merged_indices.extend(list(self.schemas[table_result["db_id"]][stn].keys()))
                 merged_columns.extend([{
                     "table_name": tn,
                     "column_name": cmeta["column_name"],
@@ -471,7 +519,7 @@ class ColumnTableLinking:
                     "confidence": "medium",
                     "reasoning": "Included because table was selected",
                     "literal_value": None
-                } for cmeta in self.table_linker.schemas[table_result["db_id"]][tn].values()])
+                } for cmeta in self.schemas[table_result["db_id"]][stn].values()])
         
         return {
             "instance_id": column_result.get("instance_id"),
@@ -701,7 +749,7 @@ class BidirectionalSchemaLinking:
         self.model = model
         retry_config = DEFAULT_RETRY_CONFIG if retry_config is None else retry_config
         
-        # 🔹 Инициализация пайплайнов с разными префиксами кэша
+        # Инициализация пайплайнов с разными префиксами кэша
         self.tc_linker = TableColumnLinking(
             run_id, model, tasks,
             run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
@@ -718,7 +766,6 @@ class BidirectionalSchemaLinking:
             retry_config=retry_config,
             cache_prefix="tc_"
         )
-        
         self.ct_linker = ColumnTableLinking(
             run_id, model, tasks,
             run_root=run_root, input_data_root=input_data_root, data_root=data_root,
@@ -913,7 +960,7 @@ class BidirectionalSchemaLinking:
                     executor.shutdown(wait=False, cancel_futures=True)
         
         stats["completed_at"] = time.time()
-        stats_path = self.cache_dir / f"bidirectional_stats.json"
+        stats_path = self.cache_dir / f"{self.cache_prefix}bidirectional_stats.json"
         with open(stats_path, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
         

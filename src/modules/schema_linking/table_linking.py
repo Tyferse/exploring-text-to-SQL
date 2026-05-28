@@ -150,14 +150,26 @@ class TableLinking:
         self.log_dir = Path(run_root) / run_id / "schema_linking"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.logger = get_logger("table_linking", self.log_dir / f"{self.stage}.log")
-        self.schemas = self._load_schemas()
         self.instances = self._load_instances()
-        self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
+
+    @property
+    def schemas(self):
+        if not hasattr(self, '_schemas'):
+            self._schemas = self._load_schemas()
+
+        return self._schemas
+
+    @property
+    def similar_tables(self):
+        if not hasattr(self, '_schemas'):
+            self._similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
+
+        return self._similar_tables
 
     def _load_instances(self) -> Dict[str, Any]:
         ids_data = {}
         # Если есть данные schema linking на уровне столбцов,загружаем их
-        if (self.log_dir / "column_candidates.json").exists():
+        if (self.log_dir / "column_linking_candidates.json").exists():
             with open(self.log_dir / "column_candidates.json", "r", encoding="utf-8") as f:
                 ids_data = json.load(f)
         

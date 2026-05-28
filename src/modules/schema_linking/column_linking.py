@@ -180,7 +180,7 @@ class ColumnLinking:
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_name: Optional[str] = None,
-        prompt_dir: str = "configs/prompts/schema_linking",
+        prompt_dir: str = "config/prompts/schema_linking",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
@@ -220,9 +220,21 @@ class ColumnLinking:
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.logger = get_logger("column_linking", str(self.log_dir / f"{self.stage}.log"))
         
-        self.schemas = self._load_schemas()
         self.instances = self._load_instances()
-        self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
+
+    @property
+    def schemas(self):
+        if not hasattr(self, '_schemas'):
+            self._schemas = self._load_schemas()
+
+        return self._schemas
+
+    @property
+    def similar_tables(self):
+        if not hasattr(self, '_schemas'):
+            self._similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
+
+        return self._similar_tables
 
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает инстансы из кэша или задач."""
@@ -244,8 +256,8 @@ class ColumnLinking:
                 ids_data = json.load(f)
 
         # Пробуем загрузить результаты table_linking
-        elif (self.log_dir / "table_candidates.json").exists():
-            with open(self.log_dir / "table_candidates.json", "r", encoding="utf-8") as f:
+        elif (self.log_dir / "table_linking_candidates.json").exists():
+            with open(self.log_dir / "table_linking_candidates.json", "r", encoding="utf-8") as f:
                 ids_data = json.load(f)
 
         q_key = "question" if "question" in tasks[0] else "instruction"

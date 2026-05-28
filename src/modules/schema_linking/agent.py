@@ -17,6 +17,7 @@ from .agent_postprocessor import parse_and_validate_output, format_for_downstrea
 from .agent_preprocessor import SchemaLinkingPreprocessor
 from .agent_loop import SchemaLinkingAgent
 from .tools import get_enabled_tools, TOOL_REGISTRY
+from .schema_formatter import load_similar_tables
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
 from src.utils.models import get_model
@@ -62,6 +63,7 @@ class SchemaLinkingAgentPipeline:
         }
               
         self.dialect_rules = self._load_dialect_rules()
+        self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
         self.logger = get_logger("sl_agent", str(self.run_path / "schema_linking" / "agent.log"))
         self.preprocessor = SchemaLinkingPreprocessor(
             prompt_name=prompt_name,
@@ -156,8 +158,17 @@ class SchemaLinkingAgentPipeline:
 
         # Дабавляем недостающие метаданные
         for instance_id in list(used_indices.keys()):
+            db_id = used_indices[instance_id]["db_id"]
             used_indices[instance_id]["question"] = tasks[instance_id].get("question", tasks[instance_id].get("instruction"))
-            used_indices[instance_id]["all_tables"] = list({db_docs[db_id][cid]['metadata']["table_name"] for cid in db_docs[db_id]})
+            
+            all_tables = []
+            for cid in db_docs[db_id]:
+                tn = db_docs[db_id][cid]['metadata']["table_name"]
+                for stn in [tn] + self.similar_tables[db_id].get(tn, []):
+                    all_tables.append(stn)
+
+            used_indices[instance_id]["all_tables"] = all_tables
+
             table_schemas = {
                 table_name: [
                     {"column": db_docs[db_id][cid]['metadata']["column_name"], 
@@ -165,7 +176,7 @@ class SchemaLinkingAgentPipeline:
                     for cid in db_docs[db_id]
                     if db_docs[db_id][cid]['metadata']["table_name"] == table_name
                 ]
-                for table_name in used_indices[instance_id]["all_tables"]
+                for table_name in all_tables
             }
             table_schemas = list(table_schemas.items())
             random.shuffle(table_schemas)  # Перемешиваем для предотвращения влияния порядка таблиц на ответ модели

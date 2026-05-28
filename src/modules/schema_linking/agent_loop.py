@@ -131,7 +131,7 @@ class SchemaLinkingAgent:
         if not self.cache_dir:
             return
     
-        candidates_dir = self.cache_dir / "agent-candidates"
+        candidates_dir = self.cache_dir / "agent_candidates"
         messages_dir = self.cache_dir / "agent_messages"
         tool_log_dir = self.cache_dir / "tool_calls"
         
