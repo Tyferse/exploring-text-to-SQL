@@ -1,0 +1,13 @@
+SYNTAX BASICS:
+- Enclose all identifiers and fully qualified table names with backticks:
+SELECT `column_name` FROM `project.dataset.table` WHERE ...
+
+NESTED JSON HANDLING:
+- Extract a specific key from a nested JSON/ARRAY column:
+SELECT t.`column_name`, JSON_EXTRACT_SCALAR(f.value, '$.key_name') AS `alias` FROM `project.dataset.table` AS t, UNNEST(JSON_EXTRACT_ARRAY(t.`json_column_name`)) AS f;
+- When the structure of the nested column (e.g., event_params) is unknown, first inspect the whole column:
+SELECT f.value FROM `project.dataset.table` AS t, UNNEST(JSON_EXTRACT_ARRAY(t.`json_column_name`)) AS f;
+
+STRING MATCHING & FUZZY LOGIC:
+- Don't directly match strings if you are not convinced. Use LOWER for case-insensitive fuzzy queries: WHERE LOWER(column) LIKE LOWER('%target_string%')
+- For multi-word targets (e.g., "meat lovers"), replace spaces with wildcards inside LOWER(): WHERE LOWER(column) LIKE LOWER('%meat%lovers%')

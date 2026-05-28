@@ -1,0 +1,14 @@
+SYNTAX BASICS:
+- Enclose table and column names in double quotes if they contain special characters or match reserved keywords:
+SELECT DISTINCT "column_name" FROM "table_name" WHERE ...
+
+NESTED JSON HANDLING:
+- To extract a specific key from a JSON column:
+SELECT t."column_name", json_extract(f.value, '$.key_name') AS "alias" FROM "table_name" AS t, json_each(t."json_column_name") AS f;
+- When the structure of the nested column (e.g., event_params) is unknown, first inspect the whole column:
+SELECT f.value FROM "table_name" AS t, json_each(t."json_column_name") AS f;
+
+STRING MATCHING & FUZZY LOGIC:
+- Don't directly match strings if you are not convinced. For fuzzy queries, use: WHERE column LIKE '%target_string%'
+- For multi-word targets (e.g., "meat lovers"), replace spaces with wildcards: WHERE column LIKE '%meat%lovers%'
+- If strict case-sensitive matching is needed, append COLLATE BINARY: WHERE column LIKE '%target%' COLLATE BINARY
