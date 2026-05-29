@@ -14,6 +14,7 @@ from src.storage.docker_qdrant import ensure_qdrant_running
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.gen_embeddings import gen_column_embeddings
 from src.utils.logger import ResourceMonitor
+from src.utils.models import get_model
 from src.utils.preprocessing import spider2preprocess
 from src.utils.run_manager import resolve_run_id, get_run_path, load_run_metadata, save_run_metadata
 from src.utils.sql_execution import SQLExecutor
@@ -21,7 +22,6 @@ from src.utils.sql_execution import SQLExecutor
 
 if __name__ == "__main__":
     load_dotenv(".env")
-    
     random.seed(42)
     np.random.seed(42)
 
@@ -65,12 +65,13 @@ if __name__ == "__main__":
             included="retrieval", target_max_tokens=80000
         )
 
+        model = get_model("Qwen3.7-9B", "https://localhost", temperature=1.0)
         executor = SQLExecutor(input_data_root, local_dbs={"sqlite": "resource/databases/spider2-localdb"})
         agent_pipeline = SchemaLinkingAgentPipeline(
-            run_id, "Qwen3.7-9B", vsm, executor, 
+            run_id, model, vsm, executor, 
             input_data_root=input_data_root, 
-            base_url="http://localhost:443", temperature=1.0, 
-            prompt_name="sl_explore_validation_agent", max_turns=10, max_draft_calls=3, 
+            prompt_name="sl_explore_validation_agent", 
+            max_turns=10, max_draft_calls=3, 
             additional_k=5, max_workers=2
         )
         agent_pipeline.run()
