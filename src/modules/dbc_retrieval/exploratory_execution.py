@@ -14,6 +14,7 @@ from langchain_core.language_models import BaseChatModel
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
+from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor
 
 
@@ -24,7 +25,7 @@ DEFAULT_RETRY_CONFIG = {
     "backoff_multiplier": 2.0,
 }
 
-def _load_tasks(
+def _load_instances(
     schemas_dir: str,
     tasks: Optional[List[Dict[str, Any]]] = None,
     data_root: str = "data",
@@ -147,7 +148,7 @@ def _process_single_example(
     task: Dict[str, Any],
     model: BaseChatModel, 
     sql_executor: SQLExecutor,
-    run_root: str,
+    runs_root: str,
     run_id: str,
     prompt_dir: str,
     prompt_name: str,
@@ -168,7 +169,7 @@ def _process_single_example(
     schema_text = task.get("schema", "None")
     
     # Настройка логгера
-    log_dir = Path(run_root) / run_id / "dbc_retrieval"
+    log_dir = Path(runs_root) / run_id / "dbc_retrieval"
     log_file = log_dir / "exec_exploration_logs" / f"{iid}.log"
     logger = get_logger(f"exec_explore_{iid}", log_file)
     
@@ -308,7 +309,7 @@ def exec_exploration(
     model: BaseChatModel,
     sql_executor: SQLExecutor,
     tasks: Optional[List[Dict[str, Any]]] = None,
-    run_root: str = "logs/runs",
+    runs_root: str = "logs/runs",
     max_workers: int = 4,
     data_root: str = ".",
     input_data_root: str = "input",
@@ -322,7 +323,7 @@ def exec_exploration(
     Главная функция модуля.
     
     Args:
-        run_root: Корневая директория запуска
+        runs_root: Корневая директория запуска
         run_id: ID текущего запуска (для организации подпапок)
         model_name: Название модели для инициализации
         ... (остальные аргументы как описано выше)
@@ -332,7 +333,7 @@ def exec_exploration(
         Dict[example_id -> messages_list]
     """
     # 1. Инициализация логгера для оркестратора
-    main_log_dir = Path(run_root) / run_id / "dbc_retrieval"
+    main_log_dir = Path(runs_root) / run_id / "dbc_retrieval"
     main_log_dir.mkdir(parents=True, exist_ok=True)
     logger = get_logger("exec_exploration", main_log_dir / "exec_explore.log")
     logger.info(f"Starting DB Content Retrieval.")
@@ -342,7 +343,7 @@ def exec_exploration(
     if not schema_dir.exists():
         schema_dir = main_log_dir.parent / "schema_linking" / "initial_schema"
 
-    tasks = _load_tasks(schema_dir, tasks, data_root, input_data_root)
+    tasks = _load_instances(schema_dir, tasks, data_root, input_data_root)
     if not tasks:
         logger.error("No tasks found to process")
         return {}
@@ -361,7 +362,7 @@ def exec_exploration(
                 task=tasks[iid],
                 model=model,
                 sql_executor=sql_executor,
-                run_root=run_root,
+                runs_root=runs_root,
                 run_id=run_id,
                 prompt_dir=prompt_dir,
                 prompt_name=prompt_name,
@@ -419,10 +420,10 @@ if __name__ == "__main__":
     
     # Обязательные аргументы
     parser.add_argument(
-        "--run_id", "-r", 
+        "--run_name", "-r", 
         type=str, 
         required=True,
-        help="Unique identifier for this run (used for output subdirectories)"
+        help="Run name (used for output subdirectories)"
     )
     parser.add_argument(
         "--model_name", "-m", 
@@ -503,7 +504,7 @@ if __name__ == "__main__":
     
     # Пути к данным
     parser.add_argument(
-        "--run_root", 
+        "--runs_root", 
         type=str, 
         default="logs/runs",
         help="Root directory for run outputs and logs"
@@ -570,14 +571,15 @@ if __name__ == "__main__":
     # === Запуск ===
     print(f"[START] Run ID: {args.run_id} | Workers: {args.max_workers}")
     print(f"[START] Input: {Path(args.data_root) / args.input_data_root}")
-    print(f"[START] Output: {Path(args.run_root) / args.run_id / 'dbc_retrieval'}")
+    print(f"[START] Output: {Path(args.runs_root) / args.run_id / 'dbc_retrieval'}")
     
     try:
+        run_id = resolve_run_id(args.runs_root, args.input_data_root, args.run_name)
         results = exec_exploration(
-            run_id=args.run_id,
+            run_id=run_id,
             model=model,
             sql_executor=sql_executor, 
-            run_root=args.run_root,
+            runs_root=args.runs_root,
             max_workers=args.max_workers,
             data_root=args.data_root,
             input_data_root=args.input_data_root,

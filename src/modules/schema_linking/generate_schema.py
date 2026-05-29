@@ -33,7 +33,7 @@ def generate_single_schema(
         instance_id: Уникальный идентификатор примера
         db_id; Идентификатор базы данных
         col_ids: Список ID столбцов для включения в схему
-        doc_data: Загруженный словарь {col_id: col_info}
+        doc_data: Загруженный словарь {table_name: {col_id: col_info}}
         target_max_tokens: Максимальная длина описания схемы в токенах.
         similar_tables: Словарь отображения таблиц в список похожих таблиц
         output_path: Директория для сохранения .txt файлов
@@ -58,27 +58,26 @@ def generate_single_schema(
 
         # 1. Сбор данных по столбцам
         valid_columns_found = 0
-        for cid in col_ids:
-            col_info = doc_data.get(cid)
-            if not col_info:
-                log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
-                continue
+        for table_name in doc_data:
+            table_mapping[table_name] = []
+            for cid in doc_data[table_name]:
+                if cid in col_ids:
+                    col_info = doc_data.get(cid, {})
+                    if not col_info:
+                        if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
+                        continue
 
-            table_name = col_info.get("table_name", "unknown_table")
-            if table_name not in table_mapping:
-                table_mapping[table_name] = []
+                    desc = col_info.get("text", "")
+                    desc = desc.split("Description: ", 1)[1] if desc else ""
 
-            desc = col_info.get("text", "")
-            desc = desc.split("Description: ", 1)[1] if desc else ""
-
-            colmeta = col_info["metadata"]
-            table_mapping[table_name].append({
-                "column_name": colmeta.get("column_name", cid),
-                "data_type": colmeta.get("data_type", "TEXT"),
-                "description": desc,
-                "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
-            })
-            valid_columns_found += 1
+                    colmeta = col_info["metadata"]
+                    table_mapping[table_name].append({
+                        "column_name": colmeta.get("column_name", cid),
+                        "data_type": colmeta.get("data_type", colmeta.get("column_type", "TEXT")),
+                        "description": desc,
+                        "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
+                    })
+                    valid_columns_found += 1
 
         if valid_columns_found == 0:
             if log: log.warning(f"Valid columns have not been found in metadata | {instance_id}")

@@ -22,6 +22,14 @@ def get_column_hash(meta: dict):
     "Геренирует хэш столбца по метаданным"
     return int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
 
+def fill_prompt_template(template: str, replacements: Dict[str, str]):
+    prompt = template
+    for placeholder, value in replacements.items():
+        if placeholder in prompt:
+            prompt = prompt.replace(placeholder, str(value))
+    
+    return prompt
+
 def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger = None) -> Dict[str, Any]:
     """
     Обрабатывает одну базу данных (папку с JSON файлами таблиц).

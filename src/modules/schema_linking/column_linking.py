@@ -13,7 +13,7 @@ from langchain_core.messages import HumanMessage
 from tqdm import tqdm
 
 from .generate_schema import generate_single_schema
-from .schema_formatter import load_similar_tables, format_detailed_block
+from .schema_formatter import load_schemas, load_similar_tables, format_detailed_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
@@ -225,7 +225,7 @@ class ColumnLinking:
     @property
     def schemas(self):
         if not hasattr(self, '_schemas'):
-            self._schemas = self._load_schemas()
+            self._schemas = load_schemas(self.storage_root / self.input_data_root / "schema_cache")
 
         return self._schemas
 
@@ -309,39 +309,6 @@ class ColumnLinking:
                 ]
         
         return tasks_dict
-    
-    def _load_schemas(self) -> Dict[str, Dict[str, Dict[int, Dict[str, Any]]]]:
-        """Загружает *_docs.json в формат {db_id: {table_name: [{column, type, id, ...}]}}."""
-        schemas = {}
-        docs_dir = self.storage_root / self.input_data_root / "schema_cache"
-        if not docs_dir.exists():
-            self.logger.warning(f"Schema cache not found: {docs_dir}")
-            return schemas
-
-        for doc_file in docs_dir.glob("*_docs.json"):
-            db_id = doc_file.stem.replace("_docs", "")
-            with open(doc_file, "r", encoding="utf-8") as f:
-                docs = json.load(f)
-            
-            table_map: Dict[str, List[Dict[str, Any]]] = {}
-            for col in docs:
-                meta = col.get("metadata", {})
-                tn = meta.get("table_name")
-                if not tn:
-                    continue
-                if tn not in table_map:
-                    table_map[tn] = {}
-                
-                table_map[tn][col["id"]] = {
-                    "column_name": meta.get("column_name", col["id"]),
-                    "data_type": meta.get("data_type", meta.get("column_type", "TEXT")),
-                    "description": meta.get("description", "None"),
-                    "sample_values": meta.get("column_vals", []),
-                }
-
-            schemas[db_id] = table_map
-        
-        return schemas
     
     def _parse_llm_response(self, response: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
         """
