@@ -1,0 +1,23 @@
+[
+    {
+        "module": "preprocessing",
+        "enabled": true,
+        "stages": [
+            {"stage": "spider2preprocess", "enabled": true}
+        ]
+    },
+    {
+        "module": "dbc_retrieval",
+        "enabled": true,
+        "stages": [
+            {"stage": "exploratory_execution", "enabled": true}
+        ]
+    },
+    {
+        "module": "generation", 
+        "enabled": true,
+        "stages": [
+            {"stage": "simple_generation", "enabled": true}
+        ]
+    }
+]

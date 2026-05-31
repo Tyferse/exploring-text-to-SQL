@@ -1,10 +1,9 @@
 import subprocess
-import sys
 import time
 from qdrant_client import QdrantClient
 
 
-def ensure_qdrant_running(host: str = "localhost", port: int = 6333) -> bool:
+def ensure_qdrant_running(host: str = "localhost", port: int = 6333, local_volume="qdrant_data") -> bool:
     """Проверяет доступность Qdrant. Если нет — пытается запустить Docker."""
     try:
         client = QdrantClient(host=host, port=port, timeout=3)
@@ -17,7 +16,7 @@ def ensure_qdrant_running(host: str = "localhost", port: int = 6333) -> bool:
             cmd = [
                 "docker", "run", "-d",
                 "-p", f"{port}:{port}", "-p", f"{port+1}:{port+1}",
-                "-v", "E:\Code/ttsql/storage/Spider2/spider2-lite/column_vdb:/qdrant/storage",
+                "-v", f"{local_volume}:/qdrant/storage",
                 "--name", "qdrant_local",
                 "qdrant/qdrant"
             ]
@@ -35,7 +34,7 @@ def ensure_qdrant_running(host: str = "localhost", port: int = 6333) -> bool:
             return False
         except FileNotFoundError:
             print("Docker not found. Install Docker or run manually:")
-            print(f'   docker run -d -p {port}:{port} -v qdrant_data:/qdrant/storage qdrant/qdrant')
+            print(f'   docker run -d -p {port}:{port} -v {local_volume}:/qdrant/storage qdrant/qdrant')
             return False
         except subprocess.CalledProcessError as e:
             if "already in use" in str(e):

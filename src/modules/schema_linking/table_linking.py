@@ -109,7 +109,6 @@ class TableLinking:
         prompt_dir: str = "config/prompts/schema_linking",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
-        require_json_output: bool = True,
         max_workers: int = 4,
         max_tables: Optional[int] = None,
         stage: Optional[str] = "table_linking"
@@ -127,7 +126,6 @@ class TableLinking:
             prompt_dir: Папка с .md файлами промптов
             max_schema_length: максимальное оценочное число токенов для схемы
             retry_config: Настройки повторных попыток
-            require_json_output: Требовать строгого JSON-вывода от LLM
             max_workers: Максимальное число параллельных процессов генерации
             max_tables: Опциональное ограничение числа таблиц в результате
             stage: Префикс папки, в которые будут сохранены промежуточные результаты
@@ -139,7 +137,6 @@ class TableLinking:
         self.storage_root = Path(storage_root)
         self.max_schema_length = max_schema_length
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
-        self.require_json_output = require_json_output
         self.max_workers = max_workers
         self.max_tables = max_tables
         self.stage = stage

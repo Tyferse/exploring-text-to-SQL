@@ -27,6 +27,7 @@ DEFAULT_RETRY_CONFIG = {
 
 def _load_instances(
     schemas_dir: str,
+    results_dir: str,
     tasks: Optional[List[Dict[str, Any]]] = None,
     data_root: str = "data",
     input_data_root: Optional[str] = None
@@ -51,7 +52,7 @@ def _load_instances(
             "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
             "question": instance.get("question", instance.get("instruction", ""))
         } 
-        for instance in tasks
+        for instance in tasks if not (Path(results_dir) / f"{instance['instance_id']}.json").exists()
     }
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
@@ -163,7 +164,7 @@ def _process_single_example(
     # Извлечение параметров из задачи
     iid = instance_id
     db_id = task["db_id"]
-    db_name = db_id.split("_", 1)[1]
+    db_name = db_id.split("_", 1)[1] if "_" in db_id else db_id
     dialect = task.get("dialect", "sqlite")
     question = task["question"]
     schema_text = task.get("schema", "None")
@@ -311,8 +312,8 @@ def exec_exploration(
     tasks: Optional[List[Dict[str, Any]]] = None,
     runs_root: str = "logs/runs",
     max_workers: int = 4,
-    data_root: str = ".",
-    input_data_root: str = "input",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
     prompt_dir: str = "config/prompts/dbc_retrieval",
     prompt_name: str = "exploratory_execution",
     max_queries: int = 10,
@@ -343,7 +344,7 @@ def exec_exploration(
     if not schema_dir.exists():
         schema_dir = main_log_dir.parent / "schema_linking" / "initial_schema"
 
-    tasks = _load_instances(schema_dir, tasks, data_root, input_data_root)
+    tasks = _load_instances(schema_dir, str(main_log_dir / "exec_exploration_results"), tasks, data_root, input_data_root)
     if not tasks:
         logger.error("No tasks found to process")
         return {}

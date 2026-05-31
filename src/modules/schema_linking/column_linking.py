@@ -251,13 +251,12 @@ class ColumnLinking:
             tasks = deepcopy(self.tasks)
 
         ids_data = {}
-        if (self.log_dir / "retrieved_indices.json").exists():
-            with open(self.log_dir / "retrieved_indices.json", "r", encoding="utf-8") as f:
-                ids_data = json.load(f)
-
         # Пробуем загрузить результаты table_linking
-        elif (self.log_dir / "table_linking_candidates.json").exists():
+        if (self.log_dir / "table_linking_candidates.json").exists():
             with open(self.log_dir / "table_linking_candidates.json", "r", encoding="utf-8") as f:
+                ids_data = json.load(f)
+        elif (self.log_dir / "retrieved_indices.json").exists():
+            with open(self.log_dir / "retrieved_indices.json", "r", encoding="utf-8") as f:
                 ids_data = json.load(f)
 
         q_key = "question" if "question" in tasks[0] else "instruction"

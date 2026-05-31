@@ -7,6 +7,7 @@ import random
 
 from dotenv import load_dotenv
 
+from src.modules.generation.simple_generation import simple_generation
 from src.modules.schema_linking.agent import SchemaLinkingAgentPipeline
 from src.modules.schema_linking.generate_schema import generate_schemas
 from src.modules.schema_linking.retrieve_schema import retrieve_columns
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         )
         print(monitor.get_stats())
 
-        ensure_qdrant_running()
+        ensure_qdrant_running(local_volume=os.path.join("storage", input_data_root, "column_vdb"))
         gen_column_embeddings(
             input_data_root=input_data_root, location="http://localhost:6333",
             embedding_model="microsoft/harrier-oss-v1-270m", 
@@ -56,23 +57,24 @@ if __name__ == "__main__":
             max_cached_sessions=2, backend="qdrant", device="cpu", 
             log_path=os.path.join("logs", "dbs", input_data_root)
         )
-        retrieve_columns(run_name, vsm, input_data_root=input_data_root, topk=100, max_workers=4)
+        retrieve_columns(run_id, vsm, input_data_root=input_data_root, topk=100, max_workers=4)
         print(monitor.get_stats())
 
-        generate_schemas(
-            run_id, input_data_root=input_data_root, output_dir="initial_schema", 
-            docs_path=os.path.join("storage", input_data_root, "schema_cache"), 
-            included="retrieval", target_max_tokens=80000
-        )
-
-        model = get_model("Qwen3.7-9B", "https://localhost", temperature=1.0)
+        model = get_model("Qwen3.7-9B", "https://localhost:5433", temperature=1.0)
         executor = SQLExecutor(input_data_root, local_dbs={"sqlite": "resource/databases/spider2-localdb"})
+        retry_config = {
+            "max_attempts": 4,
+            "initial_delay": 1.0,
+            "max_delay": 30.0,
+            "backoff_multiplier": 2.5,
+        }
         agent_pipeline = SchemaLinkingAgentPipeline(
             run_id, model, vsm, executor, 
             input_data_root=input_data_root, 
             prompt_name="sl_explore_validation_agent", 
             max_turns=10, max_draft_calls=3, 
-            additional_k=5, max_workers=2
+            additional_k=5, max_workers=2, 
+            retry_config=retry_config
         )
         agent_pipeline.run()
         print(monitor.get_stats())
@@ -82,3 +84,10 @@ if __name__ == "__main__":
             docs_path=os.path.join("storage", input_data_root, "schema_cache"), 
             included="retrieval", target_max_tokens=80000
         )
+
+        simple_generation(
+            run_id, model, executor, input_data_root=input_data_root, 
+            prompt_name="gen_basic", n_candidates=5, 
+            max_workers=3, retry_config=retry_config
+        )
+        print(monitor.get_stats())

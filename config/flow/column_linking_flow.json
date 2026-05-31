@@ -1,0 +1,24 @@
+[
+    {
+        "module": "preprocessing",
+        "enabled": true,
+        "stages": [
+            {"stage": "spider2preprocess", "enabled": true}
+        ]
+    },
+    {
+        "module": "schema_linking", 
+        "enabled": true,
+        "stages": [
+            {"stage": "ColumnLinking", "enabled": true},
+            {"stage": "generate_schema", "enabled": true}
+        ]
+    },
+    {
+        "module": "generation", 
+        "enabled": true,
+        "stages": [
+            {"stage": "simple_generation", "enabled": true}
+        ]
+    }
+]

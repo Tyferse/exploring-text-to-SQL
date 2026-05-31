@@ -53,6 +53,7 @@ def _load_or_make_schema(
     instance_id: str,
     run_id: str,
     runs_root: str = "logs/runs",
+    schema_dir: str = "final_schema",
     schemas: Optional[Dict[str, Dict[int, Dict[str, Any]]]] = None,
     similar_tables: Optional[Dict[str, List[str]]] = None,
     chars_per_token: float = 3.0,
@@ -62,22 +63,13 @@ def _load_or_make_schema(
 ) -> str:
     """
     Загружает или генерирует схему для примера.
-    Приоритет: 
-    1. {runs_root}/{run_id}/schema_linking/final_schema/{instance_id}.txt
-    2. {runs_root}/{run_id}/schema_linking/initial_schema/{instance_id}.txt
+    1. {runs_root}/{run_id}/schema_linking/{schema_dir}/{instance_id}.txt
     3. Генерация через generate_single_schema
     """
-    # Попытка 1: final_schema
-    final_schema_path = Path(runs_root) / run_id / "schema_linking" / "final_schema" / f"{instance_id}.txt"
+    final_schema_path = Path(runs_root) / run_id / "schema_linking" / schema_dir / f"{instance_id}.txt"
     if final_schema_path.exists():
-        if logger: logger.info(f"Loaded schema from final_schema: {final_schema_path}")
+        if logger: logger.info(f"Loaded schema from {schema_dir}: {final_schema_path}")
         return final_schema_path.read_text(encoding="utf-8")
-    
-    # Попытка 2: initial_schema
-    initial_schema_path = Path(runs_root) / run_id / "schema_linking" / "initial_schema" / f"{instance_id}.txt"
-    if initial_schema_path.exists():
-        if logger: logger.info(f"Loaded schema from initial_schema: {initial_schema_path}")
-        return initial_schema_path.read_text(encoding="utf-8")
     
     # Попытка 3: генерация
     if logger: logger.info(f"Schema not found, generating full schema for instance {instance_id}")
@@ -154,6 +146,8 @@ def _load_instances(
     input_data_root: str = "Spider2/spider2-lite",
     data_root: str = "data",
     storage_root: str = "storage",
+    gen_prefix: str = "one_step",
+    schema_dir: str = "final_schema",
     chars_per_token: float = 3.0,
     max_schema_tokens: int = 64_000,
     logger: Optional[logging.Logger] = None
@@ -178,7 +172,7 @@ def _load_instances(
             "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
             "question": instance.get("question", instance.get("instruction", ""))
         } 
-        for instance in tasks
+        for instance in tasks if not (Path(runs_root) / run_id / "generation" / gen_prefix / "manifests" / f"{instance['instance_id']}.json").exists()
     }
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
@@ -192,7 +186,8 @@ def _load_instances(
     for iid in tasks_dict:
         db_id = tasks_dict[iid]["db_id"]
         tasks_dict[iid]["schema"] = _load_or_make_schema(
-            iid, run_id, runs_root, schemas[db_id], similar_tables[db_id], 
+            iid, run_id, runs_root, schema_dir, 
+            schemas[db_id], similar_tables[db_id], 
             chars_per_token, max_schema_tokens, logger
         )
         exploration_block = _load_exploration_block(
@@ -254,6 +249,7 @@ def generate_sql_simple(
     promt_name: str = "gen_basic",
     prompt_dir: str = "config/prompts/generation",
     n_candidates: int = 1,
+    prefix: str = "one_step",
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG
 ) -> Dict[str, Any]:
     """
@@ -274,7 +270,7 @@ def generate_sql_simple(
     few_shots = json.dumps(few_shots, ensure_ascii=False) if isinstance(few_shots, dict) else few_shots
     
     # === 1. Инициализация логгера для инстанса ===
-    base_dir = Path(runs_root) / run_id / "generation"
+    base_dir = Path(runs_root) / run_id / "generation" / prefix
     events_dir = base_dir / "events"
     events_dir.mkdir(parents=True, exist_ok=True)
     logger = get_logger(f"gen_{instance_id}", str(events_dir / f"{instance_id}.log"))
@@ -503,13 +499,15 @@ def simple_generation(
     runs_root: str = "logs/runs",
     data_root: str = "data",
     storage_root: str = "storage",
+    schema_dir: str = "final_schema",
     prompt_name: str = "gen_basic",
     prompt_dir: str = "config/prompts/generation",
     n_candidates: int = 1,
+    prefix: str = "one_step",
     max_workers: int = 3,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG,
     max_schema_tokens: int = 64_000,
-    chars_per_token: float = 3.0,
+    chars_per_token: float = 3.0
 ) -> Dict[str, Any]:
     """
     Запускает пайплайн генерации для множества инстансов.
@@ -518,10 +516,9 @@ def simple_generation(
         Сводная статистика по всем инстансам.
     """
     prompt_dir = Path(prompt_dir)
-    schema_cache_dir = Path(storage_root) / input_data_root / "schema_cache"
     
     # === Глобальный логгер для оркестратора ===
-    base_path = Path(runs_root) / run_id / "generation"
+    base_path = Path(runs_root) / run_id / "generation" / prefix
     main_log = base_path / "main.log"
     main_log.parent.mkdir(parents=True, exist_ok=True)
     
@@ -533,7 +530,7 @@ def simple_generation(
     # 1. Примеры
     tasks = _load_instances(
         run_id, runs_root, tasks, input_data_root, data_root, storage_root, 
-        chars_per_token, max_schema_tokens, logger
+        prefix, schema_dir, chars_per_token, max_schema_tokens, logger
     )     
     logger.info(f"Loaded {len(tasks)} instances")
     
@@ -561,6 +558,7 @@ def simple_generation(
                 prompt_name=prompt_name,
                 prompt_dir=prompt_dir,
                 n_candidates=n_candidates,
+                prefix=prefix,
                 retry_config=retry_config
             ): iid
             for iid in tasks
@@ -594,7 +592,7 @@ def simple_generation(
     }
     
     # Сохраняем статистику
-    stats_path = Path(runs_root) / run_id / "generation" / "pipeline_stats.json"
+    stats_path = base_path / "pipeline_stats.json"
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
     
@@ -645,6 +643,7 @@ if __name__ == "__main__":
     parser.add_argument("--run-root", default="logs/runs", help="Корень для результатов")
     parser.add_argument("--data-root", default="data", help="Корень входных данных")
     parser.add_argument("--storage-root", default="storage", help="Корень кэша схем")
+    parser.add_argument("--prefix", default="simple", help="Название папки с результатами генерации внутри папки логов.")
     parser.add_argument(
         "--local-dbs",
         type=parse_dialect_path_pair,
@@ -659,6 +658,7 @@ if __name__ == "__main__":
     # === Промпты ===
     parser.add_argument("--prompt-name", default="gen_basic", help="Имя шаблона промпта (без .md)")
     parser.add_argument("--prompt-dir", default="config/prompts/generation", help="Директория промптов")
+    parser.add_argument("--schema-dir", default="final_schema", help="Папка с заранее сформированными схемами БД (относительно папки schema_linking)")
     
     # === Генерация ===
     parser.add_argument("--n-candidates", type=int, default=1, help="Кандидатов на пример")
@@ -704,9 +704,11 @@ if __name__ == "__main__":
         runs_root=args.runs_root,
         data_root=args.data_root,
         storage_root=args.storage_root,
+        schema_dir=args.schema_dir,
         prompt_name=args.prompt_name,
         prompt_dir=args.prompt_dir,
         n_candidates=args.n_candidates,
+        prefix=args.prefix,
         max_workers=args.max_workers,
         retry_config=retry_config,
         max_schema_tokens=args.max_schema_tokens,
