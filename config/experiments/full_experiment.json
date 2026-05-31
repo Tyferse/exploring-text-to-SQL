@@ -1,0 +1,78 @@
+{
+  "name": "sl_agent_example",
+  "description": "Enumerates all possibilities of experiment configuration file: checkpointing, parameters grid building (cartesian product of parameters values sets), types of parameter values (list (\"enum\") or \"range\" (begin, end, step)), multiple parameters with variable values length (fills with default value from \"default_params.json\"), enumerating enabling modules and stages (\"flow_override\").",
+  "params_config": "sl_agent_params.json",
+  "flow_config": "sl_agent_flow.json",
+  "checkpoint_after_stage": "retrieve_columns",
+  "is_param_grid": true,
+  "scan_config": {
+    "schema_linking": {
+      "SchemaLinkingAgentPipeline": {
+        "prompt_name": {
+          "type": "enum",
+          "values": ["sl_explore_validation_agent", "sl_validation_agent", "sl_explore_agent", "sl_agent"]
+        },
+        "additional_k": {
+          "type": "range",
+          "values": [1, 5, 2]
+        },
+        "max_turns": 8
+      }
+    },
+    "generation": {
+      "simple_generation": {
+        "retry_config": {
+          "type": "enum",
+          "values": [
+            {
+              "max_attempts": 3,
+              "initial_delay": 3.0,
+              "max_delay": 30.0,
+              "backoff_multiplier": 3.0
+            },
+            {
+              "max_attempts": 3,
+              "initial_delay": 2.0,
+              "max_delay": 30.0,
+              "backoff_multiplier": 2.0
+            },
+            {
+              "max_attempts": 3,
+              "initial_delay": 2.0,
+              "max_delay": 30.0,
+              "backoff_multiplier": 2.0
+            },
+            {
+              "max_attempts": 3,
+              "initial_delay": 1.0,
+              "max_delay": 20.0,
+              "backoff_multiplier": 2.0
+            },
+            {
+              "max_attempts": 3,
+              "initial_delay": 1.0,
+              "max_delay": 20.0,
+              "backoff_multiplier": 2.0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "preprocessing",
+      "enabled": [true, false, false, false, false]
+    },
+    {
+      "module": "schema_linking", 
+      "enabled": true, 
+      "stages": [
+        {
+          "stage": "SchemaLinkingAgentPipeline",
+          "enabled": [true, true, true, true, false]
+        }
+      ]
+    }
+  ]
+}

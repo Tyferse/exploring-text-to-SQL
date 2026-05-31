@@ -696,7 +696,7 @@ class ColumnTableLinking:
         return results
 
 
-class BidirectionalSchemaLinking:
+class BidirectionalLinking:
     """
     Двунаправленный пайплайн: TableColumnLinking + ColumnTableLinking.
     
@@ -1027,7 +1027,7 @@ if __name__ == "__main__":
             table_prompt_name=args.table_prompt,
             table_max_attempts=args.max_attempts,
             max_tables=args.max_tables,
-            column_prompt_name=args.column_prompt
+            column_prompt_name=args.column_prompt,
             column_max_attempts=args.max_attempts,
             max_columns=args.max_columns,
             cache_prefix=args.cache_prefix
@@ -1056,7 +1056,7 @@ if __name__ == "__main__":
         column_table_linking.run()
         column_table_linking.extract_all_candidates()
     elif args.pipeline == "bidirectional":
-        bidirectional_linking = BidirectionalSchemaLinking(
+        bidirectional_linking = BidirectionalLinking(
             run_id=run_id,
             model=model,
             runs_root=args.runs_root,

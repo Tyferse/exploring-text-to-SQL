@@ -152,7 +152,15 @@ def generate_schemas(
             docs_data = json.load(f)
             db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
 
-    similar_tables = load_similar_tables(docs_path)    
+    similar_tables = load_similar_tables(docs_path)
+    inverse_similar_tables = {
+        db_id: {
+            stn: tn 
+            for tn in similar_tables[db_id] 
+            for stn in similar_tables[db_id][tn]
+        } 
+        for db_id in similar_tables
+    } 
     
     if not db_docs:
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
@@ -209,10 +217,9 @@ def generate_schemas(
         with open(tables_path, "r", encoding="utf-8") as f:
             tables_data = json.load(f)
             used_tables = {
-                iid: tables_data[iid]["used_tables"] + [
-                    stn for tn in tables_data[iid]["used_tables"] 
-                    for stn in similar_tables[tables_data[iid]["db_id"]].get(tn, [])
-                ] 
+                iid: tables_data[iid]["used_tables"] + list({
+                    inverse_similar_tables[tn] for tn in tables_data[iid]["used_tables"]
+                })
                 for iid in tables_data
             }
 
@@ -235,12 +242,18 @@ def generate_schemas(
                 partial_data = json.load(f)
 
             if file.endswith("table_linking_candidates.json") and not file.endswith("column_table_linking_candidates.json"):
+                tables_data = {
+                    iid: partial_data[iid]["used_tables"] + list({
+                        inverse_similar_tables[tn] for tn in partial_data[iid]["used_tables"]
+                    })
+                    for iid in partial_data
+                }
                 partial_data = {
                     iid: {
                         "db_id": partial_data[iid]["db_id"], 
                         "used_indices": [
                             cid for cid in db_docs[partial_data[iid]["db_id"]] 
-                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in partial_data[iid]["used_tables"]
+                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in tables_data[iid]
                         ]
                     }
                     for iid in partial_data

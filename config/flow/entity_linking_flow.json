@@ -11,6 +11,10 @@
         "enabled": true,
         "stages": [
             {"stage": "ColumnLinking", "enabled": true},
+            {"stage": "TableLinking", "enabled": true},
+            {"stage": "ColumnTableLinking", "enabled": true},
+            {"stage": "TableColumnLinking", "enabled": true},
+            {"stage": "BidirectionalLinking", "enabled": true},
             {"stage": "generate_schema", "enabled": true}
         ]
     },

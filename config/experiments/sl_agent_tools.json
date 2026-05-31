@@ -1,0 +1,30 @@
+{
+  "name": "sl_agent_tools",
+  "description": "Applies different tool sets to mesure perfomance",
+  "params_config": "sl_agent_params.json",
+  "flow_config": "sl_agent_flow.json",
+  "checkpoint_after_stage": "retrieve_columns",
+  "is_grid": false,
+  "scan_config": {
+    "schema_linking": {
+      "SchemaLinkingAgentPipeline": {
+        "prompt_name": {
+          "values": ["sl_explore_validation_agent", "sl_validation_agent", "sl_explore_agent", "sl_agent"],
+          "type": "enum"
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "schema_linking", 
+      "enabled": true, 
+      "stages": [
+        {
+          "stage": "SchemaLinkingAgentPipeline",
+          "enabled": [true, true, true, true, false]
+        }
+      ]
+    }
+  ]
+}

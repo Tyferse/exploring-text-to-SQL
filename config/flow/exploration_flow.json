@@ -3,7 +3,20 @@
         "module": "preprocessing",
         "enabled": true,
         "stages": [
-            {"stage": "spider2preprocess", "enabled": true}
+            {"stage": "spider2preprocess", "enabled": true},
+            {"stage": "gen_column_embeddings", "enabled": true}
+        ]
+    },
+    {
+        "module": "schema_linking", 
+        "enabled": true,
+        "stages": [
+            {"stage": "retrieve_columns", "enabled": true},
+            {"stage": "ColumnLinking", "enabled": true},
+            {"stage": "TableColumnLinking", "enabled": true},
+            {"stage": "BidirectionalLinking", "enabled": true},
+            {"stage": "SchemaLinkingAgentPipeline", "enabled": true},
+            {"stage": "generate_schema", "enabled": true}
         ]
     },
     {

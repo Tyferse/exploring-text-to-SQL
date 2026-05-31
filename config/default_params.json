@@ -1,7 +1,7 @@
 {
   "general": {
     "input_data_root": "Spider2/spider2-lite",
-    "run_name": "sl_agent",
+    "run_name": "default",
     "data_root": "data",
     "storage_root": "storage",
     "logs_root": "logs",
@@ -46,7 +46,7 @@
       "prompt_name": "sl_column_level",
       "max_schema_length": 64000,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -60,7 +60,7 @@
       "max_schema_length": 64000,
       "max_workers": 4,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -77,7 +77,7 @@
       "table_max_attempts": 4,
       "max_tables": null,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -88,13 +88,13 @@
     "TableColumnLinking": {
       "max_schema_length": 64000,
       "column_prompt_name": "sl_column_level",
-      "column_max_attempts": 4,
+      "column_max_attempts": 3,
       "max_columns": null,
       "table_prompt_name": "sl_table_level",
-      "table_max_attempts": 4,
+      "table_max_attempts": 3,
       "max_tables": null,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -105,13 +105,13 @@
     "BidirectionalLinking": {
       "max_schema_length": 64000,
       "column_prompt_name": "sl_column_level",
-      "column_max_attempts": 4,
+      "column_max_attempts": 3,
       "max_columns": null,
       "table_prompt_name": "sl_table_level",
-      "table_max_attempts": 4,
+      "table_max_attempts": 3,
       "max_tables": null,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -127,7 +127,7 @@
       "max_draft_calls": 3,
       "additional_k": 5,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -135,7 +135,7 @@
       "max_workers": 4
     },
     "generate_schemas": {
-      "output_dir": "initial_schema",
+      "output_dir": "final_schema",
       "included": "full",
       "target_max_tokens": 64000
     }
@@ -152,7 +152,7 @@
       "max_queries": 10,
       "max_rows": 20,
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
@@ -173,7 +173,7 @@
       "n_candidates": 1,
       "prefix": "one_step",
       "retry_config": {
-        "max_attempts": 4,
+        "max_attempts": 3,
         "initial_delay": 2.0,
         "max_delay": 30.0,
         "backoff_multiplier": 2.0
