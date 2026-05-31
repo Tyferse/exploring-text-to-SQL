@@ -3,7 +3,7 @@
   "description": "",
   "params_config": "entity_sl_params.json",
   "flow_config": "entity_linging_flow.json",
-  "checkpoint_after_stage": "spider2preprocess",
+  "checkpoint_after_stage": "retrieve_columns",
   "scan_config": {
     "schema_linking": {
       "generate_schemas": {
