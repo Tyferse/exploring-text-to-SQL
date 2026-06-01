@@ -3,8 +3,9 @@
   "description": "Enumerates all possibilities of experiment configuration file: checkpointing, parameters grid building (cartesian product of parameters values sets), types of parameter values (list (\"enum\") or \"range\" (begin, end, step)), multiple parameters with variable values length (fills with default value from \"default_params.json\"), enumerating enabling modules and stages (\"flow_override\").",
   "params_config": "sl_agent_params.json",
   "flow_config": "sl_agent_flow.json",
+  "experiments_root": "logs/experiments",
   "checkpoint_after_stage": "retrieve_columns",
-  "is_param_grid": true,
+  "is_param_grid": false,
   "scan_config": {
     "schema_linking": {
       "SchemaLinkingAgentPipeline": {

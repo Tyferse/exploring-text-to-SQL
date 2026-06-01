@@ -63,7 +63,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
         return {}
 
     def recursive_key_map(obj, keys=tuple()):
-        val = deepcopy(obj)
+        val = obj
         for key in keys:
             if isinstance(val, dict) and key in val or isinstance(val, list) and isinstance(key, int) and key < len(val):
                 val = val[key]

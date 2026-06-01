@@ -114,3 +114,29 @@ def load_run_metadata(run_id: str, runs_root: str = "runs") -> Optional[Dict[str
         with open(meta_file, 'r', encoding='utf-8') as f:
             return json.load(f)
     return None
+
+
+def set_global_seeds(seed: int = 42):
+    """
+    Устанавливает глобальные сиды для всех основных библиотек в проекте.
+    """
+    import random
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    import numpy as np
+    np.random.seed(seed)
+    
+    import torch
+    torch.manual_seed(seed)
+    if torch.cuda_is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)  
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        
+    try:
+        import transformers
+        transformers.set_seed(seed)
+    except ImportError:
+        pass

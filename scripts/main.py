@@ -2,9 +2,7 @@ import sys
 sys.path.insert(0, ".")
 
 import os
-import random
 
-import numpy as np
 from dotenv import load_dotenv
 
 from src.modules.generation.simple_generation import simple_generation
@@ -17,14 +15,13 @@ from src.utils.gen_embeddings import gen_column_embeddings
 from src.utils.logger import ResourceMonitor
 from src.utils.models import get_model
 from src.utils.preprocessing import spider2preprocess
-from src.utils.run_manager import resolve_run_id, get_run_path, load_run_metadata, save_run_metadata
+from src.utils.run_manager import resolve_run_id, get_run_path, set_global_seeds
 from src.utils.sql_execution import SQLExecutor
 
 
 if __name__ == "__main__":
     load_dotenv(".env")
-    random.seed(42)
-    np.random.seed(42)
+    set_global_seeds()
 
     input_data_root = "Spider2/spider2-lite"
     run_name = "test"

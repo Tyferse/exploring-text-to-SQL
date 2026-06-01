@@ -68,12 +68,16 @@ def validate_configs(params: Dict, flow: Dict) -> List[str]:
 
     return errors
 
-def run_pipeline(params_config: Optional[str], flow_config: str):
+def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = None, *, params_config: Optional[Dict[str, Any]] = None, flow_config: Optional[List[Dict]] = None):
     # 1. Загрузка
     default_params = load_json(str(Path(PROJECT_ROOT, "config", "default_params.json")))
-    params = load_json(str(Path(PROJECT_ROOT, "config", "params", params_config))) if params is not None else {}
+    params = (load_json(str(Path(PROJECT_ROOT, "config", "params", params_path))) 
+              if params_path is not None 
+              else params_config if params_config is not None else {})
     params = _deep_merge(default_params, params)
-    flow = load_json(str(Path(PROJECT_ROOT, "config", "flow", flow_config)))
+    flow = (load_json(str(Path(PROJECT_ROOT, "config", "flow", flow_path))) 
+            if flow_path is not None 
+            else flow_config if flow_config is not None else {})
 
     # 2. Валидация 
     validation_errors = validate_configs(params, flow)
@@ -85,7 +89,13 @@ def run_pipeline(params_config: Optional[str], flow_config: str):
 
     # 3. Инициализация запуска
     general = params.get("general", {})
-    run_id = resolve_run_id(general["runs_root"], general["input_data_root"], general["run_name"])
+    if "run_id" not in general:
+        run_id = resolve_run_id(general["runs_root"], general["input_data_root"], general["run_name"])
+        general["run_id"] = run_id
+        (Path(PROJECT_ROOT) / general["runs_root"] / run_id).mkdir(parents=True, exist_ok=True)
+    else:
+        run_id = general["run_id"]
+
     log_dir = Path(PROJECT_ROOT) / general["runs_root"] / run_id
     logger = get_logger("text-to-sql pipeline", str(log_dir / "pipeline.log"))
 
@@ -118,7 +128,7 @@ def run_pipeline(params_config: Optional[str], flow_config: str):
     executor = SQLExecutor(general["input_data_root"], general["data_root"], general["storage_root"], general["local_dbs"])
 
     state: Dict[str, Any] = general.copy()
-    state.update(dict(run_id=run_id, vsm=vsm, executor=executor))
+    state.update(dict(vsm=vsm, executor=executor))
 
     metadata = {
         "run_id": run_id,
@@ -189,19 +199,17 @@ def run_pipeline(params_config: Optional[str], flow_config: str):
 
 
 if __name__ == "__main__":
-    import random
-    import numpy as np
     from dotenv import load_dotenv
+    from src.utils.run_manager import set_global_seeds
 
     load_dotenv(".env")
-    random.seed(42)
-    np.random.seed(42)
+    set_global_seeds()
 
     parser = argparse.ArgumentParser(description="Run Text-to-SQL pipeline from JSON configs.")
     parser.add_argument("--params", type=str, required=True, help="Path to parameters JSON file")
     parser.add_argument("--flow", type=str, required=True, help="Path to flow JSON file")
     args = parser.parse_args()
 
-    with ResourceMonitor() as monitor:
+    with ResourceMonitor():
         run_pipeline(args.params, args.flow)
         

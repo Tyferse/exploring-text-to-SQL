@@ -14,7 +14,7 @@
       }
     }
   },
-  "override_flow": [
+  "flow_override": [
     {
       "module": "schema_linking", 
       "enabled": true,
