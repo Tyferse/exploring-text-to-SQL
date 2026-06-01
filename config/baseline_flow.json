@@ -1,0 +1,16 @@
+[
+    {
+        "module": "preprocessing",
+        "enabled": true,
+        "stages": [
+            {"stage": "spider2preprocess", "enabled": true}
+        ]
+    },
+    {
+        "module": "generation", 
+        "enabled": true,
+        "stages": [
+            {"stage": "simple_generation", "enabled": true}
+        ]
+    }
+]

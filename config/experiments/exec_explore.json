@@ -1,0 +1,55 @@
+{
+  "name": "exec_exploration",
+  "description": "",
+  "params_config": "entity_sl_params.json",
+  "flow_config": "entity_linging_flow.json",
+  "checkpoint_after_stage": "retrieve_columns",
+  "scan_config": {
+    "schema_linking": {
+      "generate_schemas": {
+        "included": {
+          "type": "enum",
+          "values": ["selected", "selected", "selected", "retrieved", "full"]
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "preprocessing", 
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "gen_column_embeddings", 
+          "enabled": [false, false, false, true, false]
+        }
+      ]
+    },
+    {
+      "module": "schema_linking", 
+      "enabled": [true, true, true, true, false],
+      "stages": [
+        {
+          "stage": "retrieve_columns", 
+          "enabled": [false, false, false, true]
+        },
+        {
+          "stage": "ColumnLinking", 
+          "enabled": [true, false, false, false]
+        },
+        {
+          "stage": "TableColumnLinking", 
+          "enabled": [false, true, false, false]
+        },
+        {
+          "stage": "BidirectionalLinking", 
+          "enabled": [false, false, true, false]
+        },
+        {
+          "stage": "SchemaLinkingAgentPipeline", 
+          "enabled": [false, false, false, true]
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,6 @@ import sys
 sys.path.insert(0, ".")
 
 import json
-import random
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,7 +15,7 @@ from langchain_core.messages import HumanMessage
 from tqdm import tqdm
 
 from .generate_schema import generate_single_schema
-from .schema_formatter import load_similar_tables, format_compact_block
+from .schema_formatter import load_schemas, load_similar_tables, format_compact_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
@@ -110,10 +109,10 @@ class TableLinking:
         prompt_dir: str = "config/prompts/schema_linking",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
-        require_json_output: bool = True,
         max_workers: int = 4,
         max_tables: Optional[int] = None,
-        stage: Optional[str] = "table_linking"
+        stage: Optional[str] = "table_linking",
+        **kwargs
     ):
         """
         Args:
@@ -128,7 +127,6 @@ class TableLinking:
             prompt_dir: Папка с .md файлами промптов
             max_schema_length: максимальное оценочное число токенов для схемы
             retry_config: Настройки повторных попыток
-            require_json_output: Требовать строгого JSON-вывода от LLM
             max_workers: Максимальное число параллельных процессов генерации
             max_tables: Опциональное ограничение числа таблиц в результате
             stage: Префикс папки, в которые будут сохранены промежуточные результаты
@@ -140,7 +138,6 @@ class TableLinking:
         self.storage_root = Path(storage_root)
         self.max_schema_length = max_schema_length
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
-        self.require_json_output = require_json_output
         self.max_workers = max_workers
         self.max_tables = max_tables
         self.stage = stage
@@ -155,7 +152,7 @@ class TableLinking:
     @property
     def schemas(self):
         if not hasattr(self, '_schemas'):
-            self._schemas = self._load_schemas()
+            self._schemas = load_schemas(self.storage_root / self.input_data_root / "schema_cache")
 
         return self._schemas
 
@@ -218,36 +215,6 @@ class TableLinking:
                 ]
 
         return tasks
-    
-    def _load_schemas(self) -> Dict[str, Dict[str, Dict[int: List[Dict[str, Any]]]]]:
-        """Загружает и парсит *_docs.json в формат {table_name: [{column, type}]}"""
-        schemas = {}
-        docs_dir = self.storage_root / self.input_data_root / "schema_cache"
-        if not docs_dir.exists():
-            self.logger.warning(f"Schema cache not found: {docs_dir}")
-            return schemas
-
-        for doc_file in docs_dir.glob("*_docs.json"):
-            db_id = doc_file.stem[:-5]
-            with open(doc_file, "r", encoding="utf-8") as f:
-                docs = json.load(f)
-            
-            table_map: Dict[str, List[Dict[str, Any]]] = {}
-            for col in docs:
-                meta = col.get("metadata", {})
-                tn = meta.get("table_name")
-                if not tn: continue
-                if tn not in table_map:
-                    table_map[tn] = {}
-
-                table_map[tn][col["id"]] = {
-                    "column": meta.get("column_name", col["id"]),
-                    "type": meta.get("column_type", "?")
-                }
-
-            schemas[db_id] = table_map
-
-        return schemas
 
     def _format_table_list(self, tables: Dict[str, List[Dict]], max_tables: Optional[int]) -> str:
         """Формирует компактный список таблиц для промпта."""

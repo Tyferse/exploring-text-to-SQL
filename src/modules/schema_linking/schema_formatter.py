@@ -63,7 +63,6 @@ def format_compact_block(
     """
     lines = [f"###Table: {table_name}"]
     
-    # 🔹 similar_tables — ОБЯЗАТЕЛЬНО
     if similar_tables:
         clean_similar = [str(t).strip() for t in similar_tables if t and str(t).strip()]
         if clean_similar:
@@ -201,6 +200,38 @@ def limit_columns_per_table(
         result[table_name] = columns[:k] if len(columns) > k else columns
 
     return result
+
+def load_schemas(docs_dir: str) -> Dict[str, Dict[str, Dict[int, Dict[str, Any]]]]:
+    """Загружает *_docs.json в формат {db_id: {table_name: {column_id: {column, type, ...}}}}."""
+    schemas = {}
+    docs_path = Path(docs_dir)
+    if not docs_path.exists():
+        return schemas
+
+    for doc_file in docs_path.glob("*_docs.json"):
+        db_id = doc_file.stem.replace("_docs", "")
+        with open(doc_file, "r", encoding="utf-8") as f:
+            docs = json.load(f)
+        
+        table_map: Dict[str, Dict[int, Dict[str, Any]]] = {}
+        for col in docs:
+            meta = col.get("metadata", {})
+            tn = meta.get("table_name")
+            if not tn:
+                continue
+            if tn not in table_map:
+                table_map[tn] = {}
+            
+            table_map[tn][col["id"]] = {
+                "column_name": meta.get("column_name", col["id"]),
+                "data_type": meta.get("data_type", meta.get("column_type", "TEXT")),
+                "description": meta.get("description", "None"),
+                "sample_values": meta.get("column_vals", meta.get("sample_values", [])),
+            }
+
+        schemas[db_id] = table_map
+    
+    return schemas
 
 def load_similar_tables(meta_path: str) -> Dict[str, Dict[str, List[str]]]:
     similar_tables = {}

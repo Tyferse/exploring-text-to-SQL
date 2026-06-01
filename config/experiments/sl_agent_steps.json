@@ -1,0 +1,18 @@
+{
+  "name": "sl_agent_steps_count",
+  "description": "Iteration through \"max_turns\" values, 10 is skipped because this configuration is in \"sl_agent_tools.json\"",
+  "params_config": "sl_agent_params.json",
+  "flow_config": "sl_agent_flow.json",
+  "checkpoint_after_stage": "retrieve_columns",
+  "is_grid": false,
+  "scan_config": {
+    "schema_linking": {
+      "SchemaLinkingAgentPipeline": {
+        "max_turns": {
+          "type": "enum",
+          "values": [6, 8, 12]
+        }
+      }
+    }
+  }
+}

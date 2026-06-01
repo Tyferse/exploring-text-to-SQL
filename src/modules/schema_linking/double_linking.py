@@ -59,28 +59,28 @@ class TableColumnLinking:
         run_id: str,
         model: BaseChatModel,
         tasks: Optional[List[Dict[str, Any]]] = None,
-        run_root: str = "logs/runs",
+        runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_dir: str = "config/prompts/schema_linking",
+        max_schema_length: int = 64000,
         max_workers: int = 4,
         # Параметры table linking
         table_prompt_name: str = "sl_table_level",
-        table_max_schema_length: int = 32000,
         table_max_attempts: int = 4,
         max_tables: Optional[int] = None,
         # Параметры column linking
         column_prompt_name: str = "sl_column_level",
-        column_max_schema_length: int = 64000,
         column_max_attempts: int = 4,
         max_columns: Optional[int] = None,
         # Общие параметры
         retry_config: Optional[Dict[str, float]] = None,
-        cache_prefix: Optional[str] = ""
+        cache_prefix: Optional[str] = "",
+        **kwargs
     ):
         self.run_id = run_id
-        self.cache_dir = Path(run_root) / run_id / "schema_linking"
+        self.cache_dir = Path(runs_root) / run_id / "schema_linking"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
@@ -92,9 +92,9 @@ class TableColumnLinking:
         retry_config = DEFAULT_RETRY_CONFIG if retry_config is None else retry_config
         self.table_linker = TableLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root, 
             prompt_dir=prompt_dir, prompt_name=table_prompt_name, 
-            max_schema_length=table_max_schema_length, 
+            max_schema_length=max_schema_length, 
             retry_config={k: v if k != "max_attempts" else table_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_tables=max_tables,
@@ -102,9 +102,9 @@ class TableColumnLinking:
         )
         self.column_linker = ColumnLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root, 
             prompt_dir=prompt_dir, prompt_name=column_prompt_name, 
-            max_schema_length=column_max_schema_length, 
+            max_schema_length=max_schema_length, 
             retry_config={k: v if k != "max_attempts" else column_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_columns=max_columns,
@@ -377,28 +377,28 @@ class ColumnTableLinking:
         run_id: str,
         model: BaseChatModel,
         tasks: Optional[List[Dict[str, Any]]] = None,
-        run_root: str = "logs/runs",
+        runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_dir: str = "config/prompts/schema_linking",
+        max_schema_length: int = 64000,
         max_workers: int = 4,
         # Параметры column linking (первый этап)
         column_prompt_name: str = "sl_column_level",
-        column_max_schema_length: int = 64000,
         column_max_attempts: int = 4,
         max_columns: Optional[int] = None,
         # Параметры table linking (второй этап)
         table_prompt_name: str = "sl_table_level",
-        table_max_schema_length: int = 32000,
         table_max_attempts: int = 4,
         max_tables: Optional[int] = None,
         # Общие параметры
         retry_config: Optional[Dict[str, float]] = None,
-        cache_prefix: Optional[str] = ""
+        cache_prefix: Optional[str] = "",
+        **kwargs
     ):
         self.run_id = run_id
-        self.cache_dir = Path(run_root) / run_id / "schema_linking"
+        self.cache_dir = Path(runs_root) / run_id / "schema_linking"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
@@ -410,9 +410,9 @@ class ColumnTableLinking:
         retry_config = DEFAULT_RETRY_CONFIG if retry_config is None else retry_config
         self.column_linker = ColumnLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root, 
             prompt_dir=prompt_dir, prompt_name=column_prompt_name, 
-            max_schema_length=column_max_schema_length, 
+            max_schema_length=max_schema_length, 
             retry_config={k: v if k != "max_attempts" else column_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_columns=max_columns,
@@ -420,9 +420,9 @@ class ColumnTableLinking:
         )
         self.table_linker = TableLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root, 
             prompt_dir=prompt_dir, prompt_name=table_prompt_name, 
-            max_schema_length=table_max_schema_length, 
+            max_schema_length=max_schema_length, 
             retry_config={k: v if k != "max_attempts" else table_max_attempts 
                           for k,v in retry_config.items()}, 
             max_workers=max_workers, max_tables=max_tables,
@@ -698,7 +698,7 @@ class ColumnTableLinking:
         return results
 
 
-class BidirectionalSchemaLinking:
+class BidirectionalLinking:
     """
     Двунаправленный пайплайн: TableColumnLinking + ColumnTableLinking.
     
@@ -715,18 +715,17 @@ class BidirectionalSchemaLinking:
         run_id: str,
         model: BaseChatModel,
         tasks: Optional[List[Dict[str, Any]]] = None,
-        run_root: str = "logs/runs",
+        runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_dir: str = "config/prompts/schema_linking",
+        max_schema_length: int = 64000,
         max_workers: int = 4,
         # Общие параметры для обоих пайплайнов
         table_prompt_name: str = "sl_table_level",
-        table_max_schema_length: int = 32000,
         max_tables: Optional[int] = None,
         column_prompt_name: str = "sl_column_level",
-        column_max_schema_length: int = 64000,
         max_attempts: int = 4,
         max_columns: Optional[int] = None,
         retry_config: Optional[Dict[str, float]] = None,
@@ -734,9 +733,10 @@ class BidirectionalSchemaLinking:
         # Флаги управления
         cleanup_intermediate: bool = True,  # Удалять ли промежуточные файлы
         require_both_success: bool = False,  # Требовать успех обоих пайплайнов
+        **kwargs
     ):
         self.run_id = run_id
-        self.cache_dir = Path(run_root) / run_id / "schema_linking"
+        self.cache_dir = Path(runs_root) / run_id / "schema_linking"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
@@ -752,15 +752,14 @@ class BidirectionalSchemaLinking:
         # Инициализация пайплайнов с разными префиксами кэша
         self.tc_linker = TableColumnLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root, 
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root, 
             prompt_dir=prompt_dir,
             max_workers=max_workers,
             table_prompt_name=table_prompt_name,
-            table_max_schema_length=table_max_schema_length,
+            max_schema_length=max_schema_length,
             table_max_attempts=max_attempts,
             max_tables=max_tables,
             column_prompt_name=column_prompt_name,
-            column_max_schema_length=column_max_schema_length,
             column_max_attempts=max_attempts,
             max_columns=max_columns,
             retry_config=retry_config,
@@ -768,15 +767,14 @@ class BidirectionalSchemaLinking:
         )
         self.ct_linker = ColumnTableLinking(
             run_id, model, tasks,
-            run_root=run_root, input_data_root=input_data_root, data_root=data_root,
+            runs_root=runs_root, input_data_root=input_data_root, data_root=data_root,
             prompt_dir=prompt_dir,
             max_workers=max_workers,
             column_prompt_name=column_prompt_name,
-            column_max_schema_length=column_max_schema_length,
+            max_schema_length=max_schema_length,
             column_max_attempts=max_attempts,
             max_columns=max_columns,
             table_prompt_name=table_prompt_name,
-            table_max_schema_length=table_max_schema_length,
             table_max_attempts=max_attempts,
             max_tables=max_tables,
             retry_config=retry_config,
@@ -980,6 +978,7 @@ if __name__ == "__main__":
     parser.add_argument("--storage-root", type=str, default="storage")
     parser.add_argument("--run-root", type=str, default="logs/runs")
     parser.add_argument("--prompt-dir", type=str, default="config/prompts/schema_linking")
+    parser.add_argument("--max-schema-tokens", type=int, default=64000)
     
     # Model
     parser.add_argument("--model-name", type=str, default="qwen-local")
@@ -989,12 +988,10 @@ if __name__ == "__main__":
     
     # Table linking params
     parser.add_argument("--table-prompt", type=str, default="sl_table_level")
-    parser.add_argument("--table-max-schema-tokens", type=int, default=32000)
     parser.add_argument("--max-tables", type=int, default=None)
     
     # Column linking params
     parser.add_argument("--column-prompt", type=str, default="sl_column_level")
-    parser.add_argument("--column-max-schema-tokens", type=int, default=64000)
     parser.add_argument("--max-columns", type=int, default=None)
     parser.add_argument("--max-attempts", type=int, default=4)
     
@@ -1023,18 +1020,17 @@ if __name__ == "__main__":
         table_column_linking = TableColumnLinking(
             run_id=run_id,
             model=model,
-            run_root=args.run_root,
+            runs_root=args.runs_root,
             input_data_root=args.input_data_root,
             data_root=args.data_root,
             storage_root=args.storage_root,
             prompt_dir=args.prompt_dir,
+            max_schema_length=args.max_schema_tokens,
             max_workers=args.max_workers,
             table_prompt_name=args.table_prompt,
-            table_max_schema_length=args.table_max_schema_tokens,
             table_max_attempts=args.max_attempts,
             max_tables=args.max_tables,
             column_prompt_name=args.column_prompt,
-            column_max_schema_length=args.column_max_schema_tokens,
             column_max_attempts=args.max_attempts,
             max_columns=args.max_columns,
             cache_prefix=args.cache_prefix
@@ -1045,18 +1041,17 @@ if __name__ == "__main__":
         column_table_linking = ColumnTableLinking(
             run_id=run_id,
             model=model,
-            run_root=args.run_root,
+            runs_root=args.runs_root,
             input_data_root=args.input_data_root,
             data_root=args.data_root,
             storage_root=args.storage_root,
             prompt_dir=args.prompt_dir,
+            max_schema_length=args.max_schema_tokens,
             max_workers=args.max_workers,
             table_prompt_name=args.table_prompt,
-            table_max_schema_length=args.table_max_schema_tokens,
             table_max_attempts=args.max_attempts,
             max_tables=args.max_tables,
             column_prompt_name=args.column_prompt,
-            column_max_schema_length=args.column_max_schema_tokens,
             column_max_attempts=args.max_attempts,
             max_columns=args.max_columns,
             cache_prefix=args.cache_prefix
@@ -1064,21 +1059,20 @@ if __name__ == "__main__":
         column_table_linking.run()
         column_table_linking.extract_all_candidates()
     elif args.pipeline == "bidirectional":
-        bidirectional_linking = BidirectionalSchemaLinking(
+        bidirectional_linking = BidirectionalLinking(
             run_id=run_id,
             model=model,
-            run_root=args.run_root,
+            runs_root=args.runs_root,
             input_data_root=args.input_data_root,
             data_root=args.data_root,
             storage_root=args.storage_root,
             prompt_dir=args.prompt_dir,
+            max_schema_length=args.max_schema_tokens,
             max_workers=args.max_workers,
             table_prompt_name=args.table_prompt,
-            table_max_schema_length=args.table_max_schema_tokens,
             table_max_attempts=args.max_attempts,
             max_tables=args.max_tables,
             column_prompt_name=args.column_prompt,
-            column_max_schema_length=args.column_max_schema_tokens,
             column_max_attempts=args.max_attempts,
             max_columns=args.max_columns,
             cache_prefix=args.cache_prefix,

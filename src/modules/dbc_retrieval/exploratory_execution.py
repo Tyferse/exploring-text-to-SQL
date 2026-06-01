@@ -14,6 +14,7 @@ from langchain_core.language_models import BaseChatModel
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
+from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor
 
 
@@ -24,8 +25,9 @@ DEFAULT_RETRY_CONFIG = {
     "backoff_multiplier": 2.0,
 }
 
-def _load_tasks(
+def _load_instances(
     schemas_dir: str,
+    results_dir: str,
     tasks: Optional[List[Dict[str, Any]]] = None,
     data_root: str = "data",
     input_data_root: Optional[str] = None
@@ -50,7 +52,7 @@ def _load_tasks(
             "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
             "question": instance.get("question", instance.get("instruction", ""))
         } 
-        for instance in tasks
+        for instance in tasks if not (Path(results_dir) / f"{instance['instance_id']}.json").exists()
     }
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
@@ -146,8 +148,8 @@ def _process_single_example(
     instance_id: str,
     task: Dict[str, Any],
     model: BaseChatModel, 
-    sql_executor: SQLExecutor,
-    run_root: str,
+    executor: SQLExecutor,
+    runs_root: str,
     run_id: str,
     prompt_dir: str,
     prompt_name: str,
@@ -162,13 +164,13 @@ def _process_single_example(
     # Извлечение параметров из задачи
     iid = instance_id
     db_id = task["db_id"]
-    db_name = db_id.split("_", 1)[1]
+    db_name = db_id.split("_", 1)[1] if "_" in db_id else db_id
     dialect = task.get("dialect", "sqlite")
     question = task["question"]
     schema_text = task.get("schema", "None")
     
     # Настройка логгера
-    log_dir = Path(run_root) / run_id / "dbc_retrieval"
+    log_dir = Path(runs_root) / run_id / "dbc_retrieval"
     log_file = log_dir / "exec_exploration_logs" / f"{iid}.log"
     logger = get_logger(f"exec_explore_{iid}", log_file)
     
@@ -245,7 +247,7 @@ def _process_single_example(
                 t_query_start = time.perf_counter()
                 
                 # Потокобезопасное выполнение
-                status, result_df = sql_executor.thread_safe_sql_execution(
+                status, result_df = executor.thread_safe_sql_execution(
                     sql=sql,
                     db_name=db_name,
                     dialect=dialect
@@ -306,23 +308,24 @@ def _process_single_example(
 def exec_exploration(
     run_id: str,
     model: BaseChatModel,
-    sql_executor: SQLExecutor,
+    executor: SQLExecutor,
     tasks: Optional[List[Dict[str, Any]]] = None,
-    run_root: str = "logs/runs",
+    runs_root: str = "logs/runs",
     max_workers: int = 4,
-    data_root: str = ".",
-    input_data_root: str = "input",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
     prompt_dir: str = "config/prompts/dbc_retrieval",
     prompt_name: str = "exploratory_execution",
     max_queries: int = 10,
     max_rows: int = 20,
-    retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG
+    retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG,
+    **kwargs
 ) -> Dict[str, List[Dict[str, str]]]:
     """
     Главная функция модуля.
     
     Args:
-        run_root: Корневая директория запуска
+        runs_root: Корневая директория запуска
         run_id: ID текущего запуска (для организации подпапок)
         model_name: Название модели для инициализации
         ... (остальные аргументы как описано выше)
@@ -332,7 +335,7 @@ def exec_exploration(
         Dict[example_id -> messages_list]
     """
     # 1. Инициализация логгера для оркестратора
-    main_log_dir = Path(run_root) / run_id / "dbc_retrieval"
+    main_log_dir = Path(runs_root) / run_id / "dbc_retrieval"
     main_log_dir.mkdir(parents=True, exist_ok=True)
     logger = get_logger("exec_exploration", main_log_dir / "exec_explore.log")
     logger.info(f"Starting DB Content Retrieval.")
@@ -342,7 +345,7 @@ def exec_exploration(
     if not schema_dir.exists():
         schema_dir = main_log_dir.parent / "schema_linking" / "initial_schema"
 
-    tasks = _load_tasks(schema_dir, tasks, data_root, input_data_root)
+    tasks = _load_instances(schema_dir, str(main_log_dir / "exec_exploration_results"), tasks, data_root, input_data_root)
     if not tasks:
         logger.error("No tasks found to process")
         return {}
@@ -353,15 +356,15 @@ def exec_exploration(
     results = {}
     logger.info(f"Starting parallel execution with {max_workers} workers")
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
         future_to_id = {
-            executor.submit(
+            pool.submit(
                 _process_single_example,
                 iid,
                 task=tasks[iid],
                 model=model,
-                sql_executor=sql_executor,
-                run_root=run_root,
+                executor=executor,
+                runs_root=runs_root,
                 run_id=run_id,
                 prompt_dir=prompt_dir,
                 prompt_name=prompt_name,
@@ -419,10 +422,10 @@ if __name__ == "__main__":
     
     # Обязательные аргументы
     parser.add_argument(
-        "--run_id", "-r", 
+        "--run_name", "-r", 
         type=str, 
         required=True,
-        help="Unique identifier for this run (used for output subdirectories)"
+        help="Run name (used for output subdirectories)"
     )
     parser.add_argument(
         "--model_name", "-m", 
@@ -503,7 +506,7 @@ if __name__ == "__main__":
     
     # Пути к данным
     parser.add_argument(
-        "--run_root", 
+        "--runs_root", 
         type=str, 
         default="logs/runs",
         help="Root directory for run outputs and logs"
@@ -554,7 +557,7 @@ if __name__ == "__main__":
     )
     
     # Инициализация SQL Executor
-    sql_executor = SQLExecutor(
+    executor = SQLExecutor(
         args.input_data_root, args.data_root, args.storage_root, 
         dict(args.local_dbs) if args.local_dbs else None
     )
@@ -570,14 +573,15 @@ if __name__ == "__main__":
     # === Запуск ===
     print(f"[START] Run ID: {args.run_id} | Workers: {args.max_workers}")
     print(f"[START] Input: {Path(args.data_root) / args.input_data_root}")
-    print(f"[START] Output: {Path(args.run_root) / args.run_id / 'dbc_retrieval'}")
+    print(f"[START] Output: {Path(args.runs_root) / args.run_id / 'dbc_retrieval'}")
     
     try:
+        run_id = resolve_run_id(args.runs_root, args.input_data_root, args.run_name)
         results = exec_exploration(
-            run_id=args.run_id,
+            run_id=run_id,
             model=model,
-            sql_executor=sql_executor, 
-            run_root=args.run_root,
+            executor=executor, 
+            runs_root=args.runs_root,
             max_workers=args.max_workers,
             data_root=args.data_root,
             input_data_root=args.input_data_root,

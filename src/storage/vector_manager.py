@@ -186,7 +186,8 @@ class VectorStoreManager:
 
         existing_ids = []
         cached_id_path = os.path.join(self.storage_root, context_id, "added_ids.pkl")
-        if session.client.collection_exists(self._coll_name) and session.client.count(collection_name=self._coll_name).count > 0:
+        if (session.client.collection_exists(self._coll_name) 
+            and 0 < session.client.count(collection_name=self._coll_name).count < len(all_documents)):
             if not force_rebuild:
                 if self.logger: self.logger.info("Index exists. Checking data.")
 

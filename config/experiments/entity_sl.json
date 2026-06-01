@@ -1,0 +1,45 @@
+{
+  "name": "entity_sl",
+  "description": "Launch all available entity level LLM-based schema linking pipelines",
+  "params_config": "entity_sl_params.json",
+  "flow_config": "entity_linging_flow.json",
+  "checkpoint_after_stage": "spider2preprocess",
+  "scan_config": {
+    "schema_linking": {
+      "generate_schemas": {
+        "included": {
+          "type": "enum",
+          "values": ["selected", "tables", "selected", "selected", "selected"]
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "schema_linking", 
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "ColumnLinking", 
+          "enabled": [true, false, false, false, false]
+        },
+        {
+          "stage": "TableLinking", 
+          "enabled": [false, true, false, false, false]
+        },
+        {
+          "stage": "ColumnTableLinking", 
+          "enabled": [false, false, true, false, false]
+        },
+        {
+          "stage": "TableColumnLinking", 
+          "enabled": [false, false, false, true, false]
+        },
+        {
+          "stage": "BidirectionalLinking", 
+          "enabled": [false, false, false, false, true]
+        }
+      ]
+    }
+  ]
+}

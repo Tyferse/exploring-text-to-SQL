@@ -1,0 +1,53 @@
+BigQuery Optimization Strategies:
+
+- String Matching:
+    - Don't directly match strings if you are not convinced. Use LOWER for fuzzy queries: WHERE LOWER(str) LIKE LOWER('%target_str%'). For example, to match 'meat lovers', use LOWER(str) LIKE '%meat%lovers%'.
+    - For string-matching scenarios, convert non-standard symbols to '%'. e.g. ('he's to he%s)
+    - You also can use `REGEXP_CONTAINS(col, r'regex')` for complex patterns.
+    - Avoid `=` on unnormalized user input; use `SAFE_CAST` or `TRIM()` if needed.
+
+- Decimal Precision:
+    - If user do not specify the precision, you should use `ROUND(value, 4)` to round the value to four decimal places.
+    - If user specify the precision, you should use `ROUND(value, precision)` to round the value to the specified decimal places.
+
+- Date Handling:
+    - For time-related queries, given the variety of formats, avoid using time converting functions unless you are certain of the specific format being used.
+    - Extract components using `EXTRACT(YEAR FROM date)`, `EXTRACT(MONTH FROM date)`.
+    - Format using `FORMAT_DATE('%Y-%m', date)`.
+
+- Timestamp Handling:
+    - You can use `TIMESTAMP()` to convert a string to a timestamp.
+        - **Example**: 
+            SELECT TIMESTAMP("2008-12-25 15:30:00+00") AS timestamp_str; It will return `2008-12-25 15:30:00 UTC`
+    - You can use `TIMESTAMP_SUB(timestamp, INTERVAL n DAY)` to subtract n days from a timestamp.
+        - If the the user specifies the number of days, you should use the specified number of days.
+        - **Example**: 
+            SELECT TIMESTAMP("2008-12-25 15:30:00+00") AS original,
+            TIMESTAMP_SUB(TIMESTAMP "2008-12-25 15:30:00+00", INTERVAL 10 MINUTE) AS earlier; It will return `2008-12-25 15:30:00 UTC` and `2008-12-25 15:20:00 UTC`
+    - You can use `UNIX_MICROS(timestamp)` to convert a timestamp to microseconds.
+        - **Example**: 
+            SELECT UNIX_MICROS(TIMESTAMP "2008-12-25 15:30:00+00") AS micros; It will return `1230219000000000`
+
+- Geospatial Operations:
+    - You can use `ST_GEOMPOINT(longitude, latitude)` to represent a point on Earth.
+    - You can use `ST_DISTANCE( <geography_or_geometry_expression_1> , <geography_or_geometry_expression_2> )` to compute distance in meters between two points.
+    - You can use `ST_WITHIN( <geography_expression_1> , <geography_expression_2> )` or `ST_CONTAINS( <geography_expression_1> , <geography_expression_2> )` to determine spatial inclusion.
+    - You can use `ST_GEOGFROMWKB( <varchar_or_binary_expression> [ , <allow_invalid> ] )` to parses a WKB (well-known binary) or EWKB (extended well-known binary) input and returns a value of type GEOGRAPHY.
+
+
+- Wildcard Tables:
+    - When querying **partitioned tables via wildcards**, such as `project.dataset.table_*`, you **must include a `_TABLE_SUFFIX` filter** to avoid querying all partitions and incurring high cost or failure.
+    - This is required for **all wildcard-accessed partitioned tables**, not just specific datasets.
+    - Example:
+        ```sql
+        FROM `project.dataset.table_*`
+        WHERE _TABLE_SUFFIX BETWEEN '20230101' AND '20230107'
+        ```
+    - Avoid omitting `_TABLE_SUFFIX` filtering — doing so can result in full table scans or query rejection.
+    - Use `_TABLE_SUFFIX BETWEEN 'YYYYMMDD' AND 'YYYYMMDD'` in FROM clause on partitioned wildcard tables.
+
+- Performance Tips:
+    - Materialize complex expressions in CTEs to avoid recomputation.
+    - Filter early using WHERE clauses before applying aggregations.
+    - Avoid full scans over wildcard tables by always scoping with `_TABLE_SUFFIX`.
+    - Field or table names cannot use 'END' because 'END' is a key word in bigquery dialect.

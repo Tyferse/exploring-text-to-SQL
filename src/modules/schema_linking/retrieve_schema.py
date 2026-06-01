@@ -405,7 +405,7 @@ class SchemaRetriever:
         )
 
 def retrieve_columns(
-        run_name, 
+        run_id, 
         vsm: VectorStoreManager,
         tasks: Optional[List[Dict[str, str]]] = None,
         input_data_root: str = "Spider2/spider2-lite",
@@ -413,9 +413,9 @@ def retrieve_columns(
         storage_root: str = "storage", 
         topk: int = 100,
         max_workers: int = 2,
-        force_refresh: bool = False
+        force_refresh: bool = False,
+        **kwargs
     ):
-    run_id = resolve_run_id(input_data_root=input_data_root, custom_suffix=run_name, use_latest=True)
     cache = RetrievalCache(run_id)
     retriever = SchemaRetriever(
         vsm=vsm, cache=cache, initial_top_k=topk, 

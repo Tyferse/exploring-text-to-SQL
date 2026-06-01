@@ -33,7 +33,7 @@ def generate_single_schema(
         instance_id: Уникальный идентификатор примера
         db_id; Идентификатор базы данных
         col_ids: Список ID столбцов для включения в схему
-        doc_data: Загруженный словарь {col_id: col_info}
+        doc_data: Загруженный словарь {table_name: {col_id: col_info}}
         target_max_tokens: Максимальная длина описания схемы в токенах.
         similar_tables: Словарь отображения таблиц в список похожих таблиц
         output_path: Директория для сохранения .txt файлов
@@ -58,27 +58,26 @@ def generate_single_schema(
 
         # 1. Сбор данных по столбцам
         valid_columns_found = 0
-        for cid in col_ids:
-            col_info = doc_data.get(cid)
-            if not col_info:
-                log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
-                continue
+        for table_name in doc_data:
+            table_mapping[table_name] = []
+            for cid in doc_data[table_name]:
+                if cid in col_ids:
+                    col_info = doc_data.get(cid, {})
+                    if not col_info:
+                        if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
+                        continue
 
-            table_name = col_info.get("table_name", "unknown_table")
-            if table_name not in table_mapping:
-                table_mapping[table_name] = []
+                    desc = col_info.get("text", "")
+                    desc = desc.split("Description: ", 1)[1] if desc else ""
 
-            desc = col_info.get("text", "")
-            desc = desc.split("Description: ", 1)[1] if desc else ""
-
-            colmeta = col_info["metadata"]
-            table_mapping[table_name].append({
-                "column_name": colmeta.get("column_name", cid),
-                "data_type": colmeta.get("data_type", "TEXT"),
-                "description": desc,
-                "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
-            })
-            valid_columns_found += 1
+                    colmeta = col_info["metadata"]
+                    table_mapping[table_name].append({
+                        "column_name": colmeta.get("column_name", cid),
+                        "data_type": colmeta.get("data_type", colmeta.get("column_type", "TEXT")),
+                        "description": desc,
+                        "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
+                    })
+                    valid_columns_found += 1
 
         if valid_columns_found == 0:
             if log: log.warning(f"Valid columns have not been found in metadata | {instance_id}")
@@ -131,7 +130,8 @@ def generate_schemas(
     output_dir: str = "initial_schema",
     docs_path: Optional[str] = None,
     included: Literal["retrieved", "tables", "full"] = "full",
-    target_max_tokens: int = 64_000
+    target_max_tokens: int = 64_000,
+    **kwargs
 ):
     """
     Читает *_indices.json, загружает *_docs.json, 
@@ -153,7 +153,15 @@ def generate_schemas(
             docs_data = json.load(f)
             db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
 
-    similar_tables = load_similar_tables(docs_path)    
+    similar_tables = load_similar_tables(docs_path)
+    inverse_similar_tables = {
+        db_id: {
+            stn: tn 
+            for tn in similar_tables[db_id] 
+            for stn in similar_tables[db_id][tn]
+        } 
+        for db_id in similar_tables
+    } 
     
     if not db_docs:
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
@@ -210,10 +218,9 @@ def generate_schemas(
         with open(tables_path, "r", encoding="utf-8") as f:
             tables_data = json.load(f)
             used_tables = {
-                iid: tables_data[iid]["used_tables"] + [
-                    stn for tn in tables_data[iid]["used_tables"] 
-                    for stn in similar_tables[tables_data[iid]["db_id"]].get(tn, [])
-                ] 
+                iid: tables_data[iid]["used_tables"] + list({
+                    inverse_similar_tables[tn] for tn in tables_data[iid]["used_tables"]
+                })
                 for iid in tables_data
             }
 
@@ -236,12 +243,18 @@ def generate_schemas(
                 partial_data = json.load(f)
 
             if file.endswith("table_linking_candidates.json") and not file.endswith("column_table_linking_candidates.json"):
+                tables_data = {
+                    iid: partial_data[iid]["used_tables"] + list({
+                        inverse_similar_tables[tn] for tn in partial_data[iid]["used_tables"]
+                    })
+                    for iid in partial_data
+                }
                 partial_data = {
                     iid: {
                         "db_id": partial_data[iid]["db_id"], 
                         "used_indices": [
                             cid for cid in db_docs[partial_data[iid]["db_id"]] 
-                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in partial_data[iid]["used_tables"]
+                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in tables_data[iid]
                         ]
                     }
                     for iid in partial_data

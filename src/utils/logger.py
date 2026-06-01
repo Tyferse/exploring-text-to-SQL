@@ -16,7 +16,7 @@ def get_logger(
     fmt: Optional[str] = None,
     console: bool = True,
     file: bool = True,
-    mode: str = 'a',
+    mode: str = 'w',
     encoding: str = 'utf-8',
     force_reconfigure: bool = False
 ) -> logging.Logger:

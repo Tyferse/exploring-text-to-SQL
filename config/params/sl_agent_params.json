@@ -1,0 +1,72 @@
+{
+  "general": {
+    "input_data_root": "Spider2/spider2-lite",
+    "run_name": "sl_agent"
+  },
+  "preprocessing": {
+    "spider2preprocess": {
+      "is_multidialect": true,
+      "max_workers": 8
+    },
+    "column_vector_db": {
+      "location": null,
+      "max_cached_sessions": 2
+    },
+    "gen_column_embeddings": {
+      "batch_size": 256,
+      "max_workers": 2
+    }
+  },
+  "schema_linking": {
+    "retrieve_columns": {
+      "topk": 100,
+      "max_workers": 2
+    },
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 0.8
+    },
+    "SchemaLinkingAgentPipeline": {
+      "prompt_name": "sl_explore_validation_agent",
+      "max_turns": 10,
+      "max_draft_calls": 3,
+      "additional_k": 5,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 1.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 4.0
+      },
+      "max_workers": 4
+    },
+    "generate_schemas": {
+      "included": "retrieved",
+      "target_max_tokens": 64000
+    }
+  },
+  "generation": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 1.0
+    },
+    "simple_generation": {
+      "schema_dir": "final_schema",
+      "prompt_name":"gen_basic",
+      "n_candidates": 1,
+      "prefix": "one_step",
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 3.0
+      },
+      "max_workers": 3,
+      "max_schema_tokens": 64000,
+      "chars_per_token": 3.0
+    }
+  }
+}

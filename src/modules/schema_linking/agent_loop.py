@@ -84,11 +84,7 @@ class SchemaLinkingAgent:
             return f"[ERROR] Tool @{tool_name} is not enabled in this experiment."
         
         try:
-            sig = inspect.signature(tool_fn.func if hasattr(tool_fn, 'func') else tool_fn)
-            allowed_keys = set(sig.parameters.keys())
-            filtered_args = {k: v for k, v in args.items() if k in allowed_keys}
-            result = tool_fn.invoke(filtered_args) if hasattr(tool_fn, "invoke") else tool_fn(**filtered_args)
-            
+            result = tool_fn.invoke(args) if hasattr(tool_fn, "invoke") else tool_fn(**args)
             if tool_name == "schema_retrieval" and "[RETRIEVED" in str(result):
                 try:
                     if "Details: " in result:

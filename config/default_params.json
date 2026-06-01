@@ -1,0 +1,186 @@
+{
+  "general": {
+    "input_data_root": "Spider2/spider2-lite",
+    "run_name": "default",
+    "data_root": "data",
+    "storage_root": "storage",
+    "logs_root": "logs",
+    "runs_root": "logs/runs",
+    "prompt_dir": "config/prompts", 
+    "local_dbs": {"sqlite": "resource/databases/spider2-localdb"}
+  },
+  "preprocessing": {
+    "spider2preprocess": {
+      "is_multidialect": true,
+      "max_workers": 8,
+      "force_update": false
+    },
+    "column_vector_db": {
+      "location": null,
+      "max_cached_sessions": 2,
+      "embedding_model": "microsoft/harrier-oss-v1-270m",
+      "backend": "qdrant",
+      "device": "cpu",
+      "quantization": false,
+      "dtype": "auto"
+    },
+    "gen_column_embeddings": {
+      "batch_size": 256,
+      "max_workers": 2,
+      "force_rebuild": false
+    }
+  },
+  "schema_linking": {
+    "retrieve_columns": {
+      "topk": 100,
+      "max_workers": 2,
+      "force_refresh": false
+    },
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 0.8
+    },
+    "ColumnLinking": {
+      "prompt_name": "sl_column_level",
+      "max_schema_length": 64000,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4,
+      "max_columns": null,
+      "stage": "column_linking"
+    },
+    "TableLinking": {
+      "prompt_name": "sl_table_level",
+      "max_schema_length": 64000,
+      "max_workers": 4,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_tables": null,
+      "stage": "table_linking"
+    },
+    "ColumnTableLinking": {
+      "max_schema_length": 64000,
+      "column_prompt_name": "sl_column_level",
+      "column_max_attempts": 4,
+      "max_columns": null,
+      "table_prompt_name": "sl_table_level",
+      "table_max_attempts": 4,
+      "max_tables": null,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4,
+      "cache_prefix": ""
+    },
+    "TableColumnLinking": {
+      "max_schema_length": 64000,
+      "column_prompt_name": "sl_column_level",
+      "column_max_attempts": 3,
+      "max_columns": null,
+      "table_prompt_name": "sl_table_level",
+      "table_max_attempts": 3,
+      "max_tables": null,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4,
+      "cache_prefix": ""
+    },
+    "BidirectionalLinking": {
+      "max_schema_length": 64000,
+      "column_prompt_name": "sl_column_level",
+      "column_max_attempts": 3,
+      "max_columns": null,
+      "table_prompt_name": "sl_table_level",
+      "table_max_attempts": 3,
+      "max_tables": null,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4,
+      "cache_prefix": "",
+      "cleanup_intermediate": true, 
+      "require_both_success": false
+    },
+    "SchemaLinkingAgentPipeline": {
+      "prompt_name": "sl_explore_validation_agent",
+      "max_turns": 10,
+      "max_draft_calls": 3,
+      "additional_k": 5,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4
+    },
+    "generate_schemas": {
+      "output_dir": "final_schema",
+      "included": "full",
+      "target_max_tokens": 64000
+    }
+  },
+  "dbc_retrieval": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 0.0
+    },
+    "exploratory_execution": {
+      "prompt_name": "exploratory_execution",
+      "max_queries": 10,
+      "max_rows": 20,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4
+    }
+  },
+  "generation": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 1.0
+    },
+    "simple_generation": {
+      "schema_dir": "final_schema",
+      "prompt_name":"gen_basic",
+      "n_candidates": 1,
+      "prefix": "one_step",
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 3,
+      "max_schema_tokens": 64000,
+      "chars_per_token": 3.0
+    }
+  }
+}

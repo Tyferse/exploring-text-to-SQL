@@ -20,7 +20,8 @@ def gen_column_embeddings(
         max_workers: int = 2,
         max_cached_sessions: int = 2, 
         backend: str = "qdrant",
-        force_rebuild: bool = False
+        force_rebuild: bool = False,
+        **kwargs
     ):
     vsm = VectorStoreManager(
         storage_root=storage_root,

@@ -22,6 +22,14 @@ def get_column_hash(meta: dict):
     "Геренирует хэш столбца по метаданным"
     return int(hashlib.md5(f"{meta['db_id']}.{meta['table_name']}.{meta['column_name']}".encode()).hexdigest(), 16) % (10**15)
 
+def fill_prompt_template(template: str, replacements: Dict[str, str]):
+    prompt = template
+    for placeholder, value in replacements.items():
+        if placeholder in prompt:
+            prompt = prompt.replace(placeholder, str(value))
+    
+    return prompt
+
 def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger = None) -> Dict[str, Any]:
     """
     Обрабатывает одну базу данных (папку с JSON файлами таблиц).
@@ -55,7 +63,7 @@ def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, log
         return {}
 
     def recursive_key_map(obj, keys=tuple()):
-        val = deepcopy(obj)
+        val = obj
         for key in keys:
             if isinstance(val, dict) and key in val or isinstance(val, list) and isinstance(key, int) and key < len(val):
                 val = val[key]
@@ -196,7 +204,8 @@ def spider2preprocess(
     is_multidialect: bool = True,
     max_workers: int = 4,
     log_root: str = "logs",
-    force_update: bool = False
+    force_update: bool = False,
+    **kwargs
 ) -> Dict[str, str]:
     """
     Основная функция предобработки Spider 2 datasets.
