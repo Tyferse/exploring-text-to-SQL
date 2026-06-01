@@ -76,7 +76,8 @@ class TableColumnLinking:
         max_columns: Optional[int] = None,
         # Общие параметры
         retry_config: Optional[Dict[str, float]] = None,
-        cache_prefix: Optional[str] = ""
+        cache_prefix: Optional[str] = "",
+        **kwargs
     ):
         self.run_id = run_id
         self.cache_dir = Path(runs_root) / run_id / "schema_linking"
@@ -393,7 +394,8 @@ class ColumnTableLinking:
         max_tables: Optional[int] = None,
         # Общие параметры
         retry_config: Optional[Dict[str, float]] = None,
-        cache_prefix: Optional[str] = ""
+        cache_prefix: Optional[str] = "",
+        **kwargs
     ):
         self.run_id = run_id
         self.cache_dir = Path(runs_root) / run_id / "schema_linking"
@@ -731,6 +733,7 @@ class BidirectionalLinking:
         # Флаги управления
         cleanup_intermediate: bool = True,  # Удалять ли промежуточные файлы
         require_both_success: bool = False,  # Требовать успех обоих пайплайнов
+        **kwargs
     ):
         self.run_id = run_id
         self.cache_dir = Path(runs_root) / run_id / "schema_linking"

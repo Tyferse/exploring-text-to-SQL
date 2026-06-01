@@ -185,7 +185,8 @@ class ColumnLinking:
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
         max_columns: Optional[int] = None,
-        stage: Optional[str] = "column_linking"
+        stage: Optional[str] = "column_linking",
+        **kwargs
     ):
         """
         Args:

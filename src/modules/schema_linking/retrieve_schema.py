@@ -413,7 +413,8 @@ def retrieve_columns(
         storage_root: str = "storage", 
         topk: int = 100,
         max_workers: int = 2,
-        force_refresh: bool = False
+        force_refresh: bool = False,
+        **kwargs
     ):
     cache = RetrievalCache(run_id)
     retriever = SchemaRetriever(

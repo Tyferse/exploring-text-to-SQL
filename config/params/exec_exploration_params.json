@@ -1,7 +1,7 @@
 {
   "general": {
     "input_data_root": "Spider2/spider2-lite",
-    "run_name": "entity_linking"
+    "run_name": "exec_explore"
   },
   "preprocessing": {
     "spider2preprocess": {

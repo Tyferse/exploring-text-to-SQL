@@ -130,7 +130,8 @@ def generate_schemas(
     output_dir: str = "initial_schema",
     docs_path: Optional[str] = None,
     included: Literal["retrieved", "tables", "full"] = "full",
-    target_max_tokens: int = 64_000
+    target_max_tokens: int = 64_000,
+    **kwargs
 ):
     """
     Читает *_indices.json, загружает *_docs.json, 

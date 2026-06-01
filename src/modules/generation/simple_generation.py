@@ -507,7 +507,8 @@ def simple_generation(
     max_workers: int = 3,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG,
     max_schema_tokens: int = 64_000,
-    chars_per_token: float = 3.0
+    chars_per_token: float = 3.0,
+    **kwargs
 ) -> Dict[str, Any]:
     """
     Запускает пайплайн генерации для множества инстансов.

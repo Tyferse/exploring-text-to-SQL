@@ -66,5 +66,5 @@ def execute_stage(handler_key: str, kwargs: Dict[str, Any], logger: Optional[log
         return result
     else:
         # --- ЛОГИКА ДЛЯ ФУНКЦИИ ---
-        logger.info(f"Calling function '{handler.__name__}'")
+        if logger: logger.info(f"Calling function '{handler.__name__}'")
         return handler(**kwargs)

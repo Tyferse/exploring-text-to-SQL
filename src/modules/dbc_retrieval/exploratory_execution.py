@@ -148,7 +148,7 @@ def _process_single_example(
     instance_id: str,
     task: Dict[str, Any],
     model: BaseChatModel, 
-    sql_executor: SQLExecutor,
+    executor: SQLExecutor,
     runs_root: str,
     run_id: str,
     prompt_dir: str,
@@ -247,7 +247,7 @@ def _process_single_example(
                 t_query_start = time.perf_counter()
                 
                 # Потокобезопасное выполнение
-                status, result_df = sql_executor.thread_safe_sql_execution(
+                status, result_df = executor.thread_safe_sql_execution(
                     sql=sql,
                     db_name=db_name,
                     dialect=dialect
@@ -308,7 +308,7 @@ def _process_single_example(
 def exec_exploration(
     run_id: str,
     model: BaseChatModel,
-    sql_executor: SQLExecutor,
+    executor: SQLExecutor,
     tasks: Optional[List[Dict[str, Any]]] = None,
     runs_root: str = "logs/runs",
     max_workers: int = 4,
@@ -318,7 +318,8 @@ def exec_exploration(
     prompt_name: str = "exploratory_execution",
     max_queries: int = 10,
     max_rows: int = 20,
-    retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG
+    retry_config: Dict[str, Any] = DEFAULT_RETRY_CONFIG,
+    **kwargs
 ) -> Dict[str, List[Dict[str, str]]]:
     """
     Главная функция модуля.
@@ -355,14 +356,14 @@ def exec_exploration(
     results = {}
     logger.info(f"Starting parallel execution with {max_workers} workers")
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
         future_to_id = {
-            executor.submit(
+            pool.submit(
                 _process_single_example,
                 iid,
                 task=tasks[iid],
                 model=model,
-                sql_executor=sql_executor,
+                executor=executor,
                 runs_root=runs_root,
                 run_id=run_id,
                 prompt_dir=prompt_dir,
@@ -556,7 +557,7 @@ if __name__ == "__main__":
     )
     
     # Инициализация SQL Executor
-    sql_executor = SQLExecutor(
+    executor = SQLExecutor(
         args.input_data_root, args.data_root, args.storage_root, 
         dict(args.local_dbs) if args.local_dbs else None
     )
@@ -579,7 +580,7 @@ if __name__ == "__main__":
         results = exec_exploration(
             run_id=run_id,
             model=model,
-            sql_executor=sql_executor, 
+            executor=executor, 
             runs_root=args.runs_root,
             max_workers=args.max_workers,
             data_root=args.data_root,

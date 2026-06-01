@@ -17,7 +17,7 @@ def _format_df_for_llm(df: pd.DataFrame, max_rows: int = 5) -> str:
 def schema_retrieval(
     table: str, column: str, description: str, db_id: str, 
     vsm: VectorStoreManager, additional_k: int = 5, 
-    input_data_root: str = "Spider2/spider2-lite"
+    input_data_root: str = "Spider2/spider2-lite", **kwargs
 ) -> str:
     """Explicitly add missing schema elements to context."""
     text = f"Table: {table}. Column: {column}. Description: {description}"
@@ -44,7 +44,7 @@ def schema_retrieval(
     return f"[RETRIEVED {len(retrieved)} columns]\n{summary}\n\nDetails: {json.dumps(retrieved, ensure_ascii=False)}"
 
 @tool
-def schema_exploration(query: str, executor: SQLExecutor, db_name: str, dialect: str) -> str:
+def schema_exploration(query: str, executor: SQLExecutor, db_name: str, dialect: str, **kwargs) -> str:
     """Execute lightweight READ-ONLY SQL query for data inspection."""
     status, result = executor.thread_safe_sql_execution(query, db_name, dialect)
     if status == "success" and isinstance(result, pd.DataFrame):
@@ -64,7 +64,8 @@ def join_discovery(
     db_name: Optional[str] = None,
     dialect: Optional[str] = None,
     executor: Optional[SQLExecutor] = None,
-    evidence: Optional[Dict[str, Any]] = None
+    evidence: Optional[Dict[str, Any]] = None,
+    **kwargs
 ) -> str:
     """Register join path using static/exploration evidence."""
     
@@ -89,7 +90,7 @@ def join_discovery(
     return f"{base_response}\n[WARNING] No validation_query provided. Join registered based on static evidence only."
 
 @tool
-def sql_draft(query: str, executor: SQLExecutor, db_name: str, dialect: str, purpose: str = "") -> str:
+def sql_draft(query: str, executor: SQLExecutor, db_name: str, dialect: str, purpose: str = "", **kwargs) -> str:
     """Test schema sufficiency with a preliminary SQL query."""
     if "LIMIT" not in query.upper():
         query = query.rstrip(";").strip() + " LIMIT 10;"
@@ -102,7 +103,7 @@ def sql_draft(query: str, executor: SQLExecutor, db_name: str, dialect: str, pur
     return f"[DRAFT FAILED] {result}"
 
 @tool
-def stop() -> str:
+def stop(**kwargs) -> str:
     """Signal schema linking completion."""
     return "[STOP] Schema linking finalized."
 

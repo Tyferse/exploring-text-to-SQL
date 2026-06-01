@@ -8,13 +8,13 @@
       "is_multidialect": true,
       "max_workers": 8
     },
-    "gen_column_embeddings": {
-      "batch_size": 256,
-      "max_workers": 2
-    },
     "column_vector_db": {
       "location": null,
       "max_cached_sessions": 2
+    },
+    "gen_column_embeddings": {
+      "batch_size": 256,
+      "max_workers": 2
     }
   },
   "schema_linking": {

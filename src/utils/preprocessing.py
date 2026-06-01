@@ -204,7 +204,8 @@ def spider2preprocess(
     is_multidialect: bool = True,
     max_workers: int = 4,
     log_root: str = "logs",
-    force_update: bool = False
+    force_update: bool = False,
+    **kwargs
 ) -> Dict[str, str]:
     """
     Основная функция предобработки Spider 2 datasets.

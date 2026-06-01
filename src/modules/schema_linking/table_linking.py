@@ -111,7 +111,8 @@ class TableLinking:
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
         max_tables: Optional[int] = None,
-        stage: Optional[str] = "table_linking"
+        stage: Optional[str] = "table_linking",
+        **kwargs
     ):
         """
         Args:

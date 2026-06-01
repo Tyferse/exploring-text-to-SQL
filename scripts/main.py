@@ -1,10 +1,10 @@
 import sys
 sys.path.insert(0, ".")
 
-import numpy as np
 import os
 import random
 
+import numpy as np
 from dotenv import load_dotenv
 
 from src.modules.generation.simple_generation import simple_generation
