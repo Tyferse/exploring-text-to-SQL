@@ -1,8 +1,9 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
+from langchain_core.messages import BaseMessage
 from langchain_openai import ChatOpenAI
 
 
@@ -63,3 +64,14 @@ def get_model(
     )
     
     return llm
+
+def serialize_message(msg: BaseMessage) -> Dict[str, Any]:
+    """Безопасная сериализация LangChain сообщения в dict."""
+    try:
+        return msg.model_dump()
+    except AttributeError:
+        return {"type": msg.type, "content": msg.content}
+
+def serialize_messages(messages: List[BaseMessage]) -> List[Dict[str, Any]]:
+    """Сериализация списка сообщений."""
+    return [serialize_message(m) for m in messages]

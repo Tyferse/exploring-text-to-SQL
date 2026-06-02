@@ -8,7 +8,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any, List, Union
 
 from langchain.chat_models import BaseChatModel
 from tqdm import tqdm
@@ -22,7 +22,7 @@ from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.run_manager import resolve_run_id
-from src.utils.sql_execution import SQLExecutor 
+from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair
 
 
 class SchemaLinkingAgentPipeline:
@@ -32,7 +32,7 @@ class SchemaLinkingAgentPipeline:
         model: BaseChatModel,
         vsm: VectorStoreManager,
         executor: SQLExecutor,
-        tasks: Optional[List[Dict[str, Any]]] = None,
+        tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -110,8 +110,12 @@ class SchemaLinkingAgentPipeline:
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает список примеров и их метаданные."""
         # Загружаем примеры
-        if self.tasks is None:
-            tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+        if self.tasks is None or isinstance(self.tasks, str):
+            if isinstance(self.tasks, str):
+                tasks_file = self.tasks
+            else:
+                tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+
             with open(tasks_file, "r", encoding="utf-8") as f:
                 tasks = [json.loads(line.strip()) for line in f.readlines()]
         else:
@@ -337,24 +341,6 @@ if __name__ == "__main__":
     load_dotenv(".env")
 
     import argparse
-
-    def parse_dialect_path_pair(value: str) -> tuple[str, str]:
-        if ':' in value:
-            dialect, path = value.split(':', 1)
-        elif '=' in value:
-            dialect, path = value.split('=', 1)
-        else:
-            raise argparse.ArgumentTypeError(
-                f"Invalid format '{value}'. Use 'dialect:path' or 'dialect=path'"
-            )
-        
-        dialect = dialect.strip().lower()
-        path = path.strip().rstrip('/') 
-        
-        if not dialect or not path:
-            raise argparse.ArgumentTypeError("Both dialect and path must be non-empty")
-        
-        return dialect, path
 
     parser = argparse.ArgumentParser(description="Запуск schema linking агента для дополнения итоговой схемы БД")
     parser.add_argument(

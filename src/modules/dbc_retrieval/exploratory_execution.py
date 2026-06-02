@@ -15,7 +15,7 @@ from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
 from src.utils.run_manager import resolve_run_id
-from src.utils.sql_execution import SQLExecutor
+from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair
 
 
 DEFAULT_RETRY_CONFIG = {
@@ -28,7 +28,7 @@ DEFAULT_RETRY_CONFIG = {
 def _load_instances(
     schemas_dir: str,
     results_dir: str,
-    tasks: Optional[List[Dict[str, Any]]] = None,
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
     data_root: str = "data",
     input_data_root: Optional[str] = None
 ) -> Dict[str, Dict[str, Any]]:
@@ -36,14 +36,14 @@ def _load_instances(
     assert tasks is not None or input_data_root is not None, "tasks or input_data_root argument must be not None"
 
     # Ищем JSON файл с задачами
-    if tasks is None and input_data_root is not None:
-        for file_path in Path(data_root, input_data_root).glob("*.jsonl"):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    tasks = [json.loads(line.strip()) for line in f.readlines()]
-                break
-            except Exception:
-                continue
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = tasks
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
+            tasks = [json.loads(line.strip()) for line in f.readlines()]
     
     tasks = {
         instance["instance_id"]: {
@@ -397,24 +397,7 @@ if __name__ == "__main__":
     import argparse
     from dotenv import load_dotenv
     load_dotenv(".env")
-
-    def parse_dialect_path_pair(value: str) -> tuple[str, str]:
-        if ':' in value:
-            dialect, path = value.split(':', 1)
-        elif '=' in value:
-            dialect, path = value.split('=', 1)
-        else:
-            raise argparse.ArgumentTypeError(
-                f"Invalid format '{value}'. Use 'dialect:path' or 'dialect=path'"
-            )
-        
-        dialect = dialect.strip().lower()
-        path = path.strip().rstrip('/') 
-        
-        if not dialect or not path:
-            raise argparse.ArgumentTypeError("Both dialect and path must be non-empty")
-        
-
+    
     parser = argparse.ArgumentParser(
         description="Database Content Retrieval: exploratory SQL generation and execution",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter

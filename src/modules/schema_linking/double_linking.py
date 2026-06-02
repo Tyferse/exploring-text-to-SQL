@@ -4,7 +4,7 @@ sys.path.insert(0, ".")
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from langchain_core.language_models import BaseChatModel
@@ -58,7 +58,7 @@ class TableColumnLinking:
         self,
         run_id: str,
         model: BaseChatModel,
-        tasks: Optional[List[Dict[str, Any]]] = None,
+        tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
         runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -315,8 +315,8 @@ class TableColumnLinking:
         """
         self.logger.info(f"Starting Table Column linking pipeline | Run: {self.run_id}")
         
-        # Загрузка инстансов (берём из table_linker, т.к. он загружает все задачи)
-        instances = self.table_linker.instances
+        # Загрузка инстансов (берём из column_linker, т.к. он загружает все невыполненные до конца задачи)
+        instances = self.column_linker.instances
         self.logger.info(f"Loaded {len(instances)} instances for processing")
         
         # Статистика
@@ -376,7 +376,7 @@ class ColumnTableLinking:
         self,
         run_id: str,
         model: BaseChatModel,
-        tasks: Optional[List[Dict[str, Any]]] = None,
+        tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
         runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -463,8 +463,8 @@ class ColumnTableLinking:
         Объединяет результаты: приоритет у колонок (они найдены первыми),
         таблицы дополняются описаниями из table-этапа.
         """
-        # Приоритет: колонки из column_result, таблицы — объединение
-        db_id = self.column_linker.instances[column_result["instance_id"]]["db_id"]
+        # Приоритет: колонки из table_linker, таблицы — объединение
+        db_id = self.table_linker.instances[column_result["instance_id"]]["db_id"]
         columns = column_result.get("columns_mapped", [])
         column_ids = column_result.get("column_ids", [])
         
@@ -658,7 +658,7 @@ class ColumnTableLinking:
         """Запускает пайплайн: column linking → table linking."""
         self.logger.info(f"Starting column→table linking pipeline | Run: {self.run_id}")
         
-        instances = self.column_linker.instances  # Берём из column_linker, он загружает задачи первым
+        instances = self.table_linker.instances  # Берём из table_linker, он загружает задачи последним
         self.logger.info(f"Loaded {len(instances)} instances for processing")
         
         stats = {"total": len(instances), "successful": 0, "failed": 0, "skipped": 0}
@@ -714,7 +714,7 @@ class BidirectionalLinking:
         self,
         run_id: str,
         model: BaseChatModel,
-        tasks: Optional[List[Dict[str, Any]]] = None,
+        tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
         runs_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -842,7 +842,7 @@ class BidirectionalLinking:
                 
                 iid = result["instance_id"]
                 data[iid] = {
-                    "db_id": self.tc_linker.table_linker.instances[iid]["db_id"],
+                    "db_id": self.ct_linker.table_linker.instances[iid]["db_id"],
                     "used_indices": result.get("used_indices", [])
                 }
                 
@@ -926,7 +926,7 @@ class BidirectionalLinking:
         self.logger.info(f"Starting bidirectional linking | Run: {self.run_id}")
         
         # Берём инстансы из одного из линкеров
-        instances = self.tc_linker.table_linker.instances
+        instances = self.ct_linker.table_linker.instances
         self.logger.info(f"Loaded {len(instances)} instances for processing")
         
         stats = {"total": len(instances), "successful": 0, "failed": 0, "skipped": 0}

@@ -7,7 +7,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
 from dataclasses import dataclass, field, asdict
 
 from langchain_core.language_models import BaseChatModel
@@ -100,7 +100,7 @@ class TableLinking:
         self,
         run_id: str,
         model: BaseChatModel,
-        tasks: Optional[List[Dict[str, str]]],
+        tasks: Optional[Union[List[Dict[str, Any]], str]],
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -118,7 +118,7 @@ class TableLinking:
         Args:
             run_id: Идентификатор запуска и название папки в runs_root
             model: Инициализированная LLM-модель (ChatOpenAI и аналоги)
-            tasks: Список задач, для которых требуется найти таблицы 
+            tasks: Список задач, для которых требуется найти таблицы, либо путь к .jsonl файлу с задачами, иначе загружается первый .jsonl из входных данных
             run_root: Папка с запусками
             input_data_root: Папка с текущими входными данными в data_root
             data_root: Директория со всеми входными данными
@@ -152,13 +152,13 @@ class TableLinking:
     @property
     def schemas(self):
         if not hasattr(self, '_schemas'):
-            self._schemas = load_schemas(self.storage_root / self.input_data_root / "schema_cache")
+            self._schemas = load_schemas(str(self.storage_root / self.input_data_root / "schema_cache"))
 
         return self._schemas
 
     @property
     def similar_tables(self):
-        if not hasattr(self, '_schemas'):
+        if not hasattr(self, '_similar_tables'):
             self._similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
         return self._similar_tables
@@ -176,8 +176,12 @@ class TableLinking:
                 ids_data = json.load(f)
         
         # Загружаем примеры
-        if self.tasks is None:
-            tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+        if self.tasks is None or isinstance(self.tasks, str):
+            if isinstance(tasks, str):
+                tasks_file = self.tasks
+            else:
+                tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
+
             with open(tasks_file, "r", encoding="utf-8") as f:
                 tasks = [json.loads(line.strip()) for line in f.readlines()]
         else:
@@ -194,7 +198,8 @@ class TableLinking:
                                         if instance.get("external_knowledge") else None),
                 "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
             } 
-            for instance in tasks if not (self.log_dir / f"{self.stage}_results" / f"{instance['instance_id']}.json").exists()
+            for instance in tasks 
+            if not (self.log_dir / f"{self.stage}_results" / f"{instance['instance_id']}.json").exists()
         }
         if self.input_data_root == "Spider2/spider2-lite":
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}

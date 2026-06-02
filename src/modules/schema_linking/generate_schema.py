@@ -4,7 +4,7 @@ import logging
 import random
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Literal, Callable
+from typing import Dict, List, Any, Optional, Tuple, Literal, Callable, Union
 
 from tqdm import tqdm
 
@@ -123,7 +123,7 @@ def generate_single_schema(
 
 def generate_schemas(
     run_id: str,
-    tasks: Optional[Dict[str, Any]] = None,
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
     run_root: str = "logs/runs",
     data_root: str = "data",
     input_data_root: str = "Spider2/spider2-lite",
@@ -140,7 +140,6 @@ def generate_schemas(
     run_path = Path(run_root) / run_id
     log_dir = run_path / "schema_linking"
     output_path = log_dir / output_dir
-    schema_tasks = deepcopy(tasks) if tasks is not None else None
 
     # Загрузка документов схем
     docs_path = Path(docs_path)
@@ -167,11 +166,16 @@ def generate_schemas(
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
 
     # Загружаем примеры
-    if schema_tasks is None:
-        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                      if file.endswith('.jsonl')][0]
-        with open(Path(data_root) / input_data_root / tasks_file, encoding="utf-8") as f:
-            schema_tasks = [json.loads(line.strip()) for line in f.readlines()]
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = tasks
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
+            tasks = [json.loads(line.strip()) for line in f.readlines()]
+    else:
+        schema_tasks = deepcopy(tasks)
     
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}

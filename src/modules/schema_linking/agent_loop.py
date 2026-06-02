@@ -7,9 +7,10 @@ from typing import List, Dict, Any, Optional, Tuple
 
 # from langchain_core.rate_limiters import BaseRateLimiter
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage, BaseMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
 
 from src.utils.logger import get_logger
+from src.utils.models import serialize_messages
 
 
 TOOL_CALL_PATTERN = re.compile(
@@ -39,17 +40,6 @@ def parse_tool_calls(llm_text: str) -> List[Dict[str, Any]]:
 
     return calls
 
-def serialize_message(msg: BaseMessage) -> Dict[str, Any]:
-    """Безопасная сериализация LangChain сообщения в dict."""
-    try:
-        return msg.model_dump()
-    except AttributeError:
-        return {"type": msg.type, "content": msg.content}
-
-def serialize_messages(messages: List[BaseMessage]) -> List[Dict[str, Any]]:
-    """Сериализация списка сообщений."""
-    return [serialize_message(m) for m in messages]
-
 
 class SchemaLinkingAgent:
     def __init__(
@@ -65,6 +55,7 @@ class SchemaLinkingAgent:
         self.model = model
         self.tools = tools
         self.config = config
+        self.max_messages = config.get("max_messages", 5)
         self.max_turns = config.get("max_turns", 10)
         self.max_draft_calls = config.get("max_draft_calls", 3)
         self.cache_dir = Path(cache_dir) if cache_dir else None
@@ -269,6 +260,14 @@ class SchemaLinkingAgent:
             # 4. Обновление истории и снапшотов
             state["messages"].extend([AIMessage(content=ai_text)] + tool_results)
             state["messages_snapshots"].append(serialize_messages(state["messages"]))
+            
+            ai_messages = sum(isinstance(message, AIMessage) for message in state["messages"])
+            if ai_messages > self.max_messages:
+                for j in range(1, len(state["messages"])):
+                    if isinstance(state["messages"][j], AIMessage):
+                        state["messages"] = state["messages"][j:]
+                        break
+
             state["tool_step_logs"].append({"turn": state["turn"], "calls": tools_log})
             state["turn"] += 1
             if state["log"]: state["log"].info(f"Turn {state['turn'] - 1} | Finish")

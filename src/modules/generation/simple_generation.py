@@ -8,7 +8,7 @@ import time
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple, Callable
+from typing import Dict, Any, Optional, List, Tuple, Callable, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -21,7 +21,7 @@ from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits, fill_prompt_template
 from src.utils.run_manager import resolve_run_id
-from src.utils.sql_execution import SQLExecutor
+from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair
 
 
 DEFAULT_RETRY_CONFIG = {
@@ -142,11 +142,11 @@ def _load_few_shots(few_shots_dir: str, instance_id: str, logger: Optional[loggi
 def _load_instances(
     run_id: str,
     runs_root: str = "logs/runs",
-    tasks: Optional[List[Dict[str, Any]]] = None,
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
     input_data_root: str = "Spider2/spider2-lite",
     data_root: str = "data",
     storage_root: str = "storage",
-    gen_prefix: str = "one_step",
+    prefix: str = "one_step",
     schema_dir: str = "final_schema",
     chars_per_token: float = 3.0,
     max_schema_tokens: int = 64_000,
@@ -156,14 +156,14 @@ def _load_instances(
     assert tasks is not None or input_data_root is not None, "tasks or input_data_root argument must be not None"
 
     # Ищем JSON файл с задачами
-    if tasks is None and input_data_root is not None:
-        for file_path in (Path(data_root) / input_data_root).glob("*.jsonl"):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    tasks = [json.loads(line.strip()) for line in f.readlines()]
-                break
-            except Exception:
-                continue
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = tasks
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
+            tasks = [json.loads(line.strip()) for line in f.readlines()]
     
     tasks_dict = {
         instance["instance_id"]: {
@@ -172,7 +172,7 @@ def _load_instances(
             "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
             "question": instance.get("question", instance.get("instruction", ""))
         } 
-        for instance in tasks if not (Path(runs_root) / run_id / "generation" / gen_prefix / "manifests" / f"{instance['instance_id']}.json").exists()
+        for instance in tasks if not (Path(runs_root) / run_id / "generation" / prefix / "manifests" / f"{instance['instance_id']}.json").exists()
     }
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
@@ -373,7 +373,7 @@ def generate_sql_simple(
                         "raw_response": response_text  # Сырой ответ
                     }
                     
-                    meta_path = sql_dir / f"{instance_id}_meta.json"
+                    meta_path = results_dir / f"{instance_id}_meta.json"
                     # Атомарная запись
                     fd, tmp_path = tempfile.mkstemp(dir=str(sql_dir), suffix=".tmp")
                     try:
@@ -610,23 +610,6 @@ if __name__ == "__main__":
     import argparse
     from dotenv import load_dotenv
     load_dotenv(".env")
-
-    def parse_dialect_path_pair(value: str) -> tuple[str, str]:
-        if ':' in value:
-            dialect, path = value.split(':', 1)
-        elif '=' in value:
-            dialect, path = value.split('=', 1)
-        else:
-            raise argparse.ArgumentTypeError(
-                f"Invalid format '{value}'. Use 'dialect:path' or 'dialect=path'"
-            )
-        
-        dialect = dialect.strip().lower()
-        path = path.strip().rstrip('/') 
-        
-        if not dialect or not path:
-            raise argparse.ArgumentTypeError("Both dialect and path must be non-empty")
-        
 
     parser = argparse.ArgumentParser(description="SQL generation from natural language")
     
