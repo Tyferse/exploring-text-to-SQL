@@ -129,7 +129,10 @@ def _load_failed_candidates(
                     "error": cand_data.get("execution", {}).get("error", "Empty result")
                 }
         
-        if corrections:
+        if corrections and not all(
+            (Path(runs_root) / run_id / "correction" / gen_prefix / f"sql_{cnd:02d}" / f"{instance_id}.sql").exists() 
+            for cnd in corrections.keys()
+        ):
             tasks.append({
                 "instance_id": instance_id,
                 "db_id": db_id,
@@ -138,7 +141,7 @@ def _load_failed_candidates(
                 "external_knowledge": gen_data.get("external_knowledge", "None"),
                 "corrections": corrections
             })
-            
+    
     return tasks
 
 def extract_sql_from_response(response_text: str, logger: Optional[logging.Logger] = None) -> Optional[str]:

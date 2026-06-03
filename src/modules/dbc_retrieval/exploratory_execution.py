@@ -7,7 +7,7 @@ import logging
 import concurrent.futures
 import re
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Union
 
 from langchain_core.language_models import BaseChatModel
 
@@ -15,7 +15,7 @@ from src.utils.logger import get_logger
 from src.utils.models import get_model
 from src.utils.preprocessing import remove_digits
 from src.utils.run_manager import resolve_run_id
-from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair
+from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair, df_to_markdown
 
 
 DEFAULT_RETRY_CONFIG = {
@@ -136,7 +136,7 @@ def _format_query_result(status: str, result_df: Any, sql: str, description: str
     
     # status == "success": форматирование DataFrame в markdown-таблицу
     if hasattr(result_df, 'to_markdown'):
-        table_str = result_df.to_markdown(index=False, tablefmt="grid")
+        table_str = df_to_markdown(result_df)
     else:
         # Fallback для списка словарей
         table_str = json.dumps(result_df, ensure_ascii=False, indent=2) if result_df else "<no_data>"
