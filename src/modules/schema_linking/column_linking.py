@@ -5,7 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
 from dataclasses import dataclass, field, asdict
 
 from langchain_core.language_models import BaseChatModel
@@ -174,7 +174,7 @@ class ColumnLinking:
         self,
         run_id: str,
         model: BaseChatModel,
-        tasks: Optional[List[Dict[str, str]]] = None,
+        tasks: Optional[Union[List[Dict[str, str]], str]] = None,
         run_root: str = "logs/runs",
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
@@ -226,13 +226,13 @@ class ColumnLinking:
     @property
     def schemas(self):
         if not hasattr(self, '_schemas'):
-            self._schemas = load_schemas(self.storage_root / self.input_data_root / "schema_cache")
+            self._schemas = load_schemas(str(self.storage_root / self.input_data_root / "schema_cache"))
 
         return self._schemas
 
     @property
     def similar_tables(self):
-        if not hasattr(self, '_schemas'):
+        if not hasattr(self, '_similar_tables'):
             self._similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
 
         return self._similar_tables
@@ -240,8 +240,11 @@ class ColumnLinking:
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает инстансы из кэша или задач."""
         # Загружаем задачи
-        if self.tasks is None:
-            tasks_files = list((self.data_root / self.input_data_root).glob("*.jsonl"))
+        if self.tasks is None or isinstance(self.tasks, str):
+            if isinstance(self.tasks, str):
+                tasks_files = [self.tasks]
+            else:
+                tasks_files = list((self.data_root / self.input_data_root).glob("*.jsonl"))
             if not tasks_files:
                 raise FileNotFoundError(f"No .jsonl tasks found in {self.data_root / self.input_data_root}")
             

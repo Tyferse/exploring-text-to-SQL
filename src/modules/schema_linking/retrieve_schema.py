@@ -8,7 +8,7 @@ import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import List, Dict, Set, Any, Optional
+from typing import List, Dict, Set, Any, Optional, Union
 
 from tqdm import tqdm
 
@@ -404,10 +404,40 @@ class SchemaRetriever:
             force_refresh=False  # Использует кэш
         )
 
+def retrieve_instance_columns(
+        instance_data: Dict, 
+        retriever: SchemaRetriever, 
+        storage_root: str,
+        input_data_root: str, 
+        force_refresh: bool = False
+    ):
+    loaded_meta = json.load(open(
+        os.path.join(storage_root, input_data_root, "schema_cache", 
+                     instance_data[1] + "_meta.json"), 
+        encoding='utf-8')
+    )
+    selected_columns = retriever.select_schema(
+        instance_id=instance_data[0],
+        question=instance_data[2],
+        db_id=instance_data[1],
+        schema_meta=loaded_meta[instance_data[1]],
+        force_refresh=force_refresh
+    )
+    if len(selected_columns) < retriever.max_total_columns:
+        more_columns = retriever.expand_schema(
+            instance_id=instance_data[0],
+            question=instance_data[2],
+            db_id=instance_data[1],
+            schema_meta=loaded_meta[instance_data[1]]
+        )
+        selected_columns.extend(more_columns)
+    
+    return selected_columns
+
 def retrieve_columns(
         run_id, 
         vsm: VectorStoreManager,
-        tasks: Optional[List[Dict[str, str]]] = None,
+        tasks: Optional[Union[List[Dict[str, str]], str]] = None,
         input_data_root: str = "Spider2/spider2-lite",
         data_root: str = "data",
         storage_root: str = "storage", 
@@ -422,10 +452,13 @@ def retrieve_columns(
         expansion_top_k=topk // 5, max_total_columns=topk
     )
 
-    if tasks is None:
-        tasks_file = [file for file in os.listdir(os.path(data_root, input_data_root)) 
-                      if file.endswith('.jsonl')][0]
-        with open(os.path.join(data_root, input_data_root, tasks_file), 'r', encoding='utf-8') as f:
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = tasks
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
             tasks = [json.loads(line.strip()) for line in f.readlines()]
 
     q_key = "question" if "question" in tasks[0] else "instruction"
@@ -444,37 +477,20 @@ def retrieve_columns(
     instance_db = {task[0]: task[1] for task in tasks}
     tasks = [task for task in tasks if os.path.exists(cache._get_cache_path(task[0]))]
 
-    def process_instance(instance_data):
-        nonlocal retriever, storage_root, input_data_root, force_refresh
-        loaded_meta = json.load(open(
-            os.path.join(storage_root, input_data_root, "schema_cache", 
-                         instance_data[1] + "_meta.json"), 
-            encoding='utf-8')
-        )
-        selected_columns = retriever.select_schema(
-            instance_id=instance_data[0],
-            question=instance_data[2],
-            db_id=instance_data[1],
-            schema_meta=loaded_meta[instance_data[1]],
-            force_refresh=force_refresh
-        )
-        if len(selected_columns) < retriever.max_total_columns:
-            more_columns = retriever.expand_schema(
-                instance_id=instance_data[0],
-                question=instance_data[2],
-                db_id=instance_data[1],
-                schema_meta=loaded_meta[instance_data[1]]
-            )
-            selected_columns.extend(more_columns)
-
     with ThreadPoolExecutor(max_workers) as executor:
-        futures = [executor.submit(process_instance, task) for task in tasks]
+        futures = [
+            executor.submit(
+                retrieve_instance_columns, 
+                task, retriever, storage_root, 
+                input_data_root, force_refresh
+            ) 
+            for task in tasks
+        ]
         with tqdm(total=len(futures), desc="Retrieve for questions", ncols=160, leave=True) as pbar:
             for _ in as_completed(futures):
                 pbar.update(1)
     
     cache.cache_union(instance_db)
-    vsm.close_all()
 
 
 if __name__ == "__main__":

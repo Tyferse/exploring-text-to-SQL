@@ -126,6 +126,7 @@
       "max_turns": 10,
       "max_draft_calls": 3,
       "additional_k": 5,
+      "max_messages": 8,
       "retry_config": {
         "max_attempts": 3,
         "initial_delay": 2.0,

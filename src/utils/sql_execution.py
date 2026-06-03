@@ -1,3 +1,4 @@
+import argparse
 import glob
 import json
 import os
@@ -122,3 +123,27 @@ class SQLExecutor:
                 return "error", f"Error occurred while fetching data for: {e}"
             finally:
                 conn.close()
+
+def parse_dialect_path_pair(value: str) -> tuple[str, str]:
+    if ':' in value:
+        dialect, path = value.split(':', 1)
+    elif '=' in value:
+        dialect, path = value.split('=', 1)
+    else:
+        raise argparse.ArgumentTypeError(
+            f"Invalid format '{value}'. Use 'dialect:path' or 'dialect=path'"
+        )
+    
+    dialect = dialect.strip().lower()
+    path = path.strip().rstrip('/') 
+    
+    if not dialect or not path:
+        raise argparse.ArgumentTypeError("Both dialect and path must be non-empty")
+
+def df_to_markdown(df: Optional[pd.DataFrame]) -> str:
+    if df is None: return "*(No result available)*"
+    if df.empty: return "*(Empty result set)*"
+    try: 
+        return df.to_markdown(index=False)
+    except Exception: 
+        return df.to_string(index=False)
