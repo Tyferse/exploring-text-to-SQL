@@ -8,11 +8,12 @@ import time
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Literal, Optional, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, AIMessage
 
 from src.utils.logger import get_logger
 from src.utils.models import get_model
@@ -104,6 +105,7 @@ def _load_semantic_context(instance_id: str, candidate_id: int, run_id: str, run
         try:
             with open(meta_path, "r", encoding="utf-8") as f:
                 meta_data = json.load(f)
+
             question = meta_data.get("question", "Unknown question")
             dialect = meta_data.get("dialect", "sqlite")
             db_id = meta_data.get("db_id", instance_id)
@@ -115,7 +117,7 @@ def _load_semantic_context(instance_id: str, candidate_id: int, run_id: str, run
     
     return {
         "schema": schema, "question": question, "dialect": dialect, "db_id": db_id,
-        "current_sql": current_sql, "execution_result": df_to_markdown(df, max_rows=5), "df": df
+        "current_sql": current_sql, "execution_result": df_to_markdown(df), "df": df
     }
 
 def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_prefix: str = "simple") -> List[Dict[str, Any]]:
@@ -128,8 +130,10 @@ def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_pre
                 try:
                     with open(meta_file, "r", encoding="utf-8") as f: meta = json.load(f)
                     instance_id, candidate_id = meta.get("instance_id"), meta.get("candidate_id")
-                    
-                    # TODO проверка на существование обработанных кандидатов и их пропуск
+
+                    if (Path(runs_root) / run_id / "correction" / gen_prefix / f"valid_result_{candidate_id:02d}" / f"{instance_id}.csv").exists():
+                        processed_pairs.add((instance_id, candidate_id))
+
                     if (instance_id, candidate_id) in processed_pairs: continue
                     
                     # Проверка успеха в зависимости от структуры
@@ -156,21 +160,24 @@ def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_pre
 
 def run_classification_check(
     model: BaseChatModel,
-    question: str, schema: str, current_sql: str, execution_result: str,
-    prompt_template: str, retry_config: Dict[str, float], logger: Optional[logging.Logger]
+    dialect:str, question: str, schema: str, 
+    current_sql: str, execution_result: str,
+    prompt_template: str, retry_config: Dict[str, float], 
+    logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Только классификация. Возвращает вердикт и причины."""
     prompt = fill_prompt_template(prompt_template, {
-        "{{QUESTION}}": question, "{{SCHEMA}}": schema,
+        "{{DIALECT}}": dialect, "{{QUESTION}}": question, "{{SCHEMA}}": schema, 
         "{{EXECUTED_SQL}}": current_sql, "{{EXECUTION_RESULT}}": execution_result
     })
-    messages = [{"role": "user", "content": prompt}]
+    messages = [HumanMessage(content=prompt)]
     
     for llm_retry in range(retry_config["max_attempts"]):
         delay = min(retry_config["initial_delay"] * (retry_config["backoff_multiplier"] ** llm_retry), retry_config["max_delay"])
         if llm_retry > 0:
             if logger: logger.info(f"Classification LLM retry {llm_retry + 1} after {delay:.2f}s")
             time.sleep(delay)
+
         try:
             response = model.invoke(messages)
             response_text = response.content if hasattr(response, "content") else str(response)
@@ -187,7 +194,8 @@ def run_classification_check(
 def run_unified_validation(
     model: BaseChatModel,
     question: str, schema: str, current_sql: str, execution_result: str, reasons: str,
-    dialect: str, dialect_rules: str, prompt_template: str, retry_config: Dict[str, float], logger: logging.Logger
+    dialect: str, dialect_rules: str, prompt_template: str, retry_config: Dict[str, float], 
+    logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Единый промпт исправления. Возвращает исправленный SQL и рассуждения."""
     prompt = fill_prompt_template(prompt_template, {
@@ -195,13 +203,15 @@ def run_unified_validation(
         "{{EXECUTION_RESULT}}": execution_result, "{{VALIDATION_REASONS}}": reasons,
         "{{DIALECT}}": dialect, "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
-    messages = [{"role": "user", "content": prompt}]
+    messages = [HumanMessage(content=prompt)]
     
     for llm_retry in range(retry_config["max_attempts"]):
         delay = min(retry_config["initial_delay"] * (retry_config["backoff_multiplier"] ** llm_retry), retry_config["max_delay"])
+        
         if llm_retry > 0:
-            logger.info(f"Unified Validation LLM retry {llm_retry + 1} after {delay:.2f}s")
+            if logger: logger.info(f"Unified Validation LLM retry {llm_retry + 1} after {delay:.2f}s")
             time.sleep(delay)
+
         try:
             response = model.invoke(messages)
             response_text = response.content if hasattr(response, "content") else str(response)
@@ -212,16 +222,16 @@ def run_unified_validation(
                 "think": think_text, "answer": answer_text, "corrected_sql": corrected_sql, "success": True
             }
         except Exception as e:
-            logger.warning(f"Unified Validation LLM call failed: {e}")
+           if logger: logger.warning(f"Unified Validation LLM call failed: {e}")
             
     return {"messages": messages, "raw_response": "", "corrected_sql": None, "success": False}
 
 
 def run_double_validation(
-    model: BaseChatModel,
-    question: str, schema: str, current_sql: str, execution_result: str, reasons: str,
+    model: BaseChatModel, executor: SQLExecutor,
+    question: str, db_name: str, schema: str, current_sql: str, execution_result: str, reasons: str,
     dialect: str, dialect_rules: str, rules_prompt_template: str, output_prompt_template: str,
-    retry_config: Dict[str, float], logger: logging.Logger
+    retry_config: Dict[str, float], logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Двухэтапное исправление: сначала правила, затем формат вывода."""
     all_messages = []
@@ -232,12 +242,14 @@ def run_double_validation(
         "{{EXECUTION_RESULT}}": execution_result, "{{DERIVED_RULES}}": reasons,
         "{{DIALECT}}": dialect, "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
-    messages_1 = [{"role": "user", "content": rules_prompt}]
+    messages_1 = [HumanMessage(content=rules_prompt)]
     sql_step1 = None
     
     for llm_retry in range(retry_config["max_attempts"]):
         delay = min(retry_config["initial_delay"] * (retry_config["backoff_multiplier"] ** llm_retry), retry_config["max_delay"])
-        if llm_retry > 0: time.sleep(delay)
+        if llm_retry > 0: 
+            if logger: logger.info(f"Rules Validation LLM retry {llm_retry + 1} after {delay:.2f}s")
+            time.sleep(delay)
         try:
             response = model.invoke(messages_1)
             response_text = response.content if hasattr(response, "content") else str(response)
@@ -246,23 +258,45 @@ def run_double_validation(
             all_messages.append({"step": 1, "messages": messages_1, "raw_response": response_text, "think": think_text, "answer": answer_text})
             break
         except Exception as e:
-            logger.warning(f"Double Validation Step 1 LLM call failed: {e}")
+            if logger: logger.warning(f"Double Validation Rules Step LLM call failed: {e}")
             
     if not sql_step1:
         return {"all_messages": all_messages, "final_sql": None, "success": False}
 
+    # Исполняем запрос
+    logger.info(f"Executing corrected SQL on DB: {db_name}")
+    exec_start = time.perf_counter()
+    exec_error = None
+    df = None
+    try:
+        exec_status, df = executor.thread_safe_sql_execution(
+            sql=sql_step1, db_name=db_name, dialect=dialect
+        )
+        exec_duration = time.perf_counter() - exec_start
+        logger.info(f"Execution finished in {exec_duration:.2f}s. Status: {exec_status}")
+    except Exception as e:
+        exec_status, exec_error, df = "error", str(e), None
+        exec_duration = time.perf_counter() - exec_start
+        logger.error(f"Execution exception: {exec_error}")
+        
+    all_messages[-1]["execution"] = {
+        "status": exec_status, "duration_sec": round(exec_duration, 3), "error": exec_error
+    }
+
     # Этап 2: Формат вывода (берем SQL из шага 1)
     output_prompt = fill_prompt_template(output_prompt_template, {
         "{{QUESTION}}": question, "{{SCHEMA}}": schema, "{{CURRENT_SQL}}": sql_step1,
-        "{{EXECUTION_RESULT}}": execution_result, "{{DIALECT}}": dialect,
+        "{{EXECUTION_RESULT}}": df_to_markdown(df), "{{DIALECT}}": dialect,
         "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
-    messages_2 = [{"role": "user", "content": output_prompt}]
+    messages_2 = [HumanMessage(content=output_prompt)]
     sql_step2 = None
     
     for llm_retry in range(retry_config["max_attempts"]):
         delay = min(retry_config["initial_delay"] * (retry_config["backoff_multiplier"] ** llm_retry), retry_config["max_delay"])
-        if llm_retry > 0: time.sleep(delay)
+        if llm_retry > 0: 
+            if logger: logger.info(f"Output Validation LLM retry {llm_retry + 1} after {delay:.2f}s")
+            time.sleep(delay)
         try:
             response = model.invoke(messages_2)
             response_text = response.content if hasattr(response, "content") else str(response)
@@ -271,14 +305,10 @@ def run_double_validation(
             all_messages.append({"step": 2, "messages": messages_2, "raw_response": response_text, "think": think_text, "answer": answer_text})
             break
         except Exception as e:
-            logger.warning(f"Double Validation Step 2 LLM call failed: {e}")
+            logger.warning(f"Double Validation Output Step LLM call failed: {e}")
 
     return {"all_messages": all_messages, "final_sql": sql_step2, "success": bool(sql_step2)}
 
-
-# ==============================================================================
-# 2. ОРКЕСТРАТОР (Логирование, Исполнение, Сохранение)
-# ==============================================================================
 
 def correct_semantic_single_candidate(
     instance_data: Dict[str, Any],
@@ -290,8 +320,7 @@ def correct_semantic_single_candidate(
     runs_root: str = "logs/runs",
     schema_dir: str = "final_schema",
     gen_prefix: str = "simple",
-    sem_prefix: str = "semantic",
-    validation_mode: str = "unified",  # "check", "unified", "double"
+    validation_mode: Literal["unified", "double"] = "unified",
     max_turns: int = 2,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG
 ) -> Dict[str, Any]:
@@ -311,7 +340,7 @@ def correct_semantic_single_candidate(
     question = instance_data["question"]
     
     # 1. Логгер
-    base_dir = Path(runs_root) / run_id / sem_prefix / gen_prefix
+    base_dir = Path(runs_root) / run_id / "correction" / gen_prefix
     events_dir = base_dir / "events"
     events_dir.mkdir(parents=True, exist_ok=True)
     logger = get_logger(
@@ -320,7 +349,7 @@ def correct_semantic_single_candidate(
         console=False
     )
     
-    logger.info(f"=== START SEMANTIC ({validation_mode}): {instance_id} | Cand: {candidate_id} ===")
+    logger.info(f"=== START SEMANTIC VALIDATION ({validation_mode}): {instance_id} | Cand: {candidate_id} ===")
     start_time = time.perf_counter()
     
     # 2. Контекст
@@ -329,7 +358,10 @@ def correct_semantic_single_candidate(
     
     if not current_sql:
         logger.error("No SQL found for semantic correction.")
-        return {"instance_id": instance_id, "candidate_id": candidate_id, "final_status": "failed_no_sql", "metadata": {"start_time": start_time, "end_time": time.perf_counter()}}
+        return {
+            "instance_id": instance_id,  "candidate_id": candidate_id, "final_status": "failed_no_sql", 
+            "metadata": {"start_time": start_time, "end_time": time.perf_counter()}
+        }
     
     # 3. Правила диалекта
     dialect_rules = "None"
@@ -339,7 +371,7 @@ def correct_semantic_single_candidate(
     
     # 4. Загрузка шаблонов
     classify_tpl = _load_prompt(prompt_names["classify"], prompt_dir)
-    validation_tpl = _load_prompt(prompt_names["validation"], prompt_dir)
+    validation_tpl = _load_prompt(prompt_names["validation"], prompt_dir) if validation_mode == "unified" else None
     rules_tpl = _load_prompt(prompt_names["rules"], prompt_dir) if validation_mode == "double" else None
     output_tpl = _load_prompt(prompt_names["output"], prompt_dir) if validation_mode == "double" else None
     
@@ -358,7 +390,11 @@ def correct_semantic_single_candidate(
         
         # ШАГ A: Классификация
         logger.info("Running classification check...")
-        check_result = run_classification_check(model, question, context["schema"], current_sql, context["execution_result"], classify_tpl, retry_config, logger)
+        check_result = run_classification_check(
+            model, dialect, question, context["schema"], 
+            current_sql, context["execution_result"],
+            classify_tpl, retry_config, logger
+        )
         turn_record["classification"] = check_result
         verdict = check_result["result"]["verdict"]
         reasons = check_result["result"]["reasons"]
@@ -384,20 +420,25 @@ def correct_semantic_single_candidate(
         correction_result = {}
         
         if validation_mode == "unified":
-            corr_res = run_unified_validation(model, question, context["schema"], current_sql, context["execution_result"], reasons_text, dialect, dialect_rules, validation_tpl, retry_config, logger)
+            corr_res = run_unified_validation(
+                model, question, context["schema"], 
+                current_sql, context["execution_result"], 
+                reasons_text, dialect, dialect_rules, validation_tpl, 
+                retry_config, logger
+            )
             corrected_sql = corr_res.get("corrected_sql")
             correction_result = corr_res
             
         elif validation_mode == "double":
-            corr_res = run_double_validation(model, question, context["schema"], current_sql, context["execution_result"], reasons_text, dialect, dialect_rules, rules_tpl, output_tpl, retry_config, logger)
+            corr_res = run_double_validation(
+                model, executor, question, 
+                db_id.split("_", 1)[1] if "_" in db_id else db_id, 
+                context["schema"], current_sql, context["execution_result"], 
+                reasons_text, dialect, dialect_rules, rules_tpl, output_tpl, 
+                retry_config, logger
+            )
             corrected_sql = corr_res.get("final_sql")
             correction_result = corr_res
-            
-        elif validation_mode == "check":
-            logger.info("Check-only mode: skipping correction.")
-            results["final_status"] = "invalid_check_only"
-            results["turns"].append(turn_record)
-            break
             
         turn_record["correction"] = correction_result
         
@@ -437,7 +478,7 @@ def correct_semantic_single_candidate(
             
         # Обновляем контекст для следующей итерации
         current_sql = corrected_sql
-        context["execution_result"] = df_to_markdown(df, max_rows=5)
+        context["execution_result"] = df_to_markdown(df)
         context["df"] = df
         results["turns"].append(turn_record)
         
@@ -445,8 +486,8 @@ def correct_semantic_single_candidate(
     results["metadata"]["end_time"] = time.perf_counter()
     results["metadata"]["total_duration_sec"] = round(results["metadata"]["end_time"] - start_time, 3)
     
-    cand_dir = base_dir / f"sql_{candidate_id:02d}"
-    results_dir = base_dir / f"result_{candidate_id:02d}"
+    cand_dir = base_dir / f"valid_sql_{candidate_id:02d}"
+    results_dir = base_dir / f"valid_result_{candidate_id:02d}"
     cand_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
     
@@ -475,23 +516,22 @@ def correct_semantic_single_candidate(
     return results
 
 
-# ==============================================================================
-# 3. ПАРАЛЛЕЛЬНЫЙ ОРКЕСТРАТОР
-# ==============================================================================
-
 def simple_semantic_correction(
     run_id: str, model: BaseChatModel, executor: SQLExecutor,
     tasks: Optional[List[Dict[str, Any]]] = None,
     prompt_dir: str = "config/prompts/semantic",
     prompt_names: Optional[Dict[str, str]] = None,
-    runs_root: str = "logs/runs", schema_dir: str = "final_schema",
-    gen_prefix: str = "simple", sem_prefix: str = "semantic",
+    runs_root: str = "logs/runs", 
+    schema_dir: str = "final_schema",
+    gen_prefix: str = "simple",
     validation_mode: str = "unified",
-    max_turns: int = 2, max_workers: int = 2,
-    retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG, **kwargs
+    max_turns: int = 2, 
+    max_workers: int = 2,
+    retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG, 
+    **kwargs
 ) -> Dict[str, Any]:
     
-    base_path = Path(runs_root) / run_id / sem_prefix / gen_prefix
+    base_path = Path(runs_root) / run_id / "correction" / gen_prefix
     main_log = base_path / "main.log"
     main_log.parent.mkdir(parents=True, exist_ok=True)
     logger = get_logger("simple_semantic", str(main_log))
@@ -515,8 +555,8 @@ def simple_semantic_correction(
                 correct_semantic_single_candidate,
                 instance_data=task, run_id=run_id, model=model, executor=executor,
                 prompt_dir=prompt_dir, prompt_names=prompt_names, runs_root=runs_root,
-                schema_dir=schema_dir, gen_prefix=gen_prefix, sem_prefix=sem_prefix,
-                validation_mode=validation_mode, max_turns=max_turns, retry_config=retry_config
+                schema_dir=schema_dir, gen_prefix=gen_prefix, validation_mode=validation_mode, 
+                max_turns=max_turns, retry_config=retry_config
             ): (task["instance_id"], task["candidate_id"])
             for task in tasks
         }
@@ -535,12 +575,12 @@ def simple_semantic_correction(
     stats = {
         "total_jobs": len(tasks),
         "valid": sum(1 for r in all_results.values() if r.get("final_status") == "valid"),
-        "corrected_or_invalid": sum(1 for r in all_results.values() if r.get("final_status") in ("invalid_max_turns",)),
+        "corrected_or_invalid": sum(1 for r in all_results.values() if r.get("final_status") == "invalid_max_turns"),
         "failed": sum(1 for r in all_results.values() if r.get("final_status") not in ("valid", "invalid_max_turns")),
         "total_duration_sec": round(total_duration, 2)
     }
     
-    with open(base_path / "pipeline_stats.json", "w", encoding="utf-8") as f:
+    with open(base_path / "validation_stats.json", "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
         
     logger.info("=== SEMANTIC CORRECTION PIPELINE FINISHED ===")
@@ -564,18 +604,17 @@ if __name__ == "__main__":
     parser.add_argument("--storage-root", default="storage")
     parser.add_argument("--input-data-root", default="Spider2/spider2-lite")
     parser.add_argument("--gen-prefix", default="simple")
-    parser.add_argument("--sem-prefix", default="semantic")
     parser.add_argument("--schema-dir", default="final_schema")
     parser.add_argument("--local-dbs", type=parse_dialect_path_pair, nargs="*", default=None, metavar="DIALECT:PATH")
     
-    parser.add_argument("--prompt-dir", default="config/prompts/semantic")
+    parser.add_argument("--prompt-dir", default="config/prompts/correction")
     parser.add_argument("--classify-prompt", default="semantic_classify")
     parser.add_argument("--validation-prompt", default="semantic_validation")
     parser.add_argument("--rules-prompt", default=None)
     parser.add_argument("--output-prompt", default=None)
     
     # Ключевой параметр режима
-    parser.add_argument("--validation-mode", type=str, default="unified", choices=["check", "unified", "double"], help="Режим валидации: check, unified или double")
+    parser.add_argument("--validation-mode", type=str, default="unified", choices=["unified", "double"], help="Режим валидации: unified или double")
     
     parser.add_argument("--max-workers", type=int, default=2)
     parser.add_argument("--max-turns", type=int, default=2)
@@ -607,9 +646,10 @@ if __name__ == "__main__":
     
     print(f"\nStarting semantic correction ({args.validation_mode}) for run: {run_id}")
     output = simple_semantic_correction(
-        run_id=run_id, model=model, executor=executor, prompt_dir=args.prompt_dir, prompt_names=prompt_names,
-        runs_root=args.run_root, schema_dir=args.schema_dir, gen_prefix=args.gen_prefix, sem_prefix=args.sem_prefix,
-        validation_mode=args.validation_mode, max_turns=args.max_turns, max_workers=args.max_workers, retry_config=retry_config
+        run_id=run_id, model=model, executor=executor, prompt_dir=args.prompt_dir, 
+        prompt_names=prompt_names, runs_root=args.run_root, schema_dir=args.schema_dir, 
+        gen_prefix=args.gen_prefix, validation_mode=args.validation_mode,
+        max_turns=args.max_turns, max_workers=args.max_workers, retry_config=retry_config
     )
     
     stats = output.get("stats", {})

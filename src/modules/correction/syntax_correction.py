@@ -130,7 +130,7 @@ def _load_failed_candidates(
                 }
         
         if corrections and not all(
-            (Path(runs_root) / run_id / "correction" / gen_prefix / f"sql_{cnd:02d}" / f"{instance_id}.sql").exists() 
+            (Path(runs_root) / run_id / "correction" / gen_prefix / f"result_{cnd:02d}" / f"{instance_id}.csv").exists() 
             for cnd in corrections.keys()
         ):
             tasks.append({
@@ -523,11 +523,11 @@ def simple_correction(
         "total_duration_sec": round(total_duration, 2)
     }
     
-    stats_path = base_path / "pipeline_stats.json"
+    stats_path = base_path / "correction_stats.json"
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
         
-    logger.info("=== CORRECTION PIPELINE FINISHED ===")
+    logger.info("=== SYNTAX CORRECTION PIPELINE FINISHED ===")
     logger.info(f"Stats: {json.dumps(stats, indent=2)}")
     
     return {"results": all_results, "stats": stats}

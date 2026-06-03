@@ -225,7 +225,7 @@ def extract_sql_from_response(response_text: str, logger: Optional[logging.Logge
     
     for line in lines:
         stripped = line.strip()
-        if re.match(r"^(SELECT|WITH|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\b", stripped, re.IGNORECASE):
+        if re.match(r"^(SELECT|WITH)\b", stripped, re.IGNORECASE):
             in_sql = True
         if in_sql and stripped and not stripped.startswith("```"):
             sql_lines.append(line)
