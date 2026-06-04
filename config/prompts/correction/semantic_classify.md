@@ -9,6 +9,9 @@ You are an expert SQL semantic validator. Your task is to determine whether the 
 ## Database Schema
 {{SCHEMA}}
 
+## External Knowledge:
+{{EXTERNAL_KNOWLEDGE}}
+
 ## Executed SQL
 ```sql
 {{EXECUTED_SQL}}

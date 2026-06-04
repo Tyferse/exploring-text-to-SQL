@@ -8,6 +8,9 @@
 ## Database Schema:
 {{SCHEMA}}
 
+## External Knowledge:
+{{EXTERNAL_KNOWLEDGE}}
+
 ## Current SQL:
 ```sql
 {{CURRENT_SQL}}

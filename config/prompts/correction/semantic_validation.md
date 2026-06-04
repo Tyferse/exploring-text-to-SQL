@@ -9,6 +9,9 @@ You are an expert SQL semantic debugger and preference checker. The provided SQL
 ## Database Schema
 {{SCHEMA}}
 
+## External Knowledge:
+{{EXTERNAL_KNOWLEDGE}}
+
 ## Current SQL (Syntactically Correct, Semantically/Format Wrong)
 ```sql
 {{CURRENT_SQL}}

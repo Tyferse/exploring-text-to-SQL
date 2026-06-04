@@ -8,7 +8,7 @@ import time
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Literal, Optional, List, Tuple
+from typing import Dict, Any, Literal, Optional, List, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -92,11 +92,38 @@ def extract_sql_from_response(response_text: str) -> Optional[str]:
         if stripped.endswith("```") and in_sql: break
     return "\n".join(sql_lines).strip() or None
 
-def _load_semantic_context(instance_id: str, candidate_id: int, run_id: str, runs_root: str, gen_prefix: str, schema_dir: str, logger: logging.Logger) -> Dict[str, Any]:
+def _load_external_knowledge_path(
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None, 
+    input_data_root: str = "Spider2/spider2-lite", 
+    data_root: str = "data"
+) -> List[str]:
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = tasks
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
+            taskl = [json.loads(line.strip()).get("external_knowledge") for line in f.readlines()]
+    
+    ek_paths = {instance["instance_id"]: instance.get("external_knowledge") for instance in taskl}
+
+    return {iid: str(Path(data_root) / input_data_root / "resource" / "documents" / file) if file else None 
+            for iid, file in ek_paths.items()}
+
+def _load_semantic_context(
+    instance_id: str, candidate_id: int, run_id: str, runs_root: str, 
+    gen_prefix: str, schema_dir: str, ek_path: Optional[str] = None, 
+    logger: Optional[logging.Logger] = None
+) -> Dict[str, Any]:
     runs_path = Path(runs_root) / run_id
     schema_path = runs_path / "schema_linking" / schema_dir / f"{instance_id}.txt"
     schema = schema_path.read_text(encoding="utf-8") if schema_path.exists() else "Schema not found."
     
+    external_knowledge = "None"
+    if ek_path is not None and Path(ek_path).exists():
+        external_knowledge = Path(ek_path).read_text(encoding="utf-8")
+
     meta_path = _find_artifact_path(instance_id, candidate_id, run_id, runs_root, gen_prefix, "meta")
     question, dialect, db_id = "Unknown question", "sqlite", instance_id
     current_sql = ""
@@ -116,7 +143,8 @@ def _load_semantic_context(instance_id: str, candidate_id: int, run_id: str, run
     df = _load_df_from_csv(csv_path)
     
     return {
-        "schema": schema, "question": question, "dialect": dialect, "db_id": db_id,
+        "schema": schema, "question": question, "dialect": dialect, 
+        "db_id": db_id, "external_knowledge": external_knowledge,
         "current_sql": current_sql, "execution_result": df_to_markdown(df), "df": df
     }
 
@@ -153,21 +181,24 @@ def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_pre
                             "question": meta.get("question", ""), "source": base_name
                         })
 
-                except Exception: continue
+                except Exception: 
+                    continue
     
     return tasks
 
 
 def run_classification_check(
     model: BaseChatModel,
-    dialect:str, question: str, schema: str, 
+    dialect:str, question: str, schema: str,
     current_sql: str, execution_result: str,
     prompt_template: str, retry_config: Dict[str, float], 
+    external_knowledge: Optional[str] = None,
     logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Только классификация. Возвращает вердикт и причины."""
     prompt = fill_prompt_template(prompt_template, {
-        "{{DIALECT}}": dialect, "{{QUESTION}}": question, "{{SCHEMA}}": schema, 
+        "{{DIALECT}}": dialect, "{{QUESTION}}": question, 
+        "{{SCHEMA}}": schema, "{{EXTERNAL_KNOWLEDGE}}": external_knowledge,
         "{{EXECUTED_SQL}}": current_sql, "{{EXECUTION_RESULT}}": execution_result
     })
     messages = [HumanMessage(content=prompt)]
@@ -195,11 +226,12 @@ def run_unified_validation(
     model: BaseChatModel,
     question: str, schema: str, current_sql: str, execution_result: str, reasons: str,
     dialect: str, dialect_rules: str, prompt_template: str, retry_config: Dict[str, float], 
-    logger: Optional[logging.Logger] = None
+    external_knowledge: Optional[str] = None, logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Единый промпт исправления. Возвращает исправленный SQL и рассуждения."""
     prompt = fill_prompt_template(prompt_template, {
-        "{{QUESTION}}": question, "{{SCHEMA}}": schema, "{{CURRENT_SQL}}": current_sql,
+        "{{QUESTION}}": question, "{{SCHEMA}}": schema, 
+        "{{EXTERNAL_KNOWLEDGE}}": external_knowledge, "{{CURRENT_SQL}}": current_sql,
         "{{EXECUTION_RESULT}}": execution_result, "{{VALIDATION_REASONS}}": reasons,
         "{{DIALECT}}": dialect, "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
@@ -231,7 +263,8 @@ def run_double_validation(
     model: BaseChatModel, executor: SQLExecutor,
     question: str, db_name: str, schema: str, current_sql: str, execution_result: str, reasons: str,
     dialect: str, dialect_rules: str, rules_prompt_template: str, output_prompt_template: str,
-    retry_config: Dict[str, float], logger: Optional[logging.Logger] = None
+    retry_config: Dict[str, float], external_knowledge: Optional[str] = None, 
+    logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """Двухэтапное исправление: сначала правила, затем формат вывода."""
     all_messages = []
@@ -239,6 +272,7 @@ def run_double_validation(
     # Этап 1: Правила
     rules_prompt = fill_prompt_template(rules_prompt_template, {
         "{{QUESTION}}": question, "{{SCHEMA}}": schema, "{{CURRENT_SQL}}": current_sql,
+        "{{EXTERNAL_KNOWLEDGE}}": external_knowledge,
         "{{EXECUTION_RESULT}}": execution_result, "{{DERIVED_RULES}}": reasons,
         "{{DIALECT}}": dialect, "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
@@ -286,6 +320,7 @@ def run_double_validation(
     # Этап 2: Формат вывода (берем SQL из шага 1)
     output_prompt = fill_prompt_template(output_prompt_template, {
         "{{QUESTION}}": question, "{{SCHEMA}}": schema, "{{CURRENT_SQL}}": sql_step1,
+        "{{EXTERNAL_KNOWLEDGE}}": external_knowledge,
         "{{EXECUTION_RESULT}}": df_to_markdown(df), "{{DIALECT}}": dialect,
         "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
@@ -319,6 +354,7 @@ def correct_semantic_single_candidate(
     prompt_names: Optional[Dict[str, str]] = None,
     runs_root: str = "logs/runs",
     schema_dir: str = "final_schema",
+    ek_path: Optional[str] = None,
     gen_prefix: str = "simple",
     validation_mode: Literal["unified", "double"] = "unified",
     max_turns: int = 2,
@@ -353,7 +389,7 @@ def correct_semantic_single_candidate(
     start_time = time.perf_counter()
     
     # 2. Контекст
-    context = _load_semantic_context(instance_id, candidate_id, run_id, runs_root, gen_prefix, schema_dir, logger)
+    context = _load_semantic_context(instance_id, candidate_id, run_id, runs_root, gen_prefix, schema_dir, ek_path, logger)
     current_sql = context["current_sql"]
     
     if not current_sql:
@@ -393,7 +429,8 @@ def correct_semantic_single_candidate(
         check_result = run_classification_check(
             model, dialect, question, context["schema"], 
             current_sql, context["execution_result"],
-            classify_tpl, retry_config, logger
+            classify_tpl, retry_config, 
+            context["external_knowledge"], logger
         )
         turn_record["classification"] = check_result
         verdict = check_result["result"]["verdict"]
@@ -424,7 +461,7 @@ def correct_semantic_single_candidate(
                 model, question, context["schema"], 
                 current_sql, context["execution_result"], 
                 reasons_text, dialect, dialect_rules, validation_tpl, 
-                retry_config, logger
+                retry_config, context["external_knowledge"], logger
             )
             corrected_sql = corr_res.get("corrected_sql")
             correction_result = corr_res
@@ -435,7 +472,7 @@ def correct_semantic_single_candidate(
                 db_id.split("_", 1)[1] if "_" in db_id else db_id, 
                 context["schema"], current_sql, context["execution_result"], 
                 reasons_text, dialect, dialect_rules, rules_tpl, output_tpl, 
-                retry_config, logger
+                retry_config, context["external_knowledge"], logger
             )
             corrected_sql = corr_res.get("final_sql")
             correction_result = corr_res
@@ -518,10 +555,12 @@ def correct_semantic_single_candidate(
 
 def simple_semantic_correction(
     run_id: str, model: BaseChatModel, executor: SQLExecutor,
-    tasks: Optional[List[Dict[str, Any]]] = None,
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
     prompt_dir: str = "config/prompts/semantic",
     prompt_names: Optional[Dict[str, str]] = None,
-    runs_root: str = "logs/runs", 
+    runs_root: str = "logs/runs",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
     schema_dir: str = "final_schema",
     gen_prefix: str = "simple",
     validation_mode: str = "unified",
@@ -546,6 +585,8 @@ def simple_semantic_correction(
     if not tasks:
         return {"results": {}, "stats": {"total_jobs": 0}}
     
+    ek_paths = _load_external_knowledge_path(tasks, input_data_root, data_root)
+    
     all_results, start_pipeline = {}, time.perf_counter()
     logger.info(f"Starting parallel semantic correction ({validation_mode}) with {max_workers} workers")
     
@@ -555,7 +596,8 @@ def simple_semantic_correction(
                 correct_semantic_single_candidate,
                 instance_data=task, run_id=run_id, model=model, executor=executor,
                 prompt_dir=prompt_dir, prompt_names=prompt_names, runs_root=runs_root,
-                schema_dir=schema_dir, gen_prefix=gen_prefix, validation_mode=validation_mode, 
+                schema_dir=schema_dir, ek_path=ek_paths[task["instance_id"]], 
+                gen_prefix=gen_prefix, validation_mode=validation_mode, 
                 max_turns=max_turns, retry_config=retry_config
             ): (task["instance_id"], task["candidate_id"])
             for task in tasks
