@@ -13,11 +13,19 @@ from google.cloud import bigquery
 
 
 class SQLExecutor:
-    def __init__(self, input_data_root: str = "Spider2/spider2-lite", data_root: str = "data", storage_root: str = "storage", local_dbs: Optional[Dict[str, str]] = None):
+    def __init__(
+        self, 
+        input_data_root: str = "Spider2/spider2-lite", 
+        data_root: str = "data", 
+        storage_root: str = "storage", 
+        local_dbs: Optional[Dict[str, str]] = None, 
+        timeout: float = 10*60
+    ):
         self.data_root = data_root
         self.storage_root = storage_root
         self.input_data_root = input_data_root
         self.local_dbs = local_dbs if local_dbs is not None else {"sqlite": "resource/databases/spider2-localdb"}
+        self.timeout = timeout
         self.bigquery_credential_paths = glob.glob(os.path.join(storage_root, input_data_root, "bigquery_credential", "**", "*.json"), recursive=True)
         self.sqlite_lock = threading.Lock()
         self.credential_usage_count = {}
@@ -54,7 +62,7 @@ class SQLExecutor:
             # client = bigquery.Client()
             client = bigquery.Client.from_service_account_json(bigquery_credential_path)
             try:
-                query_job = client.query(sql)
+                query_job = client.query(sql, timeout=self.timeout)
                 results = query_job.result().to_dataframe()
                 if results.empty:
                     return "empty", "No data found for the specified query."
@@ -77,7 +85,7 @@ class SQLExecutor:
                         client = bigquery.Client.from_service_account_json(credential_path)
                         # client = bigquery.Client()
                         try:
-                            query_job = client.query(sql)
+                            query_job = client.query(sql, timeout=self.timeout)
                             results = query_job.result().to_dataframe()
                             if results.empty:
                                 return "empty", "No data found for the specified query."
@@ -96,7 +104,7 @@ class SQLExecutor:
             conn = snowflake.connector.connect(**snowflake_credential)
             cursor = conn.cursor()
             try:
-                cursor.execute(sql)
+                cursor.execute(sql, timeout=self.timeout)
                 results = cursor.fetchall()
                 columns = [desc[0] for desc in cursor.description]
                 df = pd.DataFrame(results, columns=columns)
@@ -111,7 +119,7 @@ class SQLExecutor:
                 conn.close()
         elif dialect == "sqlite":
             db_path = os.path.join(self.data_root, self.input_data_root, self.local_dbs[dialect], f"{db_name}.sqlite")
-            conn = sqlite3.connect(db_path)
+            conn = sqlite3.connect(db_path, timeout=self.timeout)
             try:
                 df = pd.read_sql_query(sql, conn)
                 if df.empty:

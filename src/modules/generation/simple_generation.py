@@ -638,6 +638,7 @@ if __name__ == "__main__":
             "Формат: 'dialect:path' (можно указать несколько через пробел). "
             "Пример: --local-dbs sqlite:databases snowflake:sf_data bigquery:local_bq"
     )
+    parser.add_argument("--exec-timeout", type=float, default=600, help="Максимальное время ожидания исполнения SQL в секундах")
 
     # === Промпты ===
     parser.add_argument("--prompt-name", default="gen_basic", help="Имя шаблона промпта (без .md)")

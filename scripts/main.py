@@ -58,7 +58,7 @@ if __name__ == "__main__":
         print(monitor.get_stats())
 
         model = get_model("Qwen3.7-9B", "https://localhost:5433", temperature=1.0)
-        executor = SQLExecutor(input_data_root, local_dbs={"sqlite": "resource/databases/spider2-localdb"})
+        executor = SQLExecutor(input_data_root, local_dbs={"sqlite": "resource/databases/spider2-localdb"}, 600)
         retry_config = {
             "max_attempts": 4,
             "initial_delay": 1.0,

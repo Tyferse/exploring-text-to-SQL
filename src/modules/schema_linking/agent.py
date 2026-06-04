@@ -428,6 +428,10 @@ if __name__ == "__main__":
             "Формат: 'dialect:path' (можно указать несколько через пробел). "
             "Пример: --local-dbs sqlite:databases snowflake:sf_data bigquery:local_bq"
     )
+    parser.add_argument(
+        "--exec-timeout", type=float, default=600, 
+        help="Максимальное время ожидания исполнения SQL в секундах"
+    )
 
     # Параметны векторной БД
     parser.add_argument(
@@ -468,7 +472,7 @@ if __name__ == "__main__":
         quantization=args.quantization, log_path=os.path.join("logs", "dbs", args.input_data_root)
     )
     executor = SQLExecutor(args.input_data_root, args.data_root, args.storage_root, 
-                           dict(args.local_dbs) if args.local_dbs else None)
+                           dict(args.local_dbs) if args.local_dbs else None, args.exec_timeout)
 
     pipeline = SchemaLinkingAgentPipeline(
         run_id, model, vsm, executor, 

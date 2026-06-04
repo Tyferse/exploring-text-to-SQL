@@ -648,6 +648,7 @@ if __name__ == "__main__":
     parser.add_argument("--gen-prefix", default="simple")
     parser.add_argument("--schema-dir", default="final_schema")
     parser.add_argument("--local-dbs", type=parse_dialect_path_pair, nargs="*", default=None, metavar="DIALECT:PATH")
+    parser.add_argument("--exec-timeout", type=float, default=600)
     
     parser.add_argument("--prompt-dir", default="config/prompts/correction")
     parser.add_argument("--classify-prompt", default="semantic_classify")
@@ -671,7 +672,8 @@ if __name__ == "__main__":
         input_data_root=args.input_data_root, 
         data_root=args.data_root, 
         storage_root=args.storage_root, 
-        local_dbs=dict(args.local_dbs) if args.local_dbs else None
+        local_dbs=dict(args.local_dbs) if args.local_dbs else None,
+        timeout=args.exec_timeout
     )
     
     prompt_names = {

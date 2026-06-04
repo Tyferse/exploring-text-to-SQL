@@ -567,6 +567,7 @@ if __name__ == "__main__":
             "Формат: 'dialect:path' (можно указать несколько через пробел). "
             "Пример: --local-dbs sqlite:databases snowflake:sf_data bigquery:local_bq"
     )
+    parser.add_argument("--exec-timeout", type=float, default=600, help="Максимальное время ожидания исполнения SQL в секундах")
 
     # Промпты
     parser.add_argument("--prompt-dir", default="config/prompts/correction", help="Папка с промптами")
@@ -599,7 +600,8 @@ if __name__ == "__main__":
         input_data_root=args.input_data_root,
         data_root=args.data_root,
         storage_root=args.storage_root,
-        local_dbs=dict(args.local_dbs) if args.local_dbs else None 
+        local_dbs=dict(args.local_dbs) if args.local_dbs else None, 
+        timeout=args.exec_timeout
     )
     
     prompt_names = {

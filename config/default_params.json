@@ -7,7 +7,8 @@
     "logs_root": "logs",
     "runs_root": "logs/runs",
     "prompt_dir": "config/prompts", 
-    "local_dbs": {"sqlite": "resource/databases/spider2-localdb"}
+    "local_dbs": {"sqlite": "resource/databases/spider2-localdb"},
+    "exec_timeout": 600
   },
   "preprocessing": {
     "spider2preprocess": {
