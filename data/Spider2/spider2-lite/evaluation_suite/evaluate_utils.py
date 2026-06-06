@@ -73,15 +73,6 @@ def compare_multi_pandas_table(pred, multi_gold, multi_condition_cols=[], multi_
         
     
 def compare_pandas_table(pred, gold, condition_cols=[], ignore_order=False):
-    """_summary_
-
-    Args:
-        pred (Dataframe): _description_
-        gold (Dataframe): _description_
-        condition_cols (list, optional): _description_. Defaults to [].
-        ignore_order (bool, optional): _description_. Defaults to False.
-
-    """
     print('condition_cols', condition_cols)
     
     tolerance = 1e-2
