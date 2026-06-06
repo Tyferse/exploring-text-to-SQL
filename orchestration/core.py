@@ -3,6 +3,9 @@ import inspect
 import logging
 from typing import Dict, Any, Optional
 
+from src.modules.consistancy.voting import voting_selection
+from src.modules.correction.semantic_correction import simple_semantic_correction
+from src.modules.correction.syntax_correction import simple_correction
 from src.modules.dbc_retrieval.exploratory_execution import exec_exploration
 from src.modules.generation.simple_generation import simple_generation
 from src.modules.schema_linking.agent import SchemaLinkingAgentPipeline
@@ -27,7 +30,10 @@ HANDLER_REGISTRY = {
     "SchemaLinkingAgentPipeline": SchemaLinkingAgentPipeline,
     "generate_schemas": generate_schemas,
     "exec_exploration": exec_exploration,
-    "simple_generation": simple_generation
+    "simple_generation": simple_generation,
+    "simple_correction": simple_correction,
+    "simple_semantic_correction": simple_semantic_correction,
+    "voting_selection": voting_selection
 }
 
 

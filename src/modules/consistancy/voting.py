@@ -4,7 +4,6 @@ sys.path.insert(0, ".")
 import os
 import re
 import json
-import math
 import time
 import random
 import logging
@@ -26,8 +25,8 @@ from src.utils.sql_execution import df_to_markdown
 
 
 DEFAULT_RETRY_CONFIG = {
-    "max_attempts": 4,
-    "initial_delay": 2.0,
+    "max_attempts": 2,
+    "initial_delay": 4.0,
     "max_delay": 30.0,
     "backoff_multiplier": 2.0,
 }

@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
 
 from src.utils.logger import get_logger
 from src.utils.models import get_model
@@ -30,7 +30,7 @@ DEFAULT_RETRY_CONFIG = {
 }
 
 
-def _load_prompt(prompt_name: str, prompt_dir: str = "config/prompts/semantic") -> str:
+def _load_prompt(prompt_name: str, prompt_dir: str = "config/prompts/correction") -> str:
     prompt_path = Path(prompt_dir) / f"{prompt_name}.md"
     if not prompt_path.exists():
         raise FileNotFoundError(f"Prompt template {prompt_name} not found in {prompt_dir}")
@@ -350,7 +350,7 @@ def correct_semantic_single_candidate(
     run_id: str,
     model: BaseChatModel,
     executor: SQLExecutor,
-    prompt_dir: str = "config/prompts/semantic",
+    prompt_dir: str = "config/prompts/correction",
     prompt_names: Optional[Dict[str, str]] = None,
     runs_root: str = "logs/runs",
     schema_dir: str = "final_schema",
@@ -556,7 +556,7 @@ def correct_semantic_single_candidate(
 def simple_semantic_correction(
     run_id: str, model: BaseChatModel, executor: SQLExecutor,
     tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
-    prompt_dir: str = "config/prompts/semantic",
+    prompt_dir: str = "config/prompts/correction",
     prompt_names: Optional[Dict[str, str]] = None,
     runs_root: str = "logs/runs",
     data_root: str = "data",

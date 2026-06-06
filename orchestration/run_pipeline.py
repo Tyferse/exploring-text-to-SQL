@@ -138,6 +138,10 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
         "flow_file": flow_config
     }
 
+    model = None
+    if general.get("model"):
+        model = get_model(**mod_params["model"])
+
     # 4. Последовательное выполнение
     try:
         for mod_def in flow:
@@ -147,8 +151,7 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
                 continue
 
             mod_params = params.get(mod_name, {})
-            model = None
-            if "model" in mod_params:
+            if model is None and "model" in mod_params:
                 model = get_model(**mod_params["model"])
 
             for stage_def in mod_def.get("stages", []):
@@ -165,11 +168,12 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
                 if model:
                     stage_kwargs["model"] = model
                 
-                # Выполнение
                 result = execute_stage(handler_key, stage_kwargs)
                 state[f"{stage_id}_result"] = result
                 logger.info(f"Stage '{stage_id}' completed successfully.")
             
+            model = model if general.get("model") else None
+
             # Предполагаем, что больше vsm не понадобится, и надо освободить ресурсы
             if mod_name == "schema_linking":
                 vsm.close_all()
