@@ -618,7 +618,7 @@ def voting_selection(
     prompt_name: str = "pairwise_selection",
     runs_root: str = "logs/runs",
     gen_prefix: str = "simple",
-    selection_mode: str = "execution",
+    selection_mode: Literal["execution", "sql", "llm", "random"] = "execution",
     use_llm_tiebreaker: bool = True,
     max_workers: int = 2,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG,

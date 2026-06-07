@@ -125,7 +125,7 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
                         logging.error("Pipeline aborted due to vector store initialization errors")
                         raise e
 
-    executor = SQLExecutor(general["input_data_root"], general["data_root"], general["storage_root"], general["local_dbs"], general["exec_timeout"])
+    executor = SQLExecutor(general["input_data_root"], general["data_root"], general["storage_root"], general["local_dbs"], general.get("exec_timeout", 600))
 
     state: Dict[str, Any] = general.copy()
     state.update(dict(vsm=vsm, executor=executor))

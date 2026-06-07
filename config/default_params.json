@@ -196,8 +196,8 @@
     "simple_correction": {
       "prompt_dir": "config/prompts/correction",
       "prompt_names": {
-        "system": "cor_syntax_system", 
-        "user": "cor_syntax_user", 
+        "system": "syntax_system", 
+        "user": "syntax_user", 
         "null": null, 
         "antiretry": null
       },

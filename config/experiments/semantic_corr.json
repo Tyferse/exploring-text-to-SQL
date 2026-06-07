@@ -1,0 +1,37 @@
+{
+  "name": "semantic_corr",
+  "description": "Tests different validation settings.",
+  "params_config": "correction_params.json",
+  "flow_config": "correction_flow.json",
+  "checkpoint_after_stage": "simple_generation",
+  "scan_config": {
+    "correction": {
+      "simple_semantic_correction": {
+        "validation_mode": {
+          "type": "enum",
+          "values": ["unified", "double", "unified", "double"]
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "dbc_retrieval",
+      "enabled": false
+    },
+    {
+      "module": "correction",
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "simple_correction",
+          "enabled": [true, true, false, false]
+        },
+        {
+          "stage": "simple_semantic_correction", 
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

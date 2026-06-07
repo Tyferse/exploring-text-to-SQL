@@ -222,7 +222,7 @@ def correct_single_candidate(
 
     # 3. Загрузка обязательных промптов
     if prompt_names is None:
-        prompt_names = {"system": "cor_syntax_system", "user": "cor_syntax_user"}
+        prompt_names = {"system": "syntax_system", "user": "syntax_user"}
 
     system_template = _load_prompt(prompt_names["system"])
     sys_prompt = fill_prompt_template(system_template, {
@@ -571,10 +571,10 @@ if __name__ == "__main__":
 
     # Промпты
     parser.add_argument("--prompt-dir", default="config/prompts/correction", help="Папка с промптами")
-    parser.add_argument("--sys-prompt", default="cor_syntax_system", help="Системный промпт исправления SQL")
-    parser.add_argument("--user-prompt", default="cor_syntax_user", help="Промпт с пользовательскими данными")
-    parser.add_argument("--null-prompt", default="cor_syntax_null", help="Промпт для исправления пустых или null результатов")
-    parser.add_argument("--ar-prompt", default="cor_syntax_antiretry", help="Промпт для предотвращения безрезультатных попыток")
+    parser.add_argument("--sys-prompt", default="syntax_system", help="Системный промпт исправления SQL")
+    parser.add_argument("--user-prompt", default="syntax_user", help="Промпт с пользовательскими данными")
+    parser.add_argument("--null-prompt", default="syntax_null", help="Промпт для исправления пустых или null результатов")
+    parser.add_argument("--ar-prompt", default="syntax_antiretry", help="Промпт для предотвращения безрезультатных попыток")
 
     # Выполнение
     parser.add_argument("--max-workers", type=int, default=2, help="Параллельных воркеров")

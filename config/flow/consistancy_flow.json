@@ -1,0 +1,31 @@
+[
+    {
+        "module": "preprocessing",
+        "enabled": true,
+        "stages": [
+            {"stage": "spider2preprocess", "enabled": true}
+        ]
+    },
+    {
+        "module": "generation", 
+        "enabled": true,
+        "stages": [
+            {"stage": "simple_generation", "enabled": true}
+        ]
+    },
+    {
+        "module": "correction",
+        "enabled": true,
+        "stages": [
+            {"stage": "simple_correction", "enabled": true},
+            {"stage": "simple_semantic_correction", "enabled": true}
+        ]
+    },
+    {
+        "module": "consistancy",
+        "enabled": true,
+        "stages": [
+            {"stage": "voting_selection", "enabled": true}
+        ]
+    }
+]

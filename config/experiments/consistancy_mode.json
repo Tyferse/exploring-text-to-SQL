@@ -1,0 +1,29 @@
+{
+  "name": "consistancy_mode",
+  "description": "Measure of candidate selection method impact, model voting and correction impact",
+  "params_config": "consistancy_params.json",
+  "flow_config": "consistancy_flow.json",
+  "checkpoint_after_stage": "simple_generation",
+  "scan_config": {
+    "consistancy": {
+      "selection_mode": ["execution", "sql", "llm", "random", "execution", "sql", "execution", "execution"],
+      "use_llm_tiebreaker": [true, true, true, false, false, false]
+    }
+  },
+  "flow_override": [
+    {
+      "module": "correction",
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "simple_correction", 
+          "enabled": [false, false, false, false, false, false, true, true]
+        },
+        {
+          "stage": "simple_semantic_correction", 
+          "enabled": [false, false, false, false, false, false, false, true]
+        }
+      ]
+    }
+  ]
+}

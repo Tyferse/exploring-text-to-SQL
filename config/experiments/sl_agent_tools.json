@@ -9,8 +9,8 @@
     "schema_linking": {
       "SchemaLinkingAgentPipeline": {
         "prompt_name": {
-          "values": ["sl_explore_validation_agent", "sl_validation_agent", "sl_explore_agent", "sl_agent"],
-          "type": "enum"
+          "type": "enum",
+          "values": ["sl_explore_validation_agent", "sl_validation_agent", "sl_explore_agent", "sl_agent"]
         }
       }
     }

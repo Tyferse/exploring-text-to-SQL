@@ -1,0 +1,116 @@
+{
+  "general": {
+    "input_data_root": "Spider2/spider2-lite",
+    "run_name": "default",
+    "data_root": "data",
+    "storage_root": "storage",
+    "logs_root": "logs",
+    "runs_root": "logs/runs",
+    "model": null,
+    "prompt_dir": "config/prompts", 
+    "local_dbs": {"sqlite": "resource/databases/spider2-localdb"},
+    "exec_timeout": 600
+  },
+  "preprocessing": {
+    "spider2preprocess": {
+      "is_multidialect": true,
+      "max_workers": 8,
+      "force_update": false
+    }
+  },
+  "dbc_retrieval": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 0.0
+    },
+    "exploratory_execution": {
+      "prompt_name": "exploratory_execution",
+      "max_queries": 10,
+      "max_rows": 20,
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 4
+    }
+  },
+  "generation": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 1.0
+    },
+    "simple_generation": {
+      "schema_dir": "final_schema",
+      "prompt_name":"gen_basic",
+      "n_candidates": 1,
+      "prefix": "one_step",
+      "retry_config": {
+        "max_attempts": 3,
+        "initial_delay": 2.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      },
+      "max_workers": 3,
+      "max_schema_tokens": 64000,
+      "chars_per_token": 3.0
+    }
+  },
+  "correction": {
+    "model": { 
+      "model_name": "Qwen3.7-9B", 
+      "base_url": "https://localhost:5433",
+      "api_key": null,
+      "temperature": 0.2
+    },
+    "simple_correction": {
+      "prompt_dir": "config/prompts/correction",
+      "prompt_names": {
+        "system": "syntax_system", 
+        "user": "syntax_user", 
+        "null": null, 
+        "antiretry": null
+      },
+      "runs_root": "logs/runs",
+      "schema_dir": "final_schema",
+      "gen_prefix": "one_step",
+      "max_messages": 5,
+      "max_turns": 3,
+      "max_workers": 2,
+      "retry_config": {
+        "max_attempts": 2,
+        "initial_delay": 4.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      }
+    },
+    "simple_semantic_correction": {
+      "prompt_dir": "config/prompts/correction",
+      "prompt_names": {
+        "classify": "semantic_classify",
+        "validation": "semantic_validation",
+        "rules": "semantic_rules_validation",
+        "output": "semantic_output_validation"
+      },
+      "runs_root": "logs/runs",
+      "data_root": "data",
+      "input_data_root": "Spider2/spider2-lite",
+      "schema_dir": "final_schema",
+      "gen_prefix": "one_step",
+      "validation_mode": "unified",
+      "max_turns": 2, 
+      "max_workers": 2,
+      "retry_config": {
+        "max_attempts": 2,
+        "initial_delay": 4.0,
+        "max_delay": 30.0,
+        "backoff_multiplier": 2.0
+      }
+    }
+  }
+}

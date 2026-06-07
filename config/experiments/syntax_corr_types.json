@@ -1,0 +1,64 @@
+{
+  "name": "syntax_corr_types",
+  "description": "Different options for syntax correction.",
+  "params_config": "correction_params.json",
+  "flow_config": "correction_flow.json",
+  "checkpoint_after_stage": "exploratory_execution",
+  "scan_config": {
+    "correction": {
+      "simple_correction": {
+        "prompt_names": {
+          "type": "enum",
+          "values": [
+            {
+              "system": "syntax_system", 
+              "user": "syntax_user", 
+              "null": null, 
+              "antiretry": null
+            },
+            {
+              "system": "syntax_system", 
+              "user": "syntax_user", 
+              "null": null, 
+              "antiretry": null
+            },
+            {
+              "system": "syntax_system", 
+              "user": "syntax_user", 
+              "null": "syntax_null", 
+              "antiretry": null
+            },
+            {
+              "system": "syntax_system", 
+              "user": "syntax_user", 
+              "null": null, 
+              "antiretry": "syntax_antiretry"
+            },
+            {
+              "system": "syntax_system", 
+              "user": "syntax_user", 
+              "null": "syntax_null", 
+              "antiretry": "syntax_antiretry"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "dbc_retrieval",
+      "enabled": [true, false, false, false, false]
+    },
+    {
+      "module": "correction",
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "simple_semantic_correction", 
+          "enabled": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "consistancy_mode",
+  "description": "Measures the impact of candidates number.",
+  "params_config": "consistancy_params.json",
+  "flow_config": "consistancy_flow.json",
+  "checkpoint_after_stage": null,
+  "scan_config": {
+    "generation": {
+      "n_candidates": {
+        "type": "enum",
+        "values": [2, 4, 8, 16, 2, 4, 8, 16, 2, 4, 8, 16]
+      }
+    }
+  },
+  "flow_override": [
+    {
+      "module": "correction",
+      "enabled": true,
+      "stages": [
+        {
+          "stage": "simple_correction", 
+          "enabled": [false, false, false, false, true, true, true, true, true, true, true, true]
+        },
+        {
+          "stage": "simple_semantic_correction", 
+          "enabled": [false, false, false, false, false, false, false, false, true, true, true, true]
+        }
+      ]
+    }
+  ]
+}
