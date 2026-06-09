@@ -13,11 +13,11 @@ from typing import Dict, Optional, Any, List, Union
 from langchain.chat_models import BaseChatModel
 from tqdm import tqdm
 
-from agent_postprocessor import parse_and_validate_output, format_for_downstream
-from agent_preprocessor import SchemaLinkingPreprocessor
-from agent_loop import SchemaLinkingAgent
-from tools import get_enabled_tools, TOOL_REGISTRY
-from schema_formatter import load_similar_tables
+from .agent_postprocessor import parse_and_validate_output, format_for_downstream
+from .agent_preprocessor import SchemaLinkingPreprocessor
+from .agent_loop import SchemaLinkingAgent
+from .tools import get_enabled_tools, TOOL_REGISTRY
+from .schema_formatter import load_similar_tables
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
 from src.utils.models import get_model

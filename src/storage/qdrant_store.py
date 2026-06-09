@@ -121,12 +121,14 @@ class QdrantVectorStore(BaseVectorStore):
                 hnsw_config={
                     "m": 16,
                     "ef_construct": 200,
-                    "full_scan_threshold": 10000
+                    "full_scan_threshold": 10000,
+                    "on_disk": True
                 }
             ),
             "optimizers_config": {
                 "default_segment_number": 2,
-                "memmap_threshold": 10000
+                "memmap_threshold": 10000,
+                "indexing_threshold": 20000
             }
         }
         
