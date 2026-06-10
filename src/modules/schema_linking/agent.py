@@ -112,7 +112,7 @@ class SchemaLinkingAgentPipeline:
         # Загружаем примеры
         if self.tasks is None or isinstance(self.tasks, str):
             if isinstance(self.tasks, str):
-                tasks_file = self.tasks
+                tasks_file = str(Path(self.data_root) / self.input_data_root / self.tasks)
             else:
                 tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
 

@@ -38,7 +38,7 @@ def _load_instances(
     # Ищем JSON файл с задачами
     if tasks is None or isinstance(tasks, str):
         if isinstance(tasks, str):
-            tasks_file = tasks
+            tasks_file = str(Path(data_root) / input_data_root / tasks)
         else:
             tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
 
