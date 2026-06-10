@@ -2,6 +2,7 @@ import gc
 import json
 import os
 import pickle
+import shutil
 import threading
 from typing import Dict, List, Optional, Any
 from collections import OrderedDict
@@ -75,16 +76,24 @@ class VectorStoreManager:
                 f"model={embedding_model}, max_sessions={max_cached_sessions}, device={device}"
             )
     
-    def _get_context_path(self, context_id: str) -> str:
+    def _get_context_path(self, context_id: str, db_id: Optional[str] = None) -> str:
         """Возвращает путь к хранилищу для контекста."""
-        return os.path.join(self.storage_root, context_id, "column_vdb")
+        if db_id is None:
+            return os.path.join(self.storage_root, context_id, "column_vdb")
+        else:
+            return os.path.join(self.storage_root, context_id, "column_vdb", db_id)
     
-    def _create_session(self, context_id: str) -> BaseVectorStore:
+    def _create_session(self, context_id: str, db_id: Optional[str] = None) -> BaseVectorStore:
         """Создаёт новую сессию для контекста."""
+
+        # Если уже существует единая БД, но пытаемся создать множество отдельных
+        if db_id is not None and os.path.exists(os.path.join(self._get_context_path(context_id), "meta.json")):
+            raise ValueError(f"United vector store has already been created for context '{context_id}', delete it or use for all DB schemas.")
+
         if self.backend == "qdrant":
             session = QdrantVectorStore(
                 location=self.location,
-                path=self._get_context_path(context_id) if self.location is None else None,
+                path=self._get_context_path(context_id, db_id) if self.location is None else None,
                 collection_name=self._coll_name,
                 embedding_model=self.embedding_model,
                 device=self.device,
@@ -106,20 +115,21 @@ class VectorStoreManager:
 
         return session
     
-    def _get_or_create_session(self, context_id: str) -> BaseVectorStore:
+    def _get_or_create_session(self, context_id: str, db_id: Optional[str] = None) -> BaseVectorStore:
         """Получает или создаёт сессию."""
         if self._cache_lock:
             with self._cache_lock:
-                return self._get_or_create_session_unlocked(context_id)
+                return self._get_or_create_session_unlocked(context_id, db_id)
             
-        return self._get_or_create_session_unlocked(context_id)
+        return self._get_or_create_session_unlocked(context_id, db_id)
     
-    def _get_or_create_session_unlocked(self, context_id: str) -> BaseVectorStore:
+    def _get_or_create_session_unlocked(self, context_id: str, db_id) -> BaseVectorStore:
         """Внутренний метод без блокировки."""
-        # Если уже в кэше — перемещаем в конец (LRU)
-        if context_id in self._session_cache:
-            self._session_cache.move_to_end(context_id)
-            return self._session_cache[context_id]
+        # Если уже в кэше — перемещаем в конец
+        key = context_id if db_id is None else f"{context_id}/{db_id}"
+        if key in self._session_cache:
+            self._session_cache.move_to_end(key)
+            return self._session_cache[key]
         
         # Если кэш полон — вытесняем наименее используемую
         if len(self._session_cache) >= self.max_cached_sessions:
@@ -128,11 +138,72 @@ class VectorStoreManager:
             if self.logger: self.logger.info(f"Evicted session for context '{oldest_id}' from cache")
         
         # Создаём новую сессию
-        session = self._create_session(context_id)
-        self._session_cache[context_id] = session
-        if self.logger: self.logger.info(f"Created new session for context '{context_id}'")
+        session = self._create_session(context_id, db_id)
+        self._session_cache[key] = session
+        if self.logger: self.logger.info(f"Created new session for context '{key}'")
         return session
     
+    def build_db_isolated(
+        self,
+        db_id: str,
+        docs_path: str,
+        context_id: str,
+        batch_size: int = 256,
+        max_workers: int = 2,
+        force_rebuild: bool = False
+    ) -> None:
+        """
+        Создаёт векторную БД для одной схемы в изолированной директории,
+        индексирует и полностью освобождает память.
+        """
+        if not context_id:
+            context_id = docs_path.rsplit("_", 1)[0]
+
+        # 1. Формируем уникальный путь
+        db_path = self._get_context_path(context_id, db_id)
+        
+        if force_rebuild and os.path.exists(db_path):
+            shutil.rmtree(db_path)
+        elif os.path.exists(db_path):
+            if self.logger: self.logger.info(f"{db_id} has been already indexed")
+            return
+            
+        if not os.path.exists(docs_path):
+            raise Exception(f"Docs file not found: {docs_path}")
+        
+        all_documents = []
+        with open(docs_path, 'r', encoding='utf-8') as f:
+            docs_data = json.load(f)
+        
+        documents = docs_data if isinstance(docs_data, list) else docs_data.get("documents", [])
+        for doc in documents:
+            if 'id' not in doc:
+                doc['id'] = get_column_hash(doc['metadata'])
+
+            all_documents.append(doc)
+
+        # 2. Создаём клиент для указанной схемы
+        session = QdrantVectorStore(
+            path=db_path,
+            collection_name="schema_columns",
+            embedding_model=self.embedding_model,
+            device=self.device,
+            quantization=self.quantization,
+            dtype=self.dtype
+        )
+        
+        try:
+            # 3. Индексация
+            session.build_index(all_documents, self._coll_name, batch_size=batch_size, max_workers=max_workers)
+            self.logger.info(f"Indexed {db_id} -> {db_path}")
+        finally:
+            session.client.close()
+            del session
+            gc.collect()
+
+            self.logger.debug(f"Memory cleared after {db_id}")
+
+
     def build_from_preprocessing_results(
         self,
         preprocessing_results: Dict[str, str],
@@ -172,8 +243,7 @@ class VectorStoreManager:
             documents = docs_data if isinstance(docs_data, list) else docs_data.get("documents", [])
             for doc in documents:
                 if 'id' not in doc:
-                    meta = doc['metadata']
-                    doc['id'] = get_column_hash(meta)
+                    doc['id'] = get_column_hash(doc['metadata'])
 
                 all_documents.append(doc)
         
@@ -264,7 +334,7 @@ class VectorStoreManager:
                 continue
             
             # Получаем сессию
-            session = self._get_or_create_session(context_id)
+            session = self._get_or_create_session(context_id, db_id)
             
             # Объединяем фильтры: обязательный db_id + дополнительные
             search_filters = {"db_id": db_id}

@@ -42,7 +42,7 @@ class SchemaLinkingAgentPipeline:
         max_turns: int = 10,
         max_draft_calls: Optional[int] = 3,
         additional_k: int = 5,
-        retry_config: Optional[Dict[str: Any]] = None,
+        retry_config: Optional[Dict[str, Any]] = None,
         max_workers: int = 4,
         **kwargs
     ):

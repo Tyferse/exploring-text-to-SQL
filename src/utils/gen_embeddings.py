@@ -9,20 +9,31 @@ from src.storage.vector_manager import VectorStoreManager
 
 
 def gen_column_embeddings(
-        preprocessing_results: Dict[str, str] = None,
-        input_data_root: str = "Spider2/spider2-lite",
-        storage_root: str = "storage",
-        location: Optional[str] = None,
-        embedding_model: str = "microsoft/harrier-oss-v1-270m",
-        device: str = "cpu", 
-        quantization: bool = False,
-        batch_size: int = 256,
-        max_workers: int = 2,
-        max_cached_sessions: int = 2, 
-        backend: str = "qdrant",
-        force_rebuild: bool = False,
-        **kwargs
-    ):
+    preprocessing_results: Dict[str, str] = None,
+    input_data_root: str = "Spider2/spider2-lite",
+    storage_root: str = "storage",
+    location: Optional[str] = None,
+    one_vdb: bool = False,
+    embedding_model: str = "microsoft/harrier-oss-v1-270m",
+    device: str = "cpu", 
+    quantization: bool = False,
+    batch_size: int = 256,
+    max_workers: int = 2,
+    max_cached_sessions: int = 2, 
+    backend: str = "qdrant",
+    force_rebuild: bool = False,
+    **kwargs
+):
+    if not one_vdb and location is not None:
+        raise ValueError("If location is not None, there is only one vector DB, please provide one_vdb=True argument.")
+
+    if preprocessing_results is None:
+        preprocessing_results = {
+            file.rsplit('_', 1)[0]: os.path.join(storage_root, input_data_root, "schema_cache", file) 
+            for file in os.listdir(os.path.join(storage_root, input_data_root, "schema_cache"))
+            if file.endswith("_meta.json")
+        }
+
     vsm = VectorStoreManager(
         storage_root=storage_root,
         location=location,
@@ -33,21 +44,28 @@ def gen_column_embeddings(
         quantization=quantization,
         log_path=os.path.join("logs/dbs", input_data_root)
     )
+    if one_vdb:
+        vsm.build_from_preprocessing_results(
+            preprocessing_results=preprocessing_results,
+            context_id=input_data_root,
+            batch_size=batch_size,
+            max_workers=max_workers,
+            force_rebuild=force_rebuild
+        )
+    else:
+        for db_id, meta_path in preprocessing_results.items():
+            if not force_rebuild and os.path.exists(os.path.join(storage_root, input_data_root, "column_vdb", db_id)):
+                continue
 
-    if preprocessing_results is None:
-        preprocessing_results = {
-            file.rsplit('_', 1)[0]: os.path.join(storage_root, input_data_root, "schema_cache", file) 
-            for file in os.listdir(os.path.join(storage_root, input_data_root, "schema_cache"))
-            if file.endswith("_meta.json")
-        }
+            vsm.build_db_isolated(
+                db_id=db_id,
+                docs_path=meta_path[:meta_path.rfind('_meta')] + '_docs.json',
+                context_id=input_data_root,
+                batch_size=batch_size,
+                max_workers=max_workers,
+                force_rebuild=force_rebuild
+            )
 
-    vsm.build_from_preprocessing_results(
-        preprocessing_results=preprocessing_results,
-        context_id=input_data_root,
-        batch_size=batch_size,
-        max_workers=max_workers,
-        force_rebuild=force_rebuild
-    )
     vsm.close_all()
 
 
@@ -72,6 +90,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--location", type=str, default=None,
         help="URL локального сервера с векторной базой данных."
+    )
+    parser.add_argument(
+        "--one-vdb", action="store_true",
+        help="Создавать одну векторную БД для всех схем."
     )
     parser.add_argument(
         "--embedding_model", type=str, default="microsoft/harrier-oss-v1-270m",
@@ -116,7 +138,7 @@ if __name__ == "__main__":
     if args.embed_type == 'column':
         gen_column_embeddings(
             None, args.input_data_root, args.storage_root, args.location, 
-            args.embedding_model, args.device, args.quantization, 
+            args.one_vdb, args.embedding_model, args.device, args.quantization, 
             args.batch_size, args.max_workers, args.max_cached_sessions, 
             args.backend, args.force_rebuild
         )

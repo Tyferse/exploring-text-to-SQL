@@ -27,6 +27,7 @@
       "dtype": "auto"
     },
     "gen_column_embeddings": {
+      "one_vdb": false,
       "batch_size": 256,
       "max_workers": 2,
       "force_rebuild": false

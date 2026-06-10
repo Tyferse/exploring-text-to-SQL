@@ -21,7 +21,7 @@ def schema_retrieval(
 ) -> str:
     """Explicitly add missing schema elements to context."""
     text = f"Table: {table}. Column: {column}. Description: {description}"
-    results = vsm.search_batch(input_data_root, {db_id: [text]}, additional_k, is_query=False)
+    results = vsm.search_batch(input_data_root, {db_id: [text]}, additional_k, is_query=True)
     if not results:
         return f"[RETRIEVAL EMPTY] No similar columns found for: '{text}'"
     

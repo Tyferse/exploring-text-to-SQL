@@ -206,7 +206,7 @@ class ResourceMonitor:
                 vram_msg = "N/A"
                 if self.gpu_available:
                     try:
-                        vram_used_mb = cuda.max_memory_allocated() / (1024**2)
+                        vram_used_mb = cuda.memory_allocated() / (1024**2)
                         with self._lock:
                             if self.peak_vram_mb < vram_used_mb:
                                 self.peak_vram_mb = vram_used_mb
