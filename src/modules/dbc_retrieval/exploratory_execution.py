@@ -13,7 +13,7 @@ from langchain_core.language_models import BaseChatModel
 
 from src.utils.logger import get_logger
 from src.utils.models import get_model
-from src.utils.preprocessing import remove_digits
+from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair, df_to_markdown
 
@@ -36,38 +36,30 @@ def _load_instances(
     assert tasks is not None or input_data_root is not None, "tasks or input_data_root argument must be not None"
 
     # Ищем JSON файл с задачами
-    if tasks is None or isinstance(tasks, str):
-        if isinstance(tasks, str):
-            tasks_file = str(Path(data_root) / input_data_root / tasks)
-        else:
-            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
-
-        with open(tasks_file, "r", encoding="utf-8") as f:
-            tasks = [json.loads(line.strip()) for line in f.readlines()]
-    
-    tasks = {
+    tasks_list = resolve_tasks(tasks, data_root, input_data_root)
+    tasks_dict = {
         instance["instance_id"]: {
             "instance_id": instance["instance_id"],
             "dialect": instance.get("dialect", ""),
-            "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
+            "db_id": instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance.get("db_id", instance.get("db")), 
             "question": instance.get("question", instance.get("instruction", ""))
         } 
-        for instance in tasks if not (Path(results_dir) / f"{instance['instance_id']}.json").exists()
+        for instance in tasks_list if not (Path(results_dir) / f"{instance['instance_id']}.json").exists()
     }
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-        for iid in tasks:
-            tasks[iid]["dialect"] = inst2dialect[remove_digits(iid).split("_")[0]]
-            tasks[iid]["db_id"] = tasks[iid]["dialect"] + "_" + tasks[iid]["db_id"]
+        for iid in tasks_dict:
+            tasks_dict[iid]["dialect"] = inst2dialect[remove_digits(iid).split("_")[0]]
+            tasks_dict[iid]["db_id"] = tasks_dict[iid]["dialect"] + "_" + tasks_dict[iid]["db_id"]
 
-    for iid in tasks:
+    for iid in tasks_dict:
         schema_file = Path(schemas_dir, f"{iid}.txt")
         if schema_file.exists(): 
-            tasks[iid]["schema"] = schema_file.read_text(encoding="utf-8")
+            tasks_dict[iid]["schema"] = schema_file.read_text(encoding="utf-8")
         else:
-            tasks[iid]["schema"] = "None"
+            tasks_dict[iid]["schema"] = "None"
 
-    return tasks
+    return tasks_dict
 
 
 def _build_prompt_from_template(

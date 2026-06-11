@@ -28,7 +28,7 @@ def generate_run_id(
     path_hash = hashlib.md5(hash_input.encode()).hexdigest()[:8]
     
     if timestamp is None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     
     # Финальный ID
     suffix_part = f"_{custom_suffix}" if custom_suffix else ""

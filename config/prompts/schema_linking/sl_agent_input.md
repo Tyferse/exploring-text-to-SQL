@@ -43,26 +43,25 @@ When calling tools, use EXACTLY this syntax (no markdown code fences around the 
 # GENERAL RULES AND CONSTRAINTS
 
 ## Execution Protocol
-1. **Multi-Tool Per Turn:** Agent may invoke multiple tools in a single turn, subject to restrictions below.
-2. **@stop Isolation:** `@stop()` must be the only tool call in its turn. Never combine with other tools.
-3. **Strict Acknowledgment Waiting:** After any tool call(s), pause generation. Continue reasoning ONLY in the next turn based on orchestration acknowledgment. Never assume outputs.
-4. **No Execution Assumptions:** Do not reference, simulate, or assume database query execution. All reasoning must be grounded in provided metadata, samples, and external knowledge.
-5. **Dialect Compliance:** When inferring operators, date formats, or quoting styles, apply Dialect-Specific Optimization Rules and SQL Dialect Specification rules to static reasoning.
+1. **PRIORITY RULE - RETRIEVAL FIRST:** If the user question mentions a concept not explicitly present in the Initially Retrieved Schema, your IMMEDIATE next step MUST be `@schema_retrieval`.
+2. **Multi-Tool Per Turn:** Agent may invoke multiple tools in a single turn, subject to restrictions below.
+3. **@stop Isolation:** `@stop()` must be the only tool call in its turn.
+5. **Strict Result Waiting:** After any tool call(s), pause generation. Continue reasoning ONLY in the next turn based on actual orchestration results.
 
-## Static Validation Rules
-6. **Sample-Value Grounding:** When inferring operators or formats, always reference pre-loaded `sample_values` from metadata. Do not assume formats not evidenced by samples.
-7. **Join Evidence Threshold:** A join requires both structural evidence (naming + type) AND contextual evidence (sample overlap OR high semantic coherence). Naming patterns alone are insufficient.
-8. **Confidence Propagation:** Column confidence affects join confidence: a join involving a "low" confidence column cannot exceed "medium" overall confidence.
-9. **Conservative Inclusion:** When static evidence is ambiguous, include elements with `"confidence": "low"` rather than omitting potentially critical items. Let downstream SQL generation handle false positives via schema validation.
+## Schema Linking Rules
+7. **No Heuristic FK Inference:** Column name patterns may suggest join hypotheses but NEVER constitute validation. Only execution evidence validates a join.
+8. **Explicit Context Only:** Use only tables/columns explicitly added via Initially Retrieved Schema or `@schema_retrieval`.
+9. **Confidence Tagging:** When uncertain, include elements with `"confidence": "low"` rather than omitting potentially critical items.
+10. **Join Path Completeness:** Ensure all selected tables are connectable via evidence.
 
 ## Output Integrity
-10. **JSON-Only Final Output:** After @stop(), output ONLY the specified JSON object. No markdown fences, no explanatory text, no trailing commas.
-11. **Exact Identifier Matching:** All table_name and column_name values must exactly match database identifiers (case-sensitive where applicable per dialect).
-12. **Blocking Issues Documentation:** If `ready_for_sql_generation` is false, populate `blocking_issues` with specific, actionable problems (e.g., "insufficient sample overlap between orders.customer_id and users.id", "column 'status' format ambiguous in metadata").
+11. **JSON-Only Final Output:** After @stop(), output ONLY the specified JSON object. No markdown fences, no explanatory text.
+12. **Exact Identifier Matching:** All table_name and column_name values must exactly match database identifiers.
+13. **Blocking Issues Documentation:** If `ready_for_sql_generation` is false, populate `blocking_issues` with specific problems.
 
 ## Error Handling & Fallback
-13. **Metadata Gaps:** If `sample_values` are missing or insufficient for a critical column, mark it as `"confidence": "low"` and document in `blocking_issues` if uncertainty remains.
-14. **Timeout Fallback:** If turn limit is reached with incomplete schema, call `@stop()` with `ready_for_sql_generation: false` and detailed `blocking_issues` for downstream recovery logic.
+14. **Tool Error Response:** If a tool returns an error, analyze the message, adjust the hypothesis, and retry.
+15. **Timeout Fallback:** If turn limit is reached, call `@stop()` with `ready_for_sql_generation: false` and detailed `blocking_issues`.
 
 ---
 
@@ -105,20 +104,14 @@ After @stop(), output **ONLY** a valid JSON object with this exact structure (no
         "right_column": "col_y",
         "join_type": "INNER|LEFT|OUTER|CROSS",
         "confidence": "high|medium|low",
-        "evidence": {
-          "naming_pattern": "...",
-          "type_compatibility": true,
-          "sample_value_overlap": true,
-          "semantic_coherence": "...",
-          "external_knowledge_hint": "..."
-        }
+        "evidence": "execution_validated|semantic_only"
       }
     ],
-    "static_analysis_summary": {
-      "metadata_checks_performed": 5,
-      "join_hypotheses_evaluated": 3,
-      "key_findings": ["status column samples match question literal", "concert.singer_id overlaps with singer.id samples"],
-      "hypotheses_rejected": ["direct singer-stadium join (no sample overlap)"]
+    "exploration_summary": {
+      "triggered": true|false,
+      "iterations": 0,
+      "key_findings": ["finding1", "finding2"],
+      "hypotheses_rejected": ["rejected assumption"]
     }
   },
   "ready_for_sql_generation": true|false,
@@ -132,6 +125,8 @@ Refer to the System Prompt for detailed field specifications and validation rule
 
 # BEGIN PROCESSING
 
-Analyze the User Question and Schema Context above. Apply the algorithm, constraints, and tool protocols defined in the System Prompt. Output tool calls as needed, wait for results, and produce the final JSON after `@stop()`.
+Analyze the User Question and Schema Context above. 
+REMEMBER: Your FIRST action for any missing concept MUST be `@schema_retrieval`.
+Apply the algorithm, constraints, and tool protocols. Output tool calls as needed, wait for results, and produce the final JSON after `@stop()`.
 
 Start now.

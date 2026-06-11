@@ -5,17 +5,19 @@ import argparse
 import json
 import os
 import re
+import shutil
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import List, Dict, Set, Any, Optional, Union
+from typing import List, Dict, Set, Any, Optional, Union, Tuple
 
 from tqdm import tqdm
 
+from .generate_schema import generate_schemas
 from src.storage.core import VectorSearchResult
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
-from src.utils.preprocessing import remove_digits
+from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import get_run_path, resolve_run_id
 
 
@@ -252,27 +254,28 @@ class RetrievalCache:
     def _get_cache_path(self, instance_id: str) -> str:
         return os.path.join(self.cache_dir, f"{instance_id}.json")
     
-    def get_used_indices(self, instance_id: str) -> Set[int]:
+    def get_used_indices(self, instance_id: str) -> Tuple[Set[int], str]:
         """Возвращает множество уже использованных индексов для instance_id."""
         path = self._get_cache_path(instance_id)
         if os.path.exists(path):
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    return set(int(idx) for idx in data.get("used_indices", []))
+                    return set(int(idx) for idx in data.get("used_indices", [])), data.get("db_id")
             except Exception as e:
                 self.logger.warning(f"Failed to load cache for {instance_id}: {e}")
-        return set()
+        return set(), None
     
     def add_used_indices(self, instance_id: str, indices: list[int]) -> None:
         """Добавляет новые индексы в кэш (объединяет с существующими)."""
-        existing = self.get_used_indices(instance_id)
-        existing.update(int(idx) for idx in indices)
+        existing, db_id = self.get_used_indices(instance_id)
+        existing.update({int(idx) for idx in indices})
         
         path = self._get_cache_path(instance_id)
         try:
             with open(path, "w", encoding="utf-8") as f:
-                json.dump({"used_indices": sorted(list(existing))}, f, indent=2)
+                json.dump({"db_id": db_id, "used_indices": sorted(list(existing))}, f, indent=2)
+
         except Exception as e:
             self.logger.warning(f"Failed to save cache for {instance_id}: {e}")
     
@@ -285,11 +288,14 @@ class RetrievalCache:
     
     def clear_all(self) -> None:
         """Очищает весь кэш для текущего run_id."""
-        import shutil
-        if self.cache_dir.exists():
+        if Path(self.cache_dir).exists():
             shutil.rmtree(self.cache_dir)
-            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
             self.logger.info(f"Cleared all cache for run_id={self.run_id}")
+        
+        all_indices_file = Path(self.cache_dir).parent / "retrieved_indices.json"
+        if all_indices_file.exists():
+            all_indices_file.unlink()
     
     def get_status(self, instance_id: str, total_available: int) -> Dict[str, Any]:
         """Возвращает статус использования кэша."""
@@ -306,6 +312,9 @@ class RetrievalCache:
     def cache_union(self, instance_db: Dict[str, str]):
         all_indices = {}
         for file in os.listdir(self.cache_dir):
+            if os.path.isdir(os.path.join(self.cache_dir, file)):
+                continue
+
             with open(os.path.join(self.cache_dir, file), encoding="utf-8") as f:
                 used_indices = json.load(f).get("used_indices")
             
@@ -336,6 +345,7 @@ class SchemaRetriever:
         instance_id: str,
         question: str,
         db_id: str,
+        context_id: str,
         schema_meta: dict,
         force_refresh: bool = False
     ) -> List[dict]:
@@ -343,15 +353,21 @@ class SchemaRetriever:
         Итеративно подбирает столбцы для генерации SQL.
         """
         # 1. Загружаем уже использованные индексы
-        used_ids = self.cache.get_used_indices(instance_id) if not force_refresh else set()
+        used_ids = self.cache.get_used_indices(instance_id)[0] if not force_refresh else set()
         
         # 2. Первый запрос: семантический поиск
-        results = self.vsm.search_batch(
-            queries_by_db={db_id: [question]},
-            top_k=self.initial_top_k,
-            filters={"db_id": db_id}
-        )[db_id][question]
-        
+        try:
+            results = self.vsm.search_batch(
+                context_id=context_id,
+                queries_by_db={db_id: [question]},
+                top_k=self.initial_top_k,
+                filters={"db_id": db_id},
+                is_query=True
+            )[db_id][question]
+        except Exception as e:
+            print(db_id, e)
+            raise e
+
         # 3. Гибридное расширение: добавляем точные совпадения по имени
         results = filter_results_by_name(
             results, 
@@ -372,7 +388,7 @@ class SchemaRetriever:
         )
         
         # 6. Сохраняем в кэш
-        new_ids = {r.id for r in enriched if r.metadata.get("internal_id")}
+        new_ids = {r.id for r in enriched if r.id}
         self.cache.add_used_indices(instance_id, list(new_ids))
         
         # 7. Преобразуем в формат для агента/генерации
@@ -420,77 +436,83 @@ def retrieve_instance_columns(
         instance_id=instance_data[0],
         question=instance_data[2],
         db_id=instance_data[1],
-        schema_meta=loaded_meta[instance_data[1]],
+        context_id=input_data_root,
+        schema_meta=loaded_meta,
         force_refresh=force_refresh
     )
+    
     if len(selected_columns) < retriever.max_total_columns:
         more_columns = retriever.expand_schema(
             instance_id=instance_data[0],
             question=instance_data[2],
             db_id=instance_data[1],
-            schema_meta=loaded_meta[instance_data[1]]
+            schema_meta=loaded_meta
         )
         selected_columns.extend(more_columns)
     
     return selected_columns
 
 def retrieve_columns(
-        run_id, 
-        vsm: VectorStoreManager,
-        tasks: Optional[Union[List[Dict[str, str]], str]] = None,
-        input_data_root: str = "Spider2/spider2-lite",
-        data_root: str = "data",
-        storage_root: str = "storage", 
-        topk: int = 100,
-        max_workers: int = 2,
-        force_refresh: bool = False,
-        **kwargs
-    ):
+    run_id, 
+    vsm: VectorStoreManager,
+    tasks: Optional[Union[List[Dict[str, str]], str]] = None,
+    input_data_root: str = "Spider2/spider2-lite",
+    data_root: str = "data",
+    storage_root: str = "storage", 
+    topk: int = 100,
+    max_workers: int = 2,
+    force_refresh: bool = False,
+    **kwargs
+):
     cache = RetrievalCache(run_id)
+    if force_refresh:
+        cache.clear_all()
+        if os.path.exists(os.path.join("storage", input_data_root, "schema_cache", "initial_schema")):
+            shutil.rmtree(os.path.join("storage", input_data_root, "schema_cache", "initial_schema"))
+    
     retriever = SchemaRetriever(
         vsm=vsm, cache=cache, initial_top_k=topk, 
-        expansion_top_k=topk // 5, max_total_columns=topk
+        expansion_top_k=max(topk // 5, 1), max_total_columns=topk
     )
-
-    if tasks is None or isinstance(tasks, str):
-        if isinstance(tasks, str):
-            tasks_file = Path(data_root) / input_data_root / tasks
-        else:
-            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
-
-        with open(tasks_file, "r", encoding="utf-8") as f:
-            tasks = [json.loads(line.strip()) for line in f.readlines()]
-
-    q_key = "question" if "question" in tasks[0] else "instruction"
-    if input_data_root == "Spider2/spider2-lite":
-        inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-        tasks = [(instance["instance_id"], 
-                  inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"], 
-                  instance[q_key])
-                 for instance in tasks]
-    else:
-        tasks = [(instance["instance_id"], 
-                  instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"], 
-                  instance[q_key])
-                 for instance in tasks]
     
-    instance_db = {task[0]: task[1] for task in tasks}
-    tasks = [task for task in tasks if os.path.exists(cache._get_cache_path(task[0]))]
+    tasks_list = resolve_tasks(tasks, data_root, input_data_root)
+    q_key = "question" if "question" in tasks_list[0] else "instruction"
+    if input_data_root.startswith("Spider2/"):
+        inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+        tasks_list = [(instance["instance_id"], 
+                       inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance.get("db_id", instance.get("db")), 
+                       instance[q_key])
+                      for instance in tasks_list]
+    else:
+        tasks_list = [(instance["instance_id"], 
+                       instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance.get("db_id", instance.get("db")), 
+                       instance[q_key])
+                      for instance in tasks_list]
+    
+    instance_db = {task[0]: task[1] for task in tasks_list}
+    if not force_refresh:
+        tasks_list = [task for task in tasks_list if not os.path.exists(cache._get_cache_path(task[0]))]
 
-    with ThreadPoolExecutor(max_workers) as executor:
+    with ThreadPoolExecutor(max_workers) as pool:
         futures = [
-            executor.submit(
+            pool.submit(
                 retrieve_instance_columns, 
                 task, retriever, storage_root, 
                 input_data_root, force_refresh
             ) 
-            for task in tasks
+            for task in tasks_list
         ]
         with tqdm(total=len(futures), desc="Retrieve for questions", ncols=160, leave=True) as pbar:
             for _ in as_completed(futures):
                 pbar.update(1)
     
     cache.cache_union(instance_db)
+    if not os.path.exists(os.path.join("storage", input_data_root, "schema_cache", "initial_schema")):
+        generate_schemas(
+            run_id, tasks=tasks, input_data_root=input_data_root, output_dir="initial_schema", 
+            docs_path=os.path.join("storage", input_data_root, "schema_cache"), 
+            included="retrieved", target_max_tokens=32000
+        )
 
 
 if __name__ == "__main__":
@@ -572,7 +594,8 @@ if __name__ == "__main__":
         quantization=args.quantization,
         log_path=os.path.join("logs/dbs", args.input_data_root)
     )
+    run_id = resolve_run_id(args.input_data_root, args.run_name)
     retrieve_columns(
-        args.run_name, vsm, None, args.input_data_root, args.data_root, 
+        run_id, vsm, None, args.input_data_root, args.data_root, 
         args.storage_root, args.topk, args.max_workers, args.force_refresh
     )

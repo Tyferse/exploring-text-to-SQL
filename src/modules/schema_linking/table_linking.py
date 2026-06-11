@@ -18,7 +18,7 @@ from .generate_schema import generate_single_schema
 from .schema_formatter import load_schemas, load_similar_tables, format_compact_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
-from src.utils.preprocessing import remove_digits
+from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 
 
@@ -176,22 +176,12 @@ class TableLinking:
                 ids_data = json.load(f)
         
         # Загружаем примеры
-        if self.tasks is None or isinstance(self.tasks, str):
-            if isinstance(tasks, str):
-                tasks_file = str(Path(self.data_root) / self.input_data_root / self.tasks)
-            else:
-                tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
-
-            with open(tasks_file, "r", encoding="utf-8") as f:
-                tasks = [json.loads(line.strip()) for line in f.readlines()]
-        else:
-            tasks = deepcopy(self.tasks)
-
+        tasks = resolve_tasks(self.tasks, self.data_root, self.input_data_root)
         q_key = "question" if "question" in tasks[0] else "instruction"
         tasks = {
             instance["instance_id"]: {
                 "dialect": self.instance.get("dialect", ""),
-                "db_id": instance["db_id"], 
+                "db_id": instance.get("db_id", instance.get("db")), 
                 "question": instance[q_key],
                 "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
                                             / instance["external_knowledge"]) 

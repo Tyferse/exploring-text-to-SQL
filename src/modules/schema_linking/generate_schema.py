@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from .schema_formatter import format_detailed_block, compress_schema_to_fit, load_similar_tables, estimate_prompt_length
 from src.utils.logger import get_logger
-from src.utils.preprocessing import remove_digits
+from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 
 
@@ -58,26 +58,28 @@ def generate_single_schema(
 
         # 1. Сбор данных по столбцам
         valid_columns_found = 0
-        for table_name in doc_data:
-            table_mapping[table_name] = []
-            for cid in doc_data[table_name]:
-                if cid in col_ids:
-                    col_info = doc_data.get(cid, {})
-                    if not col_info:
-                        if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
-                        continue
+        for cid, col_info in doc_data.items():
+            if cid not in col_ids:
+                continue
+            
+            if not col_info:
+                if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
+                continue
 
-                    desc = col_info.get("text", "")
-                    desc = desc.split("Description: ", 1)[1] if desc else ""
-
-                    colmeta = col_info["metadata"]
-                    table_mapping[table_name].append({
-                        "column_name": colmeta.get("column_name", cid),
-                        "data_type": colmeta.get("data_type", colmeta.get("column_type", "TEXT")),
-                        "description": desc,
-                        "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
-                    })
-                    valid_columns_found += 1
+            colmeta = col_info["metadata"]
+            if not table_mapping.get(colmeta["table_name"]):
+                table_mapping[colmeta["table_name"]] = []
+            
+            desc = col_info.get("text", "")
+            desc = desc.split("Description: ", 1)[1] if desc else ""
+            
+            table_mapping[colmeta["table_name"]].append({
+                "column_name": colmeta.get("column_name", cid),
+                "data_type": colmeta.get("data_type", colmeta.get("column_type", "TEXT")),
+                "description": desc,
+                "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
+            })
+            valid_columns_found += 1
 
         if valid_columns_found == 0:
             if log: log.warning(f"Valid columns have not been found in metadata | {instance_id}")
@@ -127,9 +129,9 @@ def generate_schemas(
     run_root: str = "logs/runs",
     data_root: str = "data",
     input_data_root: str = "Spider2/spider2-lite",
-    output_dir: str = "initial_schema",
+    output_dir: str = "final_schema",
     docs_path: Optional[str] = None,
-    included: Literal["retrieved", "tables", "full"] = "full",
+    included: Literal["retrieved", "tables", "selected", "full"] = "full",
     target_max_tokens: int = 64_000,
     **kwargs
 ):
@@ -150,8 +152,8 @@ def generate_schemas(
         db_id = doc_file.stem.replace("_docs", "")
         with open(doc_file, "r", encoding="utf-8") as f:
             docs_data = json.load(f)
-            db_docs[db_id] = {col["id"]: {key: col[key] for key in col if key != "id"} for col in docs_data}
-
+            db_docs[db_id] = {int(col["id"]): {key: col[key] for key in col if key != "id"} for col in docs_data}
+    
     similar_tables = load_similar_tables(docs_path)
     inverse_similar_tables = {
         db_id: {
@@ -160,35 +162,25 @@ def generate_schemas(
             for stn in similar_tables[db_id][tn]
         } 
         for db_id in similar_tables
-    } 
+    }
     
     if not db_docs:
         raise FileNotFoundError(f"*_docs.json files not found in " + str(docs_path))
 
     # Загружаем примеры
-    if tasks is None or isinstance(tasks, str):
-        if isinstance(tasks, str):
-            tasks_file = str(Path(data_root) / input_data_root / tasks)
-        else:
-            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
-
-        with open(tasks_file, "r", encoding="utf-8") as f:
-            tasks = [json.loads(line.strip()) for line in f.readlines()]
-    else:
-        schema_tasks = deepcopy(tasks)
-    
+    schema_tasks = resolve_tasks(tasks, data_root, input_data_root)
     if input_data_root == "Spider2/spider2-lite":
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         schema_tasks = [(instance["instance_id"], 
-                         inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance["db_id"])
+                         inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance.get("db_id", instance.get("db")))
                         for instance in schema_tasks]
     else:
         schema_tasks = [(instance["instance_id"], 
-                         instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance["db_id"])
+                         instance.get("dialect", "") + ("_" if instance.get("dialect") else "") + instance.get("db_id", instance.get("db")))
                         for instance in schema_tasks]
 
+    indices_data = {}
     if included == "retrieved":
-        indices_data = {}
         # Получаем начальные id
         indices_path = run_path / "schema_linking" / "retrieved_indices.json"
         if indices_path.exists():
@@ -280,7 +272,7 @@ def generate_schemas(
                         for instance_id, db_id in schema_tasks}
 
     # Подготовка директорий
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     
     # Главный логгер
@@ -290,7 +282,6 @@ def generate_schemas(
     )
 
     stats = {"success": 0, "failed": 0, "strategies_count": {}, "token_stats": []}
-    
     for instance_id, inst_retrival_data in tqdm(indices_data.items(), desc="Schema generation"):    
         schema_text, meta = generate_single_schema(
             instance_id=instance_id,

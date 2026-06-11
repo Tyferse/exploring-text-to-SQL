@@ -90,6 +90,7 @@ class VectorStoreManager:
         if db_id is not None and os.path.exists(os.path.join(self._get_context_path(context_id), "meta.json")):
             raise ValueError(f"United vector store has already been created for context '{context_id}', delete it or use for all DB schemas.")
 
+        print(self._get_context_path(context_id, db_id))
         if self.backend == "qdrant":
             session = QdrantVectorStore(
                 location=self.location,
@@ -101,6 +102,8 @@ class VectorStoreManager:
                 dtype=self.dtype,
                 log_path=self.log_path,
             )
+            if session.client.collection_exists(self._coll_name):
+                session._is_index_built = True
         else:
             raise ValueError(f"Unsupported backend: {self.backend}")
         
@@ -126,7 +129,7 @@ class VectorStoreManager:
     def _get_or_create_session_unlocked(self, context_id: str, db_id) -> BaseVectorStore:
         """Внутренний метод без блокировки."""
         # Если уже в кэше — перемещаем в конец
-        key = context_id if db_id is None else f"{context_id}/{db_id}"
+        key = context_id if db_id is None else f"{context_id}:{db_id}"
         if key in self._session_cache:
             self._session_cache.move_to_end(key)
             return self._session_cache[key]
@@ -183,14 +186,7 @@ class VectorStoreManager:
             all_documents.append(doc)
 
         # 2. Создаём клиент для указанной схемы
-        session = QdrantVectorStore(
-            path=db_path,
-            collection_name="schema_columns",
-            embedding_model=self.embedding_model,
-            device=self.device,
-            quantization=self.quantization,
-            dtype=self.dtype
-        )
+        session = self._get_or_create_session(context_id)
         
         try:
             # 3. Индексация
@@ -328,7 +324,6 @@ class VectorStoreManager:
             {db_id: {query: [results]}}
         """
         results: Dict[str, Dict[str, List[VectorSearchResult]]] = {}
-        
         for db_id, queries in queries_by_db.items():
             if not queries:
                 continue
@@ -348,7 +343,7 @@ class VectorStoreManager:
                 batch_size=batch_size,
                 is_query=is_query
             )
-            
+            print(search_results)
             results[db_id] = search_results
             if self.logger: self.logger.info(f"Searched {len(queries)} queries for db '{db_id}'")
         

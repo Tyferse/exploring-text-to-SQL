@@ -21,6 +21,7 @@ from .schema_formatter import load_similar_tables
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
 from src.utils.models import get_model
+from src.utils.preprocessing import resolve_tasks, remove_digits
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair
 
@@ -96,7 +97,7 @@ class SchemaLinkingAgentPipeline:
         """Загружает правила для конкретного диалекта."""
         dialects_path = self.prompt_path / "dialects"
         if dialects_path.exists():
-            dialects = {file.split("_", 1)[0] for file in dialects_path.iterdir()}
+            dialects = {str(file).split("_", 1)[0] for file in dialects_path.iterdir()}
             return {{
                     "rules": (dialects_path / f"{dialect}_rules.txt").read_text(encoding="utf-8"),
                     "specifics": (dialects_path / f"{dialect}_specifics.txt").read_text(encoding="utf-8")
@@ -110,17 +111,7 @@ class SchemaLinkingAgentPipeline:
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает список примеров и их метаданные."""
         # Загружаем примеры
-        if self.tasks is None or isinstance(self.tasks, str):
-            if isinstance(self.tasks, str):
-                tasks_file = str(Path(self.data_root) / self.input_data_root / self.tasks)
-            else:
-                tasks_file = (self.data_root / self.input_data_root).glob("*.jsonl")[0]
-
-            with open(tasks_file, "r", encoding="utf-8") as f:
-                tasks = [json.loads(line.strip()) for line in f.readlines()]
-        else:
-            tasks = deepcopy(self.tasks)
-
+        tasks = resolve_tasks(self.tasks, self.data_root, self.input_data_root)
         tasks = {t["instance_id"]: {k: v for k, v in t.items() if k != "instance_id"} for t in tasks}
 
         # Загружаем найденные индексы
@@ -129,7 +120,21 @@ class SchemaLinkingAgentPipeline:
             with open(indices_path, "r", encoding="utf-8") as f:
                 used_indices = json.load(f)
         else:
-            used_indices = {iid: {"db_id": tasks[iid]["db_id"], "used_indices": []} for iid in tasks}
+            inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
+            if self.input_data_root == "Spider2/spider2-lite":
+                used_indices = {iid: {
+                    "db_id": inst2dialect[remove_digits(tasks[iid]["instance_id"]).split("_")[0]] + "_" + tasks[iid].get("db_id", tasks[iid].get("db")),
+                    "used_indices": []
+                } 
+                    for iid in tasks}
+            else:
+                used_indices = {iid: {
+                    "db_id": (tasks[iid].get("dialect", "") + ("_" if tasks[iid].get("dialect") else "")
+                              + tasks[iid].get("db_id", tasks[iid].get("db"))), 
+                    "used_indices": []
+                } 
+                    for iid in tasks}
+
         
         # Удаляем примеры, если они уже обработаны
         for file in (self.run_path / "schema_linking" / "agent_candidates").iterdir():

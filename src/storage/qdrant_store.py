@@ -107,7 +107,7 @@ class QdrantVectorStore(BaseVectorStore):
             texts=texts,
             device=self.device,
             dtype=self.dtype,
-            prompt_name=prompt_name,
+            prompt=prompt_name,
             normalize=True,
             batch_size=batch_size,
             is_query=is_query

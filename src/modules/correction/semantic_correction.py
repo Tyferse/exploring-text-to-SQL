@@ -17,7 +17,7 @@ from langchain_core.messages import HumanMessage
 
 from src.utils.logger import get_logger
 from src.utils.models import get_model
-from src.utils.preprocessing import fill_prompt_template
+from src.utils.preprocessing import fill_prompt_template, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair, df_to_markdown
 
@@ -97,17 +97,8 @@ def _load_external_knowledge_path(
     input_data_root: str = "Spider2/spider2-lite", 
     data_root: str = "data"
 ) -> List[str]:
-    if tasks is None or isinstance(tasks, str):
-        if isinstance(tasks, str):
-            tasks_file = str(Path(data_root) / input_data_root / tasks)
-        else:
-            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
-
-        with open(tasks_file, "r", encoding="utf-8") as f:
-            taskl = [json.loads(line.strip()).get("external_knowledge") for line in f.readlines()]
-    
-    ek_paths = {instance["instance_id"]: instance.get("external_knowledge") for instance in taskl}
-
+    tasks_list = resolve_tasks(tasks, data_root, input_data_root)
+    ek_paths = {instance["instance_id"]: instance.get("external_knowledge") for instance in tasks_list}
     return {iid: str(Path(data_root) / input_data_root / "resource" / "documents" / file) if file else None 
             for iid, file in ek_paths.items()}
 

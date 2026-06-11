@@ -58,7 +58,7 @@ def get_model(
     llm = ChatOpenAI(
         model=model_name,
         base_url=final_base_url,
-        api_key=final_api_key,
+        api_key=final_api_key or "empty",
         temperature=temperature,
         disable_streaming=True 
     )

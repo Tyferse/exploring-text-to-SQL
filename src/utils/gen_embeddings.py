@@ -3,6 +3,7 @@ sys.path.insert(0, '.')
 
 import argparse
 import os
+import shutil
 from typing import Dict, Optional
 
 from src.storage.vector_manager import VectorStoreManager
@@ -54,17 +55,23 @@ def gen_column_embeddings(
         )
     else:
         for db_id, meta_path in preprocessing_results.items():
-            if not force_rebuild and os.path.exists(os.path.join(storage_root, input_data_root, "column_vdb", db_id)):
+            if not force_rebuild and os.path.exists(vsm._get_context_path(input_data_root, db_id)):
                 continue
+            
+            try:
+                vsm.build_db_isolated(
+                    db_id=db_id,
+                    docs_path=meta_path[:meta_path.rfind('_meta')] + '_docs.json',
+                    context_id=input_data_root,
+                    batch_size=batch_size,
+                    max_workers=max_workers,
+                    force_rebuild=force_rebuild
+                )
+            except Exception as e:
+                if os.path.exists(vsm._get_context_path(input_data_root, db_id)):
+                    shutil.rmtree(vsm._get_context_path(input_data_root, db_id))
 
-            vsm.build_db_isolated(
-                db_id=db_id,
-                docs_path=meta_path[:meta_path.rfind('_meta')] + '_docs.json',
-                context_id=input_data_root,
-                batch_size=batch_size,
-                max_workers=max_workers,
-                force_rebuild=force_rebuild
-            )
+                raise e
 
     vsm.close_all()
 

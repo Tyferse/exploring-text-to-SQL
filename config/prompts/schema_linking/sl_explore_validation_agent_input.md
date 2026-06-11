@@ -21,10 +21,10 @@
 
 When calling tools, use EXACTLY this syntax (no markdown code fences around the call):
 
-@schema_retrieval(table="orders", column="customer_id", description="Foreign key reference to customers table")
+@schema_retrieval(table="orders", column="customer_id", description="Foreign key reference to customers table needed for filtering")
 
 @schema_exploration(query="
--- Inspect distinct values and NULL ratio for status column
+-- Inspect distinct values and NULL ratio for status column (ONLY after retrieval)
 SELECT status, COUNT(*) FROM orders GROUP BY status ORDER BY COUNT(*) DESC LIMIT 5
 ")
 
@@ -47,27 +47,27 @@ SELECT status, COUNT(*) FROM orders GROUP BY status ORDER BY COUNT(*) DESC LIMIT
 # GENERAL RULES AND CONSTRAINTS
 
 ## Execution Protocol
-1. **Multi-Tool Per Turn:** Agent may invoke multiple tools in a single turn, subject to restrictions below.
-2. **@stop Isolation:** `@stop()` must be the only tool call in its turn. Never combine with other tools.
-3. **@sql_draft Limits:** Maximum 1 call per turn; maximum {{MAX_DRAFT_CALLS}} calls total across the entire session.
-4. **Strict Result Waiting:** After any tool call(s), pause generation. Continue reasoning ONLY in the next turn based on actual orchestration results. Never assume outputs.
-5. **Query Safety:** All `@sql_draft` queries must be READ-ONLY and include LIMIT clauses. Never generate modifying statements.
-6. **Dialect Compliance:** All generated SQL must strictly follow SQL Dialect Specification and Dialect-Specific Optimization Rules (quoting style, function availability, NULL handling, partitioning rules).
+1. **PRIORITY RULE - RETRIEVAL FIRST:** If the user question mentions a concept not explicitly present in the Initially Retrieved Schema, your IMMEDIATE next step MUST be `@schema_retrieval`. DO NOT write an `@schema_exploration` query to "find" or "guess" column names.
+2. **Multi-Tool Per Turn:** Agent may invoke multiple tools in a single turn, subject to restrictions below.
+3. **@stop Isolation:** `@stop()` must be the only tool call in its turn.
+4. **@sql_draft Limits:** Maximum 1 call per turn; maximum {{MAX_DRAFT_CALLS}} calls total.
+5. **Strict Result Waiting:** After any tool call(s), pause generation. Continue reasoning ONLY in the next turn based on actual orchestration results.
+6. **Query Safety:** All `@sql_draft` and `@schema_exploration` queries must be READ-ONLY and include LIMIT clauses.
 
 ## Schema Linking Rules
-7. **No Heuristic FK Inference:** Column name patterns (e.g., *_id) or type matches may suggest join hypotheses but NEVER constitute validation. Only execution evidence (COUNT > 0) validates a join.
-8. **Explicit Context Only:** Use only tables/columns explicitly added via Initially Retrieved Schema Candidates or @schema_retrieval. Do not reference schema elements not in context.
-9. **Confidence Tagging:** When uncertain, include elements with `"confidence": "low"` rather than omitting potentially critical items. Prefer recall over precision.
-10. **Join Path Completeness:** Ensure all selected tables are connectable via validated joins. If a path cannot be established, mark the dependent columns as blocked.
+7. **No Heuristic FK Inference:** Column name patterns may suggest join hypotheses but NEVER constitute validation. Only execution evidence validates a join.
+8. **Explicit Context Only:** Use only tables/columns explicitly added via Initially Retrieved Schema or `@schema_retrieval`.
+9. **Confidence Tagging:** When uncertain, include elements with `"confidence": "low"` rather than omitting potentially critical items.
+10. **Join Path Completeness:** Ensure all selected tables are connectable via validated joins.
 
 ## Output Integrity
-11. **JSON-Only Final Output:** After @stop(), output ONLY the specified JSON object. No markdown fences, no explanatory text, no trailing commas.
-12. **Exact Identifier Matching:** All table_name and column_name values must exactly match database identifiers (case-sensitive where applicable per dialect).
-13. **Blocking Issues Documentation:** If `ready_for_sql_generation` is false, populate `blocking_issues` with specific, actionable problems (e.g., "join path between orders and products unvalidated", "column 'status' format unknown").
+11. **JSON-Only Final Output:** After @stop(), output ONLY the specified JSON object. No markdown fences, no explanatory text.
+12. **Exact Identifier Matching:** All table_name and column_name values must exactly match database identifiers.
+13. **Blocking Issues Documentation:** If `ready_for_sql_generation` is false, populate `blocking_issues` with specific problems.
 
 ## Error Handling & Fallback
-14. **Tool Error Response:** If a tool returns an error, analyze the message, adjust the hypothesis or query syntax per dialect rules, and retry within turn/iteration limits.
-15. **Timeout Fallback:** If turn limit is reached with incomplete schema, call `@stop()` with `ready_for_sql_generation: false` and detailed `blocking_issues` for downstream recovery logic.
+14. **Tool Error Response:** If a tool returns an error, analyze the message, adjust the hypothesis, and retry.
+15. **Timeout Fallback:** If turn limit is reached, call `@stop()` with `ready_for_sql_generation: false` and detailed `blocking_issues`.
 
 ---
 
@@ -131,6 +131,8 @@ Refer to the System Prompt for detailed field specifications and validation rule
 
 # BEGIN PROCESSING
 
-Analyze the User Question and Schema Context above. Apply the algorithm, constraints, and tool protocols defined in the System Prompt. Output tool calls as needed, wait for results, and produce the final JSON after `@stop()`.
+Analyze the User Question and Schema Context above. 
+REMEMBER: Your FIRST action for any missing concept MUST be `@schema_retrieval`. Use `@schema_exploration` ONLY to inspect data formats of already retrieved columns. 
+Apply the algorithm, constraints, and tool protocols. Output tool calls as needed, wait for results, and produce the final JSON after `@stop()`.
 
 Start now.

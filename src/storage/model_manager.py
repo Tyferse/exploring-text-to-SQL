@@ -113,13 +113,15 @@ class EmbeddingModelManager:
             "show_progress_bar": False,
             "convert_to_numpy": True,
         }
+        import os
+        os.path.isfile()
         if is_query:
-            prompt_name = self.MODEL_CONFIGS[model._model_name]['prompt_name']
+            prompt_name = self.MODEL_CONFIGS[model.config.name_or_path]['prompt_name']
             if prompt_name:
                 encode_kwargs["prompt_name"] = prompt_name
             else:
                 encode_kwargs["prompt"] = prompt or "Instruct: Given a natural language query, retrieve relevant database columns that answer the query\nQuery: "
-                
+
         try:
             embeddings = model.encode(**encode_kwargs)
         except:

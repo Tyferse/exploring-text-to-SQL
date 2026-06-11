@@ -9,7 +9,8 @@ import os
 import re
 import shutil
 from copy import deepcopy
-from typing import Dict, List, Any, Tuple
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.utils.logger import get_logger
 
@@ -29,6 +30,25 @@ def fill_prompt_template(template: str, replacements: Dict[str, str]):
             prompt = prompt.replace(placeholder, str(value))
     
     return prompt
+
+def resolve_tasks(
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None, 
+    data_root: Optional[str] = None, 
+    input_data_root: Optional[str] = None
+):
+    new_tasks = []
+    if tasks is None or isinstance(tasks, str):
+        if isinstance(tasks, str):
+            tasks_file = str(Path(data_root) / input_data_root / tasks)
+        else:
+            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+
+        with open(tasks_file, "r", encoding="utf-8") as f:
+            new_tasks = [json.loads(line.strip()) for line in f.readlines()]
+    else:
+        new_tasks = deepcopy(tasks)
+    
+    return new_tasks
 
 def process_single_database(db_path: str, db_id: str, schema_cache_dir: str, logger: logging.Logger = None) -> Dict[str, Any]:
     """
@@ -242,14 +262,14 @@ def spider2preprocess(
         return {}
     
     # Ищем credentials для облачных СУБД и копируем их, если есть
-    credentials = [file for file in os.path.join(data_root, input_data_root, "evaluation_suite") 
+    credentials = [file for file in os.listdir(os.path.join(data_root, input_data_root, "evaluation_suite"))
                    if file.rsplit('.', 1)[0].endswith("_credential")]
     if credentials:
         for file in credentials:
             if file.startswith("bigquery") and file.endswith(".json"):
-                os.makedirs(os.path.join(storage_root, input_data_root, "bigquery_credentials"), exist_ok=True)
+                os.makedirs(os.path.join(storage_root, input_data_root, "bigquery_credential"), exist_ok=True)
                 shutil.copy(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
-                            os.path.join(storage_root, input_data_root, "bigquery_credentials"))
+                            os.path.join(storage_root, input_data_root, "bigquery_credential"))
             elif os.path.isfile(os.path.join(data_root, input_data_root, "evaluation_suite", file)):
                 shutil.copy(os.path.join(data_root, input_data_root, "evaluation_suite", file), 
                             os.path.join(storage_root, input_data_root))

@@ -16,7 +16,7 @@ from .generate_schema import generate_single_schema
 from .schema_formatter import load_schemas, load_similar_tables, format_detailed_block
 from src.utils.logger import get_logger
 from src.utils.models import get_model
-from src.utils.preprocessing import remove_digits
+from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 
 
@@ -240,20 +240,7 @@ class ColumnLinking:
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает инстансы из кэша или задач."""
         # Загружаем задачи
-        if self.tasks is None or isinstance(self.tasks, str):
-            if isinstance(self.tasks, str):
-                tasks_files = [str(Path(self.data_root) / self.input_data_root / self.tasks)]
-            else:
-                tasks_files = list((self.data_root / self.input_data_root).glob("*.jsonl"))
-            if not tasks_files:
-                raise FileNotFoundError(f"No .jsonl tasks found in {self.data_root / self.input_data_root}")
-            
-            tasks_file = tasks_files[0]
-            with open(tasks_file, "r", encoding="utf-8") as f:
-                tasks = [json.loads(line.strip()) for line in f if line.strip()]
-        else:
-            tasks = deepcopy(self.tasks)
-
+        tasks = resolve_tasks(self.tasks, self.data_root, self.input_data_root)
         ids_data = {}
         # Пробуем загрузить результаты table_linking
         if (self.log_dir / "table_linking_candidates.json").exists():
@@ -273,7 +260,7 @@ class ColumnLinking:
 
             tasks_dict[iid] = {
                 "dialect": instance.get("dialect", ""),
-                "db_id": instance["db_id"],
+                "db_id": instance.get("db_id", instance.get("db")),
                 "question": instance.get(q_key, ""),
                 "external_knowledge": str(self.data_root / self.input_data_root / "resource" / "documents" / instance["external_knowledge"])
                     if instance.get("external_knowledge") else None,
