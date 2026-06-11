@@ -21,18 +21,17 @@ def schema_retrieval(
 ) -> str:
     """Explicitly add missing schema elements to context."""
     text = f"Table: {table}. Column: {column}. Description: {description}"
-    results = vsm.search_batch(input_data_root, {db_id: [text]}, additional_k)
+    results = vsm.search_batch(input_data_root, {db_id: [text]}, additional_k, is_query=False)[db_id][text]
     if not results:
         return f"[RETRIEVAL EMPTY] No similar columns found for: '{text}'"
     
     retrieved = []
     for hit in results:
-        payload = hit.payload
-        meta = payload.get("metadata", {})
-        desc = payload.get("text")
+        meta = hit.metadata
+        desc = hit.text
         desc = None if not desc else desc.split("Description: ", 1)[1]
         col_meta = {
-            "column_id": payload.get("id"),
+            "column_id": hit.id,
             "table_name": meta.get("table_name"),
             "column_name": meta.get("column_name"),
             "description": desc,
@@ -114,6 +113,21 @@ TOOL_REGISTRY = {
     "join_discovery": join_discovery,
     "sql_draft": sql_draft,
     "stop": stop,
+}
+
+TOOL_ARGUMENTS = {
+    "schema_retrieval": ["table", "column", "description"],
+    "schema_exploration": ["query"],
+    "join_discovery": [
+        "left_table", 
+        "left_column", 
+        "right_table", 
+        "right_column", 
+        "join_type", 
+        "validation_query"
+    ],
+    "sql_draft": ["query", "purpose"],
+    "stop": []
 }
 
 def get_enabled_tools(enabled_names: list[str]) -> Dict[str, Any]:

@@ -55,7 +55,7 @@ class SchemaLinkingPreprocessor:
         self, 
         instance_id: str,
         context: Dict[str, Any], 
-        schema_dir: Path,
+        schema_dir: Optional[Path],
         dialect_rules: Optional[Dict[str, str]] = None
     ) -> tuple[str, str]:
         """
@@ -67,8 +67,8 @@ class SchemaLinkingPreprocessor:
         # Загрузка предвычисленной схемы
         if "RETRIEVED_SCHEMA" not in context:
             context["RETRIEVED_SCHEMA"] = self.load_initial_schema(instance_id, schema_dir)
-        
-        if context["RETRIEVED_SCHEMA"] is None:
+
+        if context.get("RETRIEVED_SCHEMA") is None:
             if self.log:
                 self.log.warning(f"initial schema not found for {instance_id}")
             else:

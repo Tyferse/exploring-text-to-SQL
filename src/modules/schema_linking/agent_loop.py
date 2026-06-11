@@ -1,4 +1,4 @@
-import inspect
+import ast
 import json
 import re
 import time
@@ -9,14 +9,10 @@ from typing import List, Dict, Any, Optional, Tuple
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
 
+from .tools import TOOL_ARGUMENTS
 from src.utils.logger import get_logger
 from src.utils.models import serialize_messages
 
-
-TOOL_CALL_PATTERN = re.compile(
-    r"@(\w+)\s*\((.+?)\)\s*(?:\n|$)", 
-    re.DOTALL
-)
 
 DEFAULT_RETRY_CONFIG = {
     "max_attempts": 3,
@@ -26,18 +22,117 @@ DEFAULT_RETRY_CONFIG = {
 }
 
 
-def parse_tool_calls(llm_text: str) -> List[Dict[str, Any]]:
-    """Извлекает вызовы инструментов из текста ответа LLM."""
-    calls = []
-    for match in TOOL_CALL_PATTERN.finditer(llm_text):
-        name, args_str = match.group(1), match.group(2).strip()
-        try:
-            cleaned = args_str.replace("'", '"').replace("\n", " ")
-            args = json.loads(cleaned)
-            calls.append({"name": name, "args": args, "raw": args_str})
-        except json.JSONDecodeError:
-            calls.append({"name": name, "args": {"_parse_error": True}, "raw": args_str})
+def extract_balanced_parentheses(text: str, start_idx: int) -> Optional[str]:
+    """
+    Находит строку внутри сбалансированных скобок, начиная с start_idx.
+    Учитывает вложенные скобки и кавычки.
+    """
+    if start_idx >= len(text) or text[start_idx] != '(':
+        return None
+        
+    depth = 0
+    in_single_quote = False
+    in_double_quote = False
+    escape_next = False
+    
+    for i in range(start_idx, len(text)):
+        char = text[i]
+        
+        if escape_next:
+            escape_next = False
+            continue
+            
+        if char == '\\':
+            escape_next = True
+            continue
+            
+        if char == "'" and not in_double_quote:
+            in_single_quote = not in_single_quote
+        elif char == '"' and not in_single_quote:
+            in_double_quote = not in_double_quote
+            
+        if not in_single_quote and not in_double_quote:
+            if char == '(':
+                depth += 1
+            elif char == ')':
+                depth -= 1
+                if depth == 0:
+                    return text[start_idx + 1 : i]
+                    
+    return None
 
+def parse_tool_calls(llm_text: str) -> List[Dict[str, Any]]:
+    """
+    Парсит вызовы инструментов вида @name(args) из текста LLM.
+    Использует schema-aware regex fallback для надежного извлечения key="value" пар.
+    """
+    calls = []
+    pattern = re.compile(r"@(\w+)\s*\(")
+    
+    for match in pattern.finditer(llm_text):
+        tool_name = match.group(1)
+        start_idx = match.end() - 1  # Позиция '('
+        
+        args_str = extract_balanced_parentheses(llm_text, start_idx)
+        
+        if args_str is None:
+            continue
+            
+        args_str = args_str.strip()
+        parsed_args = {}
+        
+        # 1. Если аргументов нет (например, @stop)
+        if not args_str:
+            if tool_name in TOOL_ARGUMENTS and not TOOL_ARGUMENTS[tool_name]:
+                calls.append({"name": tool_name, "args": {}, "raw": ""})
+                continue
+                
+        # 2. Попытка парсинга как Python dict
+        try:
+            test_eval = ast.literal_eval(f"{{{args_str}}}") if not args_str.startswith('{') else ast.literal_eval(args_str)
+            if isinstance(test_eval, dict):
+                calls.append({"name": tool_name, "args": test_eval, "raw": args_str})
+                continue
+        except Exception:
+            pass
+            
+        # 3. Попытка парсинга как JSON
+        try:
+            parsed_args = json.loads(args_str)
+            if isinstance(parsed_args, dict):
+                calls.append({"name": tool_name, "args": parsed_args, "raw": args_str})
+                continue
+        except json.JSONDecodeError:
+            pass
+            
+        # Извлекаем каждый ожидаемый аргумент по отдельности
+        expected_args = TOOL_ARGUMENTS.get(tool_name, [])
+        if expected_args:
+            for arg_name in expected_args:
+                # Группа 1: значение в двойных кавычках, Группа 2: в одинарных
+                pattern_arg = rf'{arg_name}\s*=\s*(?:"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\')'
+                match_arg = re.search(pattern_arg, args_str, re.DOTALL)
+                
+                if match_arg:
+                    # Берем ту группу, которая совпала (1 или 2)
+                    value = match_arg.group(1) if match_arg.group(1) is not None else match_arg.group(2)
+                    
+                    # Очищаем от артефактов экранирования LLM
+                    value = value.replace("\\'", "'").replace('\\"', '"').replace("\\n", "\n")
+                    parsed_args[arg_name] = value
+            
+            # Если мы успешно извлекли хотя бы один ожидаемый аргумент, считаем парсинг успешным
+            if parsed_args:
+                calls.append({"name": tool_name, "args": parsed_args, "raw": args_str})
+                continue
+
+        # 5. Ошибка парсинга
+        calls.append({
+            "name": tool_name, 
+            "args": {"_parse_error": True, "raw_content": args_str}, 
+            "raw": args_str
+        })
+        
     return calls
 
 
@@ -177,7 +272,7 @@ class SchemaLinkingAgent:
         }
 
         if self.cache_dir:
-            state["log"] = get_logger("schema_linking", str(self.cache_dir / "agent_events" / f"{instance_id}.log"))
+            state["log"] = get_logger(f"schema_linking {instance_id}", str(self.cache_dir / "agent_events" / f"{instance_id}.log"))
             state["log"].info(f"Agent started for {instance_id}")
         
         initial_content = [
@@ -213,13 +308,16 @@ class SchemaLinkingAgent:
             # 2. Парсинг инструментов
             tool_calls = parse_tool_calls(ai_text)
             if not tool_calls:
+                state["messages"].append(AIMessage(content=ai_text))
+                state["messages_snapshots"].append(serialize_messages(initial_content + state["messages"]))
                 if "@stop()" in ai_text or "ready_for_sql_generation" in ai_text:
-                    state["messages"].append(AIMessage(content=ai_text))
                     if state["log"]: state["log"].info(f"Turn {state['turn']} | Agent stopped")
                     break
 
-                state["messages"].append(AIMessage(content=ai_text))
-                state["messages_snapshots"].append(serialize_messages(state["messages"]))
+                if "model's maximum context length" in ai_text and ai_text.startswith("[Error]"):
+                    state["stopped"] = True
+                    break
+                
                 if state["log"]: state["log"].info(f"Turn {state['turn']} | No tools. Continue")
                 continue
             
@@ -252,6 +350,7 @@ class SchemaLinkingAgent:
                 args.update(self.config)  # добавляем общие аргументы, помимо возвращаемых моделью
                 args["dialect"] = dialect
                 args["db_name"] = db_name
+                args["db_id"] = f"{dialect}_{db_name}"
                 result = self._execute_tool(name, args, state)
                 if state["log"]: state["log"].info(f"Turn {state['turn']} | Tool {name} has been executed")
                 tool_results.append(ToolMessage(content=result, tool_call_id=name))
@@ -259,7 +358,7 @@ class SchemaLinkingAgent:
             
             # 4. Обновление истории и снапшотов
             state["messages"].extend([AIMessage(content=ai_text)] + tool_results)
-            state["messages_snapshots"].append(serialize_messages(state["messages"]))
+            state["messages_snapshots"].append(serialize_messages(initial_content + state["messages"]))
             
             ai_messages = sum(isinstance(message, AIMessage) for message in state["messages"])
             if ai_messages > self.max_messages:

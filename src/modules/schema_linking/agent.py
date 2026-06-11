@@ -4,6 +4,7 @@ sys.path.insert(0, ".")
 import json
 import os
 import random
+import shutil
 from collections import OrderedDict
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -17,7 +18,7 @@ from .agent_postprocessor import parse_and_validate_output, format_for_downstrea
 from .agent_preprocessor import SchemaLinkingPreprocessor
 from .agent_loop import SchemaLinkingAgent
 from .tools import get_enabled_tools, TOOL_REGISTRY
-from .schema_formatter import load_similar_tables
+from .schema_formatter import load_similar_tables, format_compact_block
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger
 from src.utils.models import get_model
@@ -45,6 +46,7 @@ class SchemaLinkingAgentPipeline:
         additional_k: int = 5,
         retry_config: Optional[Dict[str, Any]] = None,
         max_workers: int = 4,
+        force_update: bool = False,
         **kwargs
     ):
         self.run_id = run_id
@@ -63,6 +65,14 @@ class SchemaLinkingAgentPipeline:
             "vsm": vsm, 
             "executor": executor
         }
+
+        if force_update:
+            if (self.run_path / "schema_linking" / "agent_candidates").exists():
+                shutil.rmtree(str(self.run_path / "schema_linking" / "agent_candidates"))
+            if (self.run_path / "schema_linking" / "agent_candidates.json").exists():
+                (self.run_path / "schema_linking" / "agent_candidates.json").unlink()
+            
+        (self.run_path / "schema_linking" / "agent_candidates").mkdir(parents=True, exist_ok=True)
               
         self.dialect_rules = self._load_dialect_rules()
         self.similar_tables = load_similar_tables(str(self.storage_root / self.input_data_root / "schema_cache"))
@@ -93,20 +103,20 @@ class SchemaLinkingAgentPipeline:
         )
         self.logger.info(f"LLM Initialized: {model}")
 
-    def _load_dialect_rules(self) -> Optional[Dict[str, str]]:
+    def _load_dialect_rules(self) -> Dict[str, str]:
         """Загружает правила для конкретного диалекта."""
         dialects_path = self.prompt_path / "dialects"
         if dialects_path.exists():
-            dialects = {str(file).split("_", 1)[0] for file in dialects_path.iterdir()}
-            return {{
+            dialects = {file.stem.split("_", 1)[0] for file in dialects_path.iterdir()}
+            return {dialect: {
                     "rules": (dialects_path / f"{dialect}_rules.txt").read_text(encoding="utf-8"),
-                    "specifics": (dialects_path / f"{dialect}_specifics.txt").read_text(encoding="utf-8")
+                    "specifics": (dialects_path / f"{dialect}_specifications.txt").read_text(encoding="utf-8")
                 } for dialect in dialects 
                 if (dialects_path / f"{dialect}_rules.txt").exists() 
-                   and (dialects_path / f"{dialect}_specifics.txt").exists()
+                   and (dialects_path / f"{dialect}_specifications.txt").exists()
             }
         
-        return None
+        return {}
 
     def _load_instances(self) -> Dict[str, Any]:
         """Загружает список примеров и их метаданные."""
@@ -135,10 +145,9 @@ class SchemaLinkingAgentPipeline:
                 } 
                     for iid in tasks}
 
-        
         # Удаляем примеры, если они уже обработаны
         for file in (self.run_path / "schema_linking" / "agent_candidates").iterdir():
-            instance_id = file.rsplit(".", 1)[0]
+            instance_id = file.stem
             if instance_id in used_indices:
                 del used_indices[instance_id]
         
@@ -181,8 +190,8 @@ class SchemaLinkingAgentPipeline:
 
             table_schemas = {
                 table_name: [
-                    {"column": db_docs[db_id][cid]['metadata']["column_name"], 
-                     "type": db_docs[db_id][cid]['metadata']["column_type"]}
+                    {"column_name": db_docs[db_id][cid]['metadata']["column_name"], 
+                     "data_type": db_docs[db_id][cid]['metadata']["column_type"]}
                     for cid in db_docs[db_id]
                     if db_docs[db_id][cid]['metadata']["table_name"] == table_name
                 ]
@@ -190,9 +199,11 @@ class SchemaLinkingAgentPipeline:
             }
             table_schemas = list(table_schemas.items())
             random.shuffle(table_schemas)  # Перемешиваем для предотвращения влияния порядка таблиц на ответ модели
-            used_indices[instance_id]["table_schemas"] = json.dumps(
-                OrderedDict(table_schemas), indent=2, ensure_ascii=False
-            )
+            # used_indices[instance_id]["table_schemas"] = json.dumps(
+            #     OrderedDict(table_schemas), indent=2, ensure_ascii=False
+            # )
+            used_indices[instance_id]["table_schemas"] = "".join(format_compact_block(tn, cols, self.similar_tables[db_id].get(tn)) 
+                                                                 for tn, cols in table_schemas)
             used_indices[instance_id]["external_knowledge"] = str(
                 self.data_root / self.input_data_root / "resource" / "documents" 
                 / tasks[instance_id]["external_knowledge"]
@@ -223,24 +234,24 @@ class SchemaLinkingAgentPipeline:
             external_knowledge = "None"
             if instance_data.get("external_knowledge") is not None:
                 external_knowledge = open(instance_data["external_knowledge"], "r", encoding="utf-8").read()
-
-            schema_dir = self.agent.cache_dir / "initial_schema"
             
             # 1. Предобработка
             context = {
                 "USER_QUESTION": instance_data.get("question", "None"),
-                # "RETRIEVED_SCHEMA": None,  # будет загружено в preprocessor.build_messages
-                "ALL_TABLES": str(instance_data.get("all_tables", [])),
+                # "RETRIEVED_SCHEMA": None,
+                "ALL_TABLES": "See below", # str(instance_data.get("all_tables", [])),
                 "TABLE_SCHEMAS": instance_data.get("table_schemas", "None"),
                 "EXTERNAL_KNOWLEDGE": external_knowledge
             }
-            
+
             system_prompt, user_prompt = self.preprocessor.build_messages(
                 instance_id=instance_id,
                 context=context,
-                schema_dir=schema_dir,
-                dialect_rules=self.dialect_rules[dialect]
+                schema_dir=self.agent.cache_dir / "initial_schema",
+                dialect_rules=self.dialect_rules.get(dialect, {})
             )
+
+            self.logger.info(f"Approximately {len(system_prompt)/3 + len(user_prompt)/3:.0f} ({len(system_prompt)/3:.0f}, {len(user_prompt)/3:.0f}) tokens for {instance_id}")
             
             # 2. Исполнение
             result = self.agent.run(
@@ -403,7 +414,11 @@ if __name__ == "__main__":
         "--max-delay", type=float, default=30.0,
         help="Максимальная задержка перед попыткой генерации"
     )
-
+    parser.add_argument(
+        "--force-update", action="store_true",
+        help="Удалить всё предыдущие результаты и запустить процесс заново"
+    )
+    
     # Параметры модели
     parser.add_argument(
         "--model-name", type=str, default="qwen-local",
@@ -489,7 +504,8 @@ if __name__ == "__main__":
             "initial_delay": args.initial_delay,
             "max_delay": args.max_delay,
             "backoff_multiplier": 2.0
-        }
+        },
+        force_update=args.force_update
     )
     pipeline.run()
     pipeline.extract_all_candidates()
