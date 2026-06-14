@@ -268,7 +268,7 @@ class ColumnLinking:
             }
 
         # Если были загружены названия таблиц, добавляем все принадлежащие им столбцы
-        if self.input_data_root == "Spider2/spider2-lite":
+        if self.input_data_root.startswith("Spider2/"):
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
             for iid in tasks_dict:
                 db_id = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks_dict[iid]["db_id"]

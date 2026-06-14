@@ -169,7 +169,7 @@ def generate_schemas(
 
     # Загружаем примеры
     schema_tasks = resolve_tasks(tasks, data_root, input_data_root)
-    if input_data_root == "Spider2/spider2-lite":
+    if input_data_root.startswith("Spider2/"):
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         schema_tasks = [(instance["instance_id"], 
                          inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance.get("db_id", instance.get("db")))

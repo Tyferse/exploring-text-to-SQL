@@ -41,7 +41,7 @@ def resolve_tasks(
         if isinstance(tasks, str):
             tasks_file = str(Path(data_root) / input_data_root / tasks)
         else:
-            tasks_file = (data_root / input_data_root).glob("*.jsonl")[0]
+            tasks_file = next((Path(data_root) / input_data_root).glob("*.jsonl"))
 
         with open(tasks_file, "r", encoding="utf-8") as f:
             new_tasks = [json.loads(line.strip()) for line in f.readlines()]

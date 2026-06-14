@@ -14,7 +14,7 @@ import re
 proj_dir = osp.dirname(osp.dirname(osp.abspath(__file__)))
 sys.path.insert(0, osp.join(proj_dir, '../'))
 
-from utils.utils import walk_metadata, get_special_function_summary
+from utils.utils import walk_metadata
 # borrow the preprocess code from dailsql
 from dailsql.preprocessed_data.spider2_preprocess import process_table_json, process_dev_json
 

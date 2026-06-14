@@ -14,33 +14,6 @@ def read_jsonl(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return [json.loads(line) for line in file]
 
-def get_special_function_summary(data):
-    with open(osp.join(proj_dir, '../../resource/syntax/bigquery_functions/bigquery_functions.json'), 'r', encoding='utf-8') as file:
-        bigquery_functions = json.load(file)
-
-    function_summaries = {}
-    for category_entry in bigquery_functions:
-        category = category_entry.get("category", "")
-        for function_name, function_details in category_entry.get("functions", {}).items():
-            function_summaries[f"{category}/{function_name}"] = function_details.get("summary", "")
-            function_summaries[function_name] = function_details.get("summary", "")  
-
-    for item in data:
-        if item.get("special_function") is None:
-            continue
-        updated_special_function = []
-        for function_name in item.get("special_function", []):
-            summary = function_summaries.get(function_name, "No summary found")
-            updated_special_function.append(
-                {
-                    'name':function_name,
-                    'summary':summary
-                }
-            )
-        item["special_function"] = updated_special_function
-
-    return data
-
 def column_description_length_histogram():
     '''
     1106 status: deprecated. should be compatible with the new metadata format.
@@ -132,12 +105,12 @@ def db_stats_bar_chart(db_stats_list):
 
 def walk_metadata(dev):
 
-    dev_data = read_jsonl(osp.join(proj_dir, f'../../../{dev}.jsonl'))
+    dev_data = read_jsonl(osp.join(proj_dir, f'../../{dev}.jsonl'))
         
-    required_db_ids = set([item['db'] for item in dev_data])
+    required_db_ids = set([item['db_id'] for item in dev_data])
   
     # currently supporting only bigquery, sqlite and snowflake
-    db_base_paths = ["../../resource/databases/bigquery/", "../../resource/databases/sqlite/", "../../resource/databases/snowflake/"]
+    db_base_paths = ["../../resource/databases"]
     json_glob_path = "**/*.json"
 
     db_stats_list = []
@@ -167,14 +140,14 @@ def walk_metadata(dev):
                         table_name = data.get("table_name", "")
                         table_names_original.append(table_name)
                         
-                        if 'bigquery' in base_path:  # bikeshare_trips: bigquery-public-data.austin_bikeshare
-                            table_to_projDataset[table_name] = osp.basename(osp.dirname(json_file))  
-                        elif 'snowflake' in base_path:  # HISTORY_DAY: GLOBAL_WEATHER__CLIMATE_DATA_FOR_BI.STANDARD_TILE
-                            table_to_projDataset[table_name] = osp.basename(osp.dirname(osp.dirname(json_file))) + '.' + osp.basename(osp.dirname(json_file))
-                        elif 'sqlite' in base_path:  # local
-                            table_to_projDataset[table_name] = None  # we will not read it.
-                        else:
-                            raise ValueError(f"Unknown database type: {base_path}")
+                        # if 'bigquery' in base_path:  # bikeshare_trips: bigquery-public-data.austin_bikeshare
+                        #     table_to_projDataset[table_name] = osp.basename(osp.dirname(json_file))  
+                        # elif 'snowflake' in base_path:  # HISTORY_DAY: GLOBAL_WEATHER__CLIMATE_DATA_FOR_BI.STANDARD_TILE
+                        table_to_projDataset[table_name] = osp.basename(osp.dirname(osp.dirname(json_file))) + '.' + osp.basename(osp.dirname(json_file))
+                        # elif 'sqlite' in base_path:  # local
+                        #     table_to_projDataset[table_name] = None  # we will not read it.
+                        # else:
+                        #     raise ValueError(f"Unknown database type: {base_path}")
 
                         columns = data.get("column_names", [])
                         column_types_in_table = data.get("column_types", [])

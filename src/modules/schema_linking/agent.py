@@ -131,7 +131,7 @@ class SchemaLinkingAgentPipeline:
                 used_indices = json.load(f)
         else:
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
-            if self.input_data_root == "Spider2/spider2-lite":
+            if self.input_data_root.startswith("Spider2/"):
                 used_indices = {iid: {
                     "db_id": inst2dialect[remove_digits(tasks[iid]["instance_id"]).split("_")[0]] + "_" + tasks[iid].get("db_id", tasks[iid].get("db")),
                     "used_indices": []

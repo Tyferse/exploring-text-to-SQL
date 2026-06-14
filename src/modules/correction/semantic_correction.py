@@ -16,7 +16,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 
 from src.utils.logger import get_logger
-from src.utils.models import get_model
+from src.utils.models import get_model, serialize_messages
 from src.utils.preprocessing import fill_prompt_template, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import SQLExecutor, parse_dialect_path_pair, df_to_markdown
@@ -136,7 +136,7 @@ def _load_semantic_context(
     return {
         "schema": schema, "question": question, "dialect": dialect, 
         "db_id": db_id, "external_knowledge": external_knowledge,
-        "current_sql": current_sql, "execution_result": df_to_markdown(df), "df": df
+        "current_sql": current_sql, "execution_result": df_to_markdown(df) if isinstance(df, pd.DataFrame) else df, "df": df
     }
 
 def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_prefix: str = "simple") -> List[Dict[str, Any]]:
@@ -144,36 +144,55 @@ def _load_semantic_candidates(run_id: str, runs_root: str = "logs/runs", gen_pre
     for base_name in ["correction", "generation"]:
         base = Path(runs_root) / run_id / base_name / gen_prefix
         if not base.exists(): continue
-        for result_dir in base.glob("result_*"):
-            for meta_file in result_dir.glob("*_meta.json"):
+
+        if base_name == "generation":
+            for manifest_file in (base / "manifests").iterdir():
                 try:
-                    with open(meta_file, "r", encoding="utf-8") as f: meta = json.load(f)
-                    instance_id, candidate_id = meta.get("instance_id"), meta.get("candidate_id")
+                    with open(manifest_file, "r", encoding="utf-8") as f: meta = json.load(f)
+                    for cand_str, cand_data in meta["candidates"].items():
+                        candidate_id = int(cand_str)
+                        instance_id = cand_data["instance_id"]
+                        if (Path(runs_root) / run_id / "correction" / gen_prefix / f"valid_result_{cand_str}" / f"{instance_id}.csv").exists():
+                            processed_pairs.add((instance_id, candidate_id))
 
-                    if (Path(runs_root) / run_id / "correction" / gen_prefix / f"valid_result_{candidate_id:02d}" / f"{instance_id}.csv").exists():
-                        processed_pairs.add((instance_id, candidate_id))
-
-                    if (instance_id, candidate_id) in processed_pairs: continue
-                    
-                    # Проверка успеха в зависимости от структуры
-                    is_success = False
-                    if base_name == "correction":
-                        is_success = meta.get("final_status") in ("success", "success_empty") and meta.get("final_sql")
-                    else:
-                        cand_str = f"{candidate_id:02d}"
-                        cand_data = meta.get("candidates", {}).get(cand_str, {})
-                        is_success = cand_data.get("execution", {}).get("status") in ("success", "empty") and cand_data.get("generation", {}).get("sql")
-                    
-                    if is_success:
-                        processed_pairs.add((instance_id, candidate_id))
-                        tasks.append({
-                            "instance_id": instance_id, "candidate_id": candidate_id,
-                            "db_id": meta.get("db_id"), "dialect": meta.get("dialect", "sqlite"),
-                            "question": meta.get("question", ""), "source": base_name
-                        })
-
-                except Exception: 
+                        if (instance_id, candidate_id) in processed_pairs: continue
+                        
+                        if cand_data.get("execution", {}).get("status") in ("success", "empty") and cand_data.get("generation", {}).get("sql"):
+                            tasks.append({
+                                "instance_id": instance_id, "candidate_id": candidate_id,
+                                "db_id": meta.get("db_id"), "dialect": meta.get("dialect", "sqlite"),
+                                "question": meta.get("question", ""), "source": base_name
+                            })
+                            processed_pairs.add((instance_id, candidate_id))
+                            
+                except Exception:
                     continue
+        
+        else:
+            for result_dir in base.glob("result_*"):
+                for meta_file in result_dir.glob("*_meta.json"):
+                    try:
+                        with open(meta_file, "r", encoding="utf-8") as f: meta = json.load(f)
+                        instance_id, candidate_id = meta.get("instance_id"), meta.get("candidate_id")
+    
+                        if (Path(runs_root) / run_id / "correction" / gen_prefix / f"valid_result_{candidate_id:02d}" / f"{instance_id}.csv").exists():
+                            processed_pairs.add((instance_id, candidate_id))
+    
+                        if (instance_id, candidate_id) in processed_pairs: continue
+                        
+                        # Проверка успеха в зависимости от структуры
+                        is_success = meta.get("final_status") in ("success", "empty", "success_empty") and meta.get("final_sql")
+                        
+                        if is_success:
+                            tasks.append({
+                                "instance_id": instance_id, "candidate_id": candidate_id,
+                                "db_id": meta.get("db_id"), "dialect": meta.get("dialect", "sqlite"),
+                                "question": meta.get("question", ""), "source": base_name
+                            })
+                            processed_pairs.add((instance_id, candidate_id))
+    
+                    except Exception: 
+                        continue
     
     return tasks
 
@@ -204,13 +223,13 @@ def run_classification_check(
             response = model.invoke(messages)
             response_text = response.content if hasattr(response, "content") else str(response)
             return {
-                "messages": messages, "raw_response": response_text,
+                "messages": serialize_messages(messages), "raw_response": response_text,
                 "result": parse_classification_response(response_text), "success": True
             }
         except Exception as e:
             if logger: logger.warning(f"Classification LLM call failed: {e}")
             
-    return {"messages": messages, "raw_response": "", "result": {"verdict": "INVALID", "reasons": ["LLM API failed"]}, "success": False}
+    return {"messages": serialize_messages(messages), "raw_response": "", "result": {"verdict": "INVALID", "reasons": ["LLM API failed"]}, "success": False}
 
 
 def run_unified_validation(
@@ -241,13 +260,13 @@ def run_unified_validation(
             think_text, answer_text = extract_think_answer(response_text)
             corrected_sql = extract_sql_from_response(answer_text)
             return {
-                "messages": messages, "raw_response": response_text,
+                "messages": serialize_messages(messages), "raw_response": response_text,
                 "think": think_text, "answer": answer_text, "corrected_sql": corrected_sql, "success": True
             }
         except Exception as e:
            if logger: logger.warning(f"Unified Validation LLM call failed: {e}")
             
-    return {"messages": messages, "raw_response": "", "corrected_sql": None, "success": False}
+    return {"messages": serialize_messages(messages), "raw_response": "", "corrected_sql": None, "success": False}
 
 
 def run_double_validation(
@@ -280,7 +299,7 @@ def run_double_validation(
             response_text = response.content if hasattr(response, "content") else str(response)
             think_text, answer_text = extract_think_answer(response_text)
             sql_step1 = extract_sql_from_response(answer_text)
-            all_messages.append({"step": 1, "messages": messages_1, "raw_response": response_text, "think": think_text, "answer": answer_text})
+            all_messages.append({"step": 1, "messages": serialize_messages(messages_1), "raw_response": response_text, "think": think_text, "answer": answer_text})
             break
         except Exception as e:
             if logger: logger.warning(f"Double Validation Rules Step LLM call failed: {e}")
@@ -299,6 +318,10 @@ def run_double_validation(
         )
         exec_duration = time.perf_counter() - exec_start
         logger.info(f"Execution finished in {exec_duration:.2f}s. Status: {exec_status}")
+        if exec_status != "success":
+            exec_error = df
+            logger.error(f"Execution exception: {exec_error}")
+        
     except Exception as e:
         exec_status, exec_error, df = "error", str(e), None
         exec_duration = time.perf_counter() - exec_start
@@ -312,7 +335,7 @@ def run_double_validation(
     output_prompt = fill_prompt_template(output_prompt_template, {
         "{{QUESTION}}": question, "{{SCHEMA}}": schema, "{{CURRENT_SQL}}": sql_step1,
         "{{EXTERNAL_KNOWLEDGE}}": external_knowledge,
-        "{{EXECUTION_RESULT}}": df_to_markdown(df), "{{DIALECT}}": dialect,
+        "{{EXECUTION_RESULT}}": df_to_markdown(df) if isinstance(df, pd.DataFrame) else df, "{{DIALECT}}": dialect,
         "{{DIALECT_OPTIMIZATION_RULES}}": dialect_rules
     })
     messages_2 = [HumanMessage(content=output_prompt)]
@@ -328,7 +351,7 @@ def run_double_validation(
             response_text = response.content if hasattr(response, "content") else str(response)
             think_text, answer_text = extract_think_answer(response_text)
             sql_step2 = extract_sql_from_response(answer_text)
-            all_messages.append({"step": 2, "messages": messages_2, "raw_response": response_text, "think": think_text, "answer": answer_text})
+            all_messages.append({"step": 2, "messages": serialize_messages(messages_2), "raw_response": response_text, "think": think_text, "answer": answer_text})
             break
         except Exception as e:
             logger.warning(f"Double Validation Output Step LLM call failed: {e}")
@@ -368,7 +391,7 @@ def correct_semantic_single_candidate(
     
     # 1. Логгер
     base_dir = Path(runs_root) / run_id / "correction" / gen_prefix
-    events_dir = base_dir / "events"
+    events_dir = base_dir / "valid_events"
     events_dir.mkdir(parents=True, exist_ok=True)
     logger = get_logger(
         name=f"sem_{instance_id}_cand{candidate_id}",
@@ -377,7 +400,7 @@ def correct_semantic_single_candidate(
     )
     
     logger.info(f"=== START SEMANTIC VALIDATION ({validation_mode}): {instance_id} | Cand: {candidate_id} ===")
-    start_time = time.perf_counter()
+    start_time = time.time()
     
     # 2. Контекст
     context = _load_semantic_context(instance_id, candidate_id, run_id, runs_root, gen_prefix, schema_dir, ek_path, logger)
@@ -387,7 +410,7 @@ def correct_semantic_single_candidate(
         logger.error("No SQL found for semantic correction.")
         return {
             "instance_id": instance_id,  "candidate_id": candidate_id, "final_status": "failed_no_sql", 
-            "metadata": {"start_time": start_time, "end_time": time.perf_counter()}
+            "metadata": {"start_time": start_time, "end_time": time.time()}
         }
     
     # 3. Правила диалекта
@@ -489,6 +512,10 @@ def correct_semantic_single_candidate(
             )
             exec_duration = time.perf_counter() - exec_start
             logger.info(f"Execution finished in {exec_duration:.2f}s. Status: {exec_status}")
+            if exec_status != "success":
+                exec_error = df
+                logger.error(f"Execution exception: {exec_error}")
+            
         except Exception as e:
             exec_status, exec_error, df = "error", str(e), None
             exec_duration = time.perf_counter() - exec_start
@@ -498,7 +525,7 @@ def correct_semantic_single_candidate(
             "status": exec_status, "duration_sec": round(exec_duration, 3), "error": exec_error
         }
         
-        if exec_status == "error":
+        if exec_status != "success":
             logger.error("Corrected SQL failed execution. Stopping.")
             results["final_status"] = "failed_execution_after_correction"
             results["turns"].append(turn_record)
@@ -511,7 +538,7 @@ def correct_semantic_single_candidate(
         results["turns"].append(turn_record)
         
     # 6. Финализация и сохранение
-    results["metadata"]["end_time"] = time.perf_counter()
+    results["metadata"]["end_time"] = time.time()
     results["metadata"]["total_duration_sec"] = round(results["metadata"]["end_time"] - start_time, 3)
     
     cand_dir = base_dir / f"valid_sql_{candidate_id:02d}"
@@ -519,15 +546,18 @@ def correct_semantic_single_candidate(
     cand_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
     
-    meta_path = results_dir / f"{instance_id}_meta.json"
-    fd, tmp_path = tempfile.mkstemp(dir=str(results_dir), suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as tmp:
-            json.dump(results, tmp, ensure_ascii=False, indent=2)
-        os.replace(tmp_path, str(meta_path))
-    except Exception as e:
-        logger.error(f"Failed to save meta.json: {e}")
-        if os.path.exists(tmp_path): os.unlink(tmp_path)
+    # meta_path = results_dir / f"{instance_id}_meta.json"
+    with open(str(results_dir / f"{instance_id}_meta.json"), "w", encoding="utf-8") as mf:
+        json.dump(results, mf, ensure_ascii=False, indent=2)
+        
+    # fd, tmp_path = tempfile.mkstemp(dir=str(cand_dir), suffix=".tmp")
+    # try:
+    #     with os.fdopen(fd, "w", encoding="utf-8") as tmp:
+    #         json.dump(results, tmp, ensure_ascii=False, indent=2)
+    #     os.replace(tmp_path, str(meta_path))
+    # except Exception as e:
+    #     logger.error(f"Failed to save meta.json: {e}")
+    #     if os.path.exists(tmp_path): os.unlink(tmp_path)
         
     if results["final_sql"]:
         (cand_dir / f"{instance_id}.sql").write_text(results["final_sql"], encoding="utf-8")
@@ -562,18 +592,16 @@ def simple_semantic_correction(
 ) -> Dict[str, Any]:
     
     base_path = Path(runs_root) / run_id / "correction" / gen_prefix
-    main_log = base_path / "main.log"
+    main_log = base_path / "valid_main.log"
     main_log.parent.mkdir(parents=True, exist_ok=True)
     logger = get_logger("simple_semantic", str(main_log))
     
-    if tasks is None:
-        logger.info("Loading successful candidates from correction/generation manifests...")
-        tasks = _load_semantic_candidates(run_id, runs_root, gen_prefix)
-        logger.info(f"Loaded {len(tasks)} candidates for semantic correction.")
-    else:
-        logger.info(f"Starting with {len(tasks)} provided tasks.")
+    
+    logger.info("Loading successful candidates from correction/generation manifests...")
+    corr_tasks = _load_semantic_candidates(run_id, runs_root, gen_prefix)
+    logger.info(f"Starting with {len(corr_tasks)} provided tasks.")
         
-    if not tasks:
+    if not corr_tasks:
         return {"results": {}, "stats": {"total_jobs": 0}}
     
     ek_paths = _load_external_knowledge_path(tasks, input_data_root, data_root)
@@ -591,7 +619,7 @@ def simple_semantic_correction(
                 gen_prefix=gen_prefix, validation_mode=validation_mode, 
                 max_turns=max_turns, retry_config=retry_config
             ): (task["instance_id"], task["candidate_id"])
-            for task in tasks
+            for task in corr_tasks
         }
         
         for future in as_completed(future_to_task):

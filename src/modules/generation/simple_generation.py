@@ -114,7 +114,7 @@ def _load_exploration_block(exploration_dir: str, instance_id: str, logger: Opti
         
         # Ожидаем структуру с тремя сообщениями, берём последнее (результаты исполнения)
         if len(messages) >= 3:
-            exploration_text = messages[-1].get("content", "")
+            exploration_text = messages[-1].get("content", "None")
             if exploration_text.strip():
                 if logger: logger.info(f"Loaded exploration block for {instance_id} ({len(exploration_text)} chars)")
                 return exploration_text
@@ -167,7 +167,7 @@ def _load_instances(
         for instance in tasks_list 
         if not (Path(runs_root) / run_id / "generation" / prefix / "manifests" / f"{instance['instance_id']}.json").exists()
     }
-    if input_data_root == "Spider2/spider2-lite":
+    if input_data_root.startswith("Spider2/spider2-lite"):
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         for iid in tasks_dict:
             tasks_dict[iid]["dialect"] = inst2dialect[remove_digits(iid).split("_")[0]]
@@ -239,7 +239,7 @@ def generate_sql_simple(
     model: BaseChatModel,
     executor: SQLExecutor,
     runs_root: str = "logs/runs",
-    promt_name: str = "gen_basic",
+    prompt_name: str = "gen_basic",
     prompt_dir: str = "config/prompts/generation",
     n_candidates: int = 1,
     prefix: str = "one_step",
@@ -286,7 +286,7 @@ def generate_sql_simple(
     
     try:
         # 2. Промпт
-        prompt_template = _load_prompt_template(promt_name, prompt_dir)
+        prompt_template = _load_prompt_template(prompt_name, prompt_dir)
         optimization_rules = _load_optimization_rules(prompt_dir, dialect)
         
         # Рендеринг промпта (простая замена плейсхолдеров)
@@ -447,6 +447,7 @@ def generate_sql_simple(
                         logger.info("Executed: empty result")
                         
                     else:  # error
+                        candidate_result["execution"]["error"] = df
                         logger.warning(f"Execution error: {status}")
                         
                 except Exception as e:
@@ -456,6 +457,17 @@ def generate_sql_simple(
                         "timestamp": time.time()
                     }
                     logger.error(f"Execution exception: {e}")
+
+                    error_path = results_dir / f"{instance_id}_error.json"
+                    fd, tmp_path = tempfile.mkstemp(dir=str(sql_dir), suffix=".tmp")
+                    try:
+                        with os.fdopen(fd, "w", encoding="utf-8") as tmp:
+                            json.dump(candidate_result["execution"], tmp, ensure_ascii=False, indent=2)
+                        os.replace(tmp_path, str(error_path))
+                    except Exception:
+                        if os.path.exists(tmp_path):
+                            os.unlink(tmp_path)
+                        raise
             
             # Добавляем кандидата в результаты
             results["candidates"][c_str] = candidate_result
@@ -695,7 +707,7 @@ if __name__ == "__main__":
     
     # === Вывод ===
     stats = output.get("stats", {})
-    print("\n📊 Результаты:")
+    print("\nРезультаты:")
     print(f"  Всего примеров:  {stats.get('total_instances', 0)}")
     print(f"  Завершено:       {stats.get('completed', 0)}")
     print(f"  Ошибок:          {stats.get('errors', 0)}")

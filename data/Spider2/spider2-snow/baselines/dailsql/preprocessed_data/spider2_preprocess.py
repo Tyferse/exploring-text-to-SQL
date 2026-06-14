@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 proj_dir = osp.dirname(osp.dirname(osp.abspath(__file__)))
 sys.path = [osp.join(proj_dir, '../')] + sys.path
 
-from utils.utils import walk_metadata, get_special_function_summary
+from utils.utils import walk_metadata
 
 def read_jsonl(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -86,7 +86,7 @@ def process_dev_json(args, proj_dir):
         os.makedirs(osp.join(proj_dir, f'preprocessed_data/{args.dev}'), exist_ok=True)
         for item in data:
             # step1. 
-            doc = nlp(item['question'])
+            doc = nlp(item['instruction'])
             item['question_toks'] = [token.text for token in doc]
 
             # step2. 
@@ -98,12 +98,12 @@ def process_dev_json(args, proj_dir):
                     gold_sql = file.read().strip()
                     item['query'] = gold_sql
 
-            item['db_id'] = item['db']
-            del item['db']
+            # item['db_id'] = item['db']
+            # del item['db']
         return data
 
 
-    # table_json = process_table_json(args, proj_dir)
+    table_json = process_table_json(args, proj_dir)
     # for fp in os.listdir(osp.join(proj_dir, f"preprocessed_data/{args.dev}/tables_preprocessed")):
     #     # nan_replaced = []
     #     with open(osp.join(proj_dir, f"preprocessed_data/{args.dev}/tables_preprocessed", fp), "r", encoding="utf-8-sig") as json_file:
@@ -125,11 +125,8 @@ def process_dev_json(args, proj_dir):
     #     with open(osp.join(proj_dir, f"preprocessed_data/{args.dev}/tables_preprocessed", fp), "w", encoding="utf-8") as json_file:
     #         json_file.writelines(nan_replaced)
 
-    #     print('YEAAAAAAH')
-        
-    # print('перезаписалось!!!')
-    with open(osp.join(proj_dir, f"preprocessed_data/{args.dev}/tables_preprocessed.json"), "r", encoding="utf-8-sig") as json_file:
-        table_json = json.load(json_file)
+    # with open(osp.join(proj_dir, f"preprocessed_data/{args.dev}/tables_preprocessed.json"), "r", encoding="utf-8-sig") as json_file:
+    #     table_json = json.load(json_file)
 
 
     # table_json = []
@@ -142,11 +139,10 @@ def process_dev_json(args, proj_dir):
     #     for item in parser:
     #         table_json.append(item)
 
-    #     # table_json = json.load(json_file)
+        # table_json = json.load(json_file)
 
     data = read_jsonl(osp.join(proj_dir, f'../../{args.dev}.jsonl'))
     data = get_questionTok_and_gold_query_for_dev_json(data)
-    data = get_special_function_summary(data)
 
     # option
     available_dbs = [table['db_id'] for table in table_json]
@@ -187,6 +183,7 @@ def process_dev_json(args, proj_dir):
     print(f"AVG No. of candidate columns per instance: {np.mean(candidate_columns):.2f}")
     print(f"AVG No. of gold tables per instance: {np.mean(gold_tables):.2f}")
 
+    print(len(new_data))
     plot_statistics(new_data)
     with open(osp.join(proj_dir, f'preprocessed_data/{args.dev}/{args.dev}_preprocessed.json'), 'w', encoding='utf-8') as file:
         json.dump(new_data, file, ensure_ascii=False, indent=4)

@@ -46,7 +46,7 @@ def _load_instances(
         } 
         for instance in tasks_list if not (Path(results_dir) / f"{instance['instance_id']}.json").exists()
     }
-    if input_data_root == "Spider2/spider2-lite":
+    if input_data_root.startswith("Spider2/spider2-lite"):
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         for iid in tasks_dict:
             tasks_dict[iid]["dialect"] = inst2dialect[remove_digits(iid).split("_")[0]]
@@ -193,6 +193,7 @@ def _process_single_example(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     last_error = None
+    messages = [{"role": "user", "content": prompt}]
     for attempt in range(retry_config['max_attempts'] + 1):
         if attempt > 0:
             logger.warning(f"Retry attempt {attempt}/{retry_config['max_attempts']} for example {iid}")
@@ -213,6 +214,8 @@ def _process_single_example(
             
             t_model_end = time.perf_counter()
             logger.info(f"[Model Call] Finished. Duration: {t_model_end - t_model_start:.3f}s")
+
+            messages.append({"role": "assistant", "content": response_text})
             
             # 3. Парсинг запросов
             parsed_queries = _parse_sql_queries(
@@ -263,14 +266,12 @@ def _process_single_example(
                 raise RuntimeError("No queries executed successfully")
             
             # 6. Формирование сообщений
-            messages = [
-                {"role": "user", "content": prompt}, 
-                {"role": "assistant", "content": response_text}, 
+            messages.append(
                 {
                     "role": "user", 
-                    "content": "Results of exploratory queries:\n\n" + "\n".join(results_output)
+                    "content": "Results of exploratory queries:\n\n" + "\n".join(results_output) 
                 }
-            ]
+            )
             
             # 7. Сохранение
             output_path = output_dir / f"{iid}.json"
@@ -290,11 +291,14 @@ def _process_single_example(
     logger.error(f"=== FAILED after {retry_config['max_attempts']+1} attempts for example {iid}: {last_error} ===")
     
     # Возвращаем заглушку с ошибкой, чтобы пайплайн не падал
-    return [
-        {"role": "user", "content": f"Processing failed for {iid}"},
-        {"role": "assistant", "content": f"Error: {str(last_error)}"},
-        {"role": "user", "content": "No results available."}
-    ]
+    messages.append({"role": "user", "content": "No results available."})
+    
+    # 7. Сохранение сообщения об отсутствии результата
+    output_path = output_dir / f"{iid}.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(messages, f, ensure_ascii=False, indent=2)
+    
+    return messages
 
 
 def exec_exploration(

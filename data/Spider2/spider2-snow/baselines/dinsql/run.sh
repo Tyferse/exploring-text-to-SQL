@@ -1,7 +1,7 @@
 #!/bin/bash
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-DEV=spider2-lite
+DEV=spider2-snow
 LLM=mistralai/devstral-2512:free
 COMMENT=1
 

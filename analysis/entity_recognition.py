@@ -8,40 +8,62 @@ error_categories = {
         "Некорректное использование функций": [
             "No matching signature for function",
             "ST_GeogPoint failed", "Invalid Lng/Lat pair",
-            "DATE_SUB does not support the",
-            ("Numeric value", "is not recognized"),
+            "DATE_SUB does not support the", "too many arguments for function",
             ("Type", "is not supported as argument to"),
-            "Unknown parameter", 
-            "near \"QUALIFY\"", "unexpected 'QUALIFY'", "unexpected 'LATERAL'",
-            "unexpected 'TOK_INTERVAL'",
-            "is not defined for arguments of type",
-            ("Column", "of type", "cannot be used in"), 
+            "Unknown parameter", "is not defined for arguments of type",
+            "wrong number of arguments to function", ("Function", "does not support", "argument type"),
+            "Function not found", "Unknown function", "Unknown table function",
+            "No matching signature for function", "no such function:",
+            "Error parsing WKT input", "Required parameter is missing",
+            ("does not support the", "date part when the argument is", "type"),
+            "Bad input format model", ("Function", "cannot be used with arguments of types"),
+            ("invalid type", "for parameter"), "Invalid argument types for function", 
+            ("does not support the", "date part"), "is not a function",
+            ("invalid use of", "for function"), ("rgument", "function", "needs to be"),
+            
         ],
         "Некорректные вычисления": [
+            ("Numeric value", "is not recognized"),
+            "near \"QUALIFY\"", "unexpected 'QUALIFY'", 
+            ("Column", "of type", "cannot be used in"),
+            ("Array position in", "must be coercible to", "type, but has type"),
             "which is neither grouped nor aggregated", "misuse of window function",
-            "wrong number of arguments to function", "Division by zero", "misuse of aggregate",
+            "Division by zero", "misuse of aggregate", "near \"GROUP\"", 
             "is not supported for window functions", "recursive aggregate queries not supported",
             "misuse of aliased window function", "Invalid floating point operation",
-            "unexpected 'AVG'", "unexpected 'test_score'", "unexpected 'ARRAY_AGG'",
+            "unexpected 'AVG'", "unexpected 'ARRAY_AGG'", 
             "No matching signature for aggregate function", ("Aggregate function", "not allowed in"),
             ("Grouping by expressions of type", "is not allowed"),
             ("Aggregate functions with", "cannot be used with arguments of type"),
             "Aggregations of aggregations are not allowed", "Cannot GROUP BY literal values",
             ("Expressions of type", "cannot be used as GROUP BY keys"),
-            "aggregate function calls cannot be nested",
-            "window function calls cannot be nested", 
-            "No matching signature for aggregate function",
+            "aggregate function calls cannot be nested", "window function calls cannot be nested", 
+            "No matching signature for aggregate function", "Occurrence must be positive", 
+            "Cannot read partition information from a table that is not partitioned",  
+            "ordinal must be", "date value out of range", ("Failed to cast variant value", "to"),
+            ("Ordering by expressions of type", "is not allowed at"), ("value", "is not recognized"),
+            "is out of range", "out of representable range", ("Bad", "value"), 
+            "ORDER BY key must be numeric in a RANGE-based window", 
+            "in arguments is not supported on scalar functions",
+            "produced too many elements", ("Window function type", "requires"),
+            ("Invalid function type", "for window function"),
+            ("found", "clause but no window function"), ("Array index", "is out of bounds"),
+            ("An aggregate function that has both", "and", "arguments"),
+            ("Partitioning by expressions of type", "is not allowed"),
+            "Floating point error in function",
+
         ],
         "Некорректное планирование": [
+            "unexpected 'LATERAL'", "circular reference",
             "No data found for the specified query",
             "Queries in UNION ALL have mismatched column count",
-            "in UNION ALL has incompatible types",
+            "in UNION ALL has incompatible types", "duplicate alias", 
             "Values referenced in UNNEST must be arrays",
-            ("Actual statement", "did not match the desired statement"),
-            "Single-row subquery returns more than one row",
-            "near \"GROUP\"", "unexpected 'UNION'",
+            "Single-row subquery returns more than one row", "unexpected 'UNION'",
             ("Subquery of type", "must have only one output column"),
-            "near \"UNION\"", "Unsupported subquery type cannot be evaluated"
+            "near \"UNION\"", "Unsupported subquery type cannot be evaluated",
+            "Correlated subqueries", "is an invalid Recursive CTE",
+            "for set operator input branches", 
         ]
     }, 
     "Неверное следование схеме": {
@@ -52,42 +74,32 @@ error_categories = {
             "no such table",
             "This session does not have a current database",
             ("Table", "was not found"),
-            "Cannot read partition information from a table that is not partitioned",
-            
         ],
         "Неверный столбец": [
-            "ambiguous column name",
-            "no such column",
-            ("Name", "not found inside"),
-            ("Name", "is ambiguous inside"),
-            ("Column name", "is ambiguous at"),
-            ("Field name", "does not exist"),
-            "circular reference",
-            "Cannot access field", "near \"months_for_customer\": syntax error",
-            "Wildcard matched incompatible partitioning/clustering tables",
-            "near \"AS\"", "ORDER BY term does not match any column",
-            "invalid identifier '",
-            ("Schema","does not exist or not authorized."),
+            "ambiguous column name", "no such column",
+            ("Column name", "is ambiguous at"), ("Field name", "does not exist"),
+            "Cannot access field", "Wildcard matched incompatible partitioning/clustering tables", 
         ],
         "Нераспознанное имя": [
-            "Unrecognized name: ",
+            ("Schema","does not exist or not authorized."),
+            "invalid identifier '", ("Name", "not found inside"),
+            ("Name", "is ambiguous inside"), "Unrecognized name: ",
+            ("Object", "does not exist or not authorized"),
             "This session does not have a current database",
-            "Not found: Dataset",
+            "Not found: Dataset", ("Database", "does not exist or not authorized."),
         ]
     },
     "Остальные": {
-        "Превышена длина промпта": ["Context length exceeded"],
-        # "Непонимание\nвнешних знаний": [],
+        "Превышена длина контекста": [
+            "Context length exceeded",
+            "maximum context length"
+        ],
         "Ошибка условной фильтрации": [
-            # ,
-            # "not allowed in WHERE clause"
-            "near \"WHERE\"",
-            "unexpected 'FILTER'",
-            "unexpected 'WHERE'",
+            "not allowed in WHERE clause", "near \"WHERE\"",
+            "unexpected 'FILTER'", "unexpected 'WHERE'",
             "Analytic function not allowed in WHERE clause"
         ],
         "Неверный JOIN": [
-            "Correlated subqueries",
             "near \"CROSS\"",
             "nexpected 'CROSS'",
             "unexpected 'LEFT'",
@@ -98,31 +110,28 @@ error_categories = {
             "JOIN cannot be used without a condition",
             "a JOIN clause is required before ON",
             ("called with", "syntax or a join predicate"),
+            "Lateral View cannot be on the left side of join",
+            "subquery is not supported inside join predicate",
         ],
         "Ошибка синтаксиса": [
             "Syntax error: Unexpected identifier", "Syntax error: Expected \"", "Syntax error: Unexpected end of script",
             "Syntax error: Expected end of input but got", "Syntax error: Unexpected keyword", "Syntax error: Expected keyword",
-            "Syntax error: Unexpected string literal", "Function not found", "unrecognized token:", 
-            "Unclosed identifier literal", "Occurrence must be positive", "Unknown function",
-            "No matching signature for operator", "No matching signature for function", "no such function:",
-            " clause should come after ", "incomplete input", "Cannot parse regular expression", "Invalid regular expression",
-            "ordinal must be", "date value out of range", ("Timestamp", "is not recognized"),
+            "Syntax error: Unexpected string literal", "unrecognized token:", "Unclosed identifier literal", 
+            "No matching signature for operator", " clause should come after ", "incomplete input", 
+            "Cannot parse regular expression", "Invalid regular expression", ("Timestamp", "is not recognized"),
             ("Can't parse", "as timestamp with format"), ("Can't parse", "as date with format"),
-            ("Date", "is not recognized"), ("Bad output format", "for FIXED"), ("Failed to cast variant value", "to"),
-            ("Ordering by expressions of type", "is not allowed at"), ("value", "is not recognized"),
-            ("Can't parse", "as number with format"), "Unknown timezone", "Invalid Lng/Lat pair", "Error parsing WKT input",
-            "is out of range", "out of representable range", "You can only execute one statement at a time.",
-            "Required parameter is missing", "malformed JSON", "Left argument of string is not an array", "Invalid extraction path",
-            "concatenated string literals must be separated by whitespace or comments", "Bad int64 value",
-            "ORDER BY key must be numeric in a RANGE-based window", ("does not support the", "date part when the argument is", "type"),
-            "A valid date part name is required but found", "in arguments is not supported on scalar functions",
-            "Illegal escape sequence", "produced too many elements", "Invalid JSON path syntax", "Bad input format model", 
-            ("String", "is too long and would be truncated"), ("Numeric value", "is not recognized"),
-            ("Function", "cannot be used with arguments of types"), ("invalid type", "for parameter"),
-            "Invalid argument types for function", ("Array position in", "must be coercible to", "type, but has type"),
-            
+            ("Date", "is not recognized"), ("Bad output format", "for FIXED"), 
+            ("Can't parse", "as number with format"), "Unknown timezone",  
+             "malformed JSON", "Left argument of string is not an array", "Invalid extraction path",
+            "concatenated string literals must be separated by whitespace or comments",
+            "A valid date part name is required but found", "Trailing comma after the WITH clause", 
+            "Illegal escape sequence",  "Invalid JSON path syntax",  
+            ("String", "is too long and would be truncated"), 
+            ("Query without", "clause cannot have a", "clause"),
+            ("Bitwise operator", "requires", "arguments of the same type"),
+            ("Variable", "are allowed only at the start"), "ORDER BY term does not match any column",
 
-            "Unsupported feature", "invalid identifier", "unexpected", "syntax error"
+            "unsupported", "Unsupported feature", "invalid identifier", "unexpected", "syntax error"
         ]
     }
 }
@@ -139,7 +148,7 @@ column_patterns = [
     r"ambiguous column name:?\s*['\"]?([\w\.\:]+)['\"]?",
     r"near\s+\"([\w\.\:]+)\"",  # Может быть именем столбца
     r"invalid identifier\s+[\`\'\"]([\w\.\:\"]+)[\`\'\"]",
-    r"Schema\s+['\"]?([\w\.\:]+)['\"]?\s+does not exist or not authorized"
+    r"Schema\s+['\"]?([\w\.\:]+)['\"]?\s+does not exist or not authorized",
 ]
 
 table_patterns = [
@@ -149,6 +158,8 @@ table_patterns = [
     r"Access Denied: Table\s+['\"]?([\w\.\:]+)['\"]?",
     r"table\s+['\"]?([\w\.\:]+)['\"]?\s+was not found",
     r"near\s+\"([\w\.\:]+)\"",  # Может быть именем таблицы
+    r"invalid identifier\s+[\`\'\"]([\w\.\:\"]+)[\`\'\"]",
+    r"Schema\s+['\"]?([\w\.\:]+)['\"]?\s+does not exist or not authorized",
 ]
 
 function_patterns = [
@@ -168,8 +179,6 @@ function_patterns = [
 ]
 
 join_patterns = [
-    r"near\s+\"(\w+)\"",
-    r"unexpected\s+'(\w+)'",
     r"Column\s+['\"]?(\w+)['\"]?\s+in.*?clause not found on left side of join",
     "Unsupported subquery with table in join predicate",
 ]

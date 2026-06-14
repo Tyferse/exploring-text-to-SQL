@@ -191,7 +191,7 @@ class TableLinking:
             for instance in tasks 
             if not (self.log_dir / f"{self.stage}_results" / f"{instance['instance_id']}.json").exists()
         }
-        if self.input_data_root == "Spider2/spider2-lite":
+        if self.input_data_root.startswith("Spider2/"):
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
             for iid in tasks:
                 tasks[iid]["db_id"] = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks[iid]["db_id"],

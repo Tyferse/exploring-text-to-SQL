@@ -41,7 +41,7 @@ def _load_prompt(prompt_name: str, prompt_dir: str = "config/prompts/correction"
 def _get_failed_operator(sql: str, error_message: str, dialect: str) -> str:
     """Определяет оператор с фоллбэком на простой метод."""
     operator = find_error_operator(sql=sql, error_message=error_message, dialect=dialect)
-    if operator == "Unknown":
+    if operator == "UNKNOWN":
         operator = find_error_operator_simple(sql=sql, error_message=error_message)
 
     return operator
@@ -130,7 +130,7 @@ def _load_failed_candidates(
                 }
         
         if corrections and not all(
-            (Path(runs_root) / run_id / "correction" / gen_prefix / f"result_{cnd:02d}" / f"{instance_id}.csv").exists() 
+            (Path(runs_root) / run_id / "correction" / gen_prefix / f"result_{cnd:02d}" / f"{instance_id}_meta.json").exists() 
             for cnd in corrections.keys()
         ):
             tasks.append({
@@ -158,7 +158,7 @@ def extract_sql_from_response(response_text: str, logger: Optional[logging.Logge
     in_sql = False
     for line in lines:
         stripped = line.strip()
-        if re.match(r"^(SELECT|WITH|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\b", stripped, re.IGNORECASE):
+        if re.match(r"^(SELECT|WITH)\b", stripped, re.IGNORECASE):
             in_sql = True
         if in_sql and stripped and not stripped.startswith("```"):
             sql_lines.append(line)
@@ -238,7 +238,7 @@ def correct_single_candidate(
         "{{FEW_SHOT_EXAMPLES}}": context["few_shots"],
         "{{ORIGINAL_SQL}}": current_sql,
         "{{ERROR_MESSAGE}}": current_error,
-        "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect),
+        "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect) if current_error else "UNKNOWN",
         "{{DIALECT}}": dialect
     })
     null_template = (_load_prompt(prompt_names["null"]) 
@@ -260,7 +260,7 @@ def correct_single_candidate(
     }
     
     prev_sql = current_sql
-    is_null_logic = False
+    is_null_logic = (current_error == "Empty result")
     turn = 0
     initial_messages = [
         SystemMessage(content=sys_prompt),
@@ -286,7 +286,7 @@ def correct_single_candidate(
             prompt_vars = {
                 "{{CURRENT_SQL}}": current_sql,
                 "{{ERROR_MESSAGE}}": current_error,
-                "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect),
+                "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect) if current_error else "UNKNOWN",
                 "{{DIALECT}}": dialect
             }
         elif turn > 1:
@@ -295,7 +295,7 @@ def correct_single_candidate(
             prompt_vars = {
                 "{{CURRENT_SQL}}": current_sql,
                 "{{ERROR_MESSAGE}}": current_error,
-                "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect)
+                "{{FAILED_OPERATOR}}": _get_failed_operator(current_sql, current_error, dialect) if current_error else "UNKNOWN"
             }
         
         if turn > 1:
@@ -332,12 +332,13 @@ def correct_single_candidate(
             results["final_status"] = "failed_llm"
             break
 
+        state_messages.append(AIMessage(content=response_text))
+        
         # Извлечение SQL
         corrected_sql = extract_sql_from_response(response_text, logger)
         if not corrected_sql:
             logger.error("Failed to extract SQL from LLM response.")
             current_error = "LLM returned empty or unparseable SQL"
-            state_messages.append(AIMessage(content=response_text))
             continue
         
         logger.info(f"Extracted SQL:\n{corrected_sql}")
@@ -354,6 +355,10 @@ def correct_single_candidate(
                 dialect=dialect
             )
             logger.info(f"Execution finished in {time.perf_counter() - exec_start:.2f}s. Status: {exec_status}")
+            if exec_status != "success":
+                exec_error = df
+                logger.error(f"Execution exception: {exec_error}")
+                
         except Exception as e:
             exec_status = "error"
             exec_error = str(e)
@@ -383,11 +388,10 @@ def correct_single_candidate(
                     prev_sql = current_sql
                     current_sql = corrected_sql
                     current_error = "Returned empty result or NULLs"
-                    state_messages.append(AIMessage(content=response_text))
                     continue
                 else:
                     logger.warning("Logical investigation also returned empty/NULL. Stopping.")
-                    results["final_status"] = "success_empty"
+                    results["final_status"] = "empty"
                     results["final_sql"] = corrected_sql
                     break
             else:
@@ -403,7 +407,6 @@ def correct_single_candidate(
             current_error = exec_error
             is_null_logic = False # Сброс, так как теперь есть явная ошибка исполнения
         
-        state_messages.append(AIMessage(content=response_text))
         if len(state_messages) // 2 >= max_messages:
             state_messages = state_messages[-max_messages*2:]
          
@@ -462,12 +465,9 @@ def simple_correction(
     
     logger = get_logger("simple_corr", str(main_log))
     
-    if tasks is None:
-        logger.info("Loading failed candidates from generation manifests...")
-        tasks = _load_failed_candidates(run_id, runs_root, gen_prefix)
-        logger.info(f"Loaded {len(tasks)} instances with failed candidates.")
-    else:
-        logger.info(f"Starting with {len(tasks)} provided tasks.")
+    logger.info("Loading failed candidates from generation manifests...")
+    tasks = _load_failed_candidates(run_id, runs_root, gen_prefix)    
+    logger.info(f"Starting with {len(tasks)} provided tasks.")
 
     all_results = {}
     start_pipeline = time.perf_counter()
@@ -518,7 +518,7 @@ def simple_correction(
     stats = {
         "total_jobs": len(job_queue),
         "success": sum(1 for r in all_results.values() if r.get("final_status") == "success"),
-        "success_empty": sum(1 for r in all_results.values() if r.get("final_status") == "success_empty"),
+        "success_empty": sum(1 for r in all_results.values() if r.get("final_status") == "empty"),
         "failed": sum(1 for r in all_results.values() if r.get("final_status") in ("failed_llm", "processing")),
         "total_duration_sec": round(total_duration, 2)
     }
@@ -640,6 +640,6 @@ if __name__ == "__main__":
     print("\nРезультаты коррекции:")
     print(f"  Всего задач:     {stats.get('total_jobs', 0)}")
     print(f"  Успешно:         {stats.get('success', 0)}")
-    print(f"  Успешно (пусто): {stats.get('success_empty', 0)}")
+    print(f"  Успешно (пусто): {stats.get('empty', 0)}")
     print(f"  Ошибки:          {stats.get('failed', 0)}")
     print(f"  Время:           {stats.get('total_duration_sec', 0):.2f} сек")

@@ -19,7 +19,7 @@ from langchain_core.messages import HumanMessage
 from src.evaluation.utils import compare_pandas_table
 from src.utils.logger import get_logger
 from src.utils.models import get_model
-from src.utils.preprocessing import fill_prompt_template
+from src.utils.preprocessing import fill_prompt_template, resolve_tasks
 from src.utils.run_manager import resolve_run_id
 from src.utils.sql_execution import df_to_markdown
 
@@ -45,24 +45,6 @@ def _normalize_sql(sql: str) -> str:
     sql = re.sub(r'\s+', ' ', sql)
     sql = re.sub(r'\s*([,;()])\s*', r'\1', sql)
     return sql
-
-
-def _find_candidate_results(instance_id: str, candidate_id: int, run_id: str, runs_root: str, gen_prefix: str) -> Optional[Tuple[str, str]]:
-    """Ищет CSV-файл кандидата по приоритету путей."""
-    cand_str = f"{candidate_id:02d}"
-    search_paths = [
-        (Path(runs_root) / run_id / "correction" / gen_prefix, "valid_"),
-        (Path(runs_root) / run_id / "correction" / gen_prefix, ""),
-        (Path(runs_root) / run_id / "generation" / gen_prefix, "")   
-    ]
-    for path, prefix in search_paths:
-        if all((path / file).exists() for file in [
-            Path(f"{prefix}result_{cand_str}") / f"{instance_id}.csv", 
-            Path(f"{prefix}sql_{cand_str}") / f"{instance_id}.sql", 
-            Path(f"{prefix}result_{cand_str}") / f"{instance_id}_meta.json"]):
-            return path, prefix
-        
-    return None
 
 
 def _load_df_from_csv(csv_path: Path) -> Optional[pd.DataFrame]:
@@ -152,6 +134,140 @@ def parse_llm_judge_response(response_text: str) -> Tuple[str, str]:
     return "UNKNOWN", ""
 
 
+def _find_candidate_results(instance_id: str, candidate_id: int, run_id: str, runs_root: str, gen_prefix: str) -> Optional[Tuple[str, str]]:
+    """Ищет CSV-файл кандидата по приоритету путей."""
+    cand_str = f"{candidate_id:02d}"
+    search_paths = [
+        (Path(runs_root) / run_id / "correction" / gen_prefix, "valid_"),
+        (Path(runs_root) / run_id / "correction" / gen_prefix, ""),
+        (Path(runs_root) / run_id / "generation" / gen_prefix, "")   
+    ]
+    for path, prefix in search_paths:
+        if all((path / file).exists() for file in [
+            Path(f"{prefix}result_{cand_str}") / f"{instance_id}.csv", 
+            Path(f"{prefix}sql_{cand_str}") / f"{instance_id}.sql", 
+            Path(f"{prefix}result_{cand_str}") / f"{instance_id}_meta.json"
+        ]) or all((path / file).exists() for file in [
+            Path(f"{prefix}results_{cand_str}") / f"{instance_id}.csv", 
+            Path(f"{prefix}sql_{cand_str}") / f"{instance_id}.sql", 
+            Path(f"{prefix}manifests") / f"{instance_id}_meta.json"
+        ]):
+            return path, prefix
+        
+    return None
+    
+
+def _collect_candidates_for_instance(
+    instance_id: str, run_id: str, runs_root: str, gen_prefix: str, data_root: str, input_data_root: str, logger: logging.Logger
+) -> List[Dict[str, Any]]:
+    """Собирает всех успешных кандидатов для instance_id из всех источников."""
+    candidates = []
+    seen_cand_ids = set()
+    
+    # Сканируем все возможные директории
+    search_dirs = [
+        (Path(runs_root) / run_id / "correction" / gen_prefix, "valid_result_", "semantic"),
+        (Path(runs_root) / run_id / "correction" / gen_prefix, "result_", "correction"),
+        (Path(runs_root) / run_id / "generation" / gen_prefix, "results_", "generation"),
+    ]
+
+    tasks = resolve_tasks(None, data_root, input_data_root)
+    ek_paths = {task["instance_id"]: (Path(data_root) / input_data_root / "resource" 
+                                      / "documents" / task["external_knowledge"])
+                for task in tasks if task.get("external_knowledge")}
+    
+    for base_dir, res_dir, stage_name in search_dirs:
+        if not base_dir.exists():
+            continue
+
+        for result_dir in base_dir.glob(f"{res_dir}*"):
+            csv_path = result_dir / f"{instance_id}.csv"
+            if not csv_path.exists():
+                continue
+        
+            try:
+                cand_id = int(result_dir.name.rsplit("_")[-1])
+            except ValueError:
+                continue
+            
+            if cand_id in seen_cand_ids:
+                continue
+            
+            # Загружаем DataFrame
+            df = _load_df_from_csv(csv_path)
+            if df is None:
+                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: invalid CSV")
+                continue
+            
+            # Загружаем SQL
+            find_result = _find_candidate_results(instance_id, cand_id, run_id, runs_root, gen_prefix)
+            if find_result is None:
+                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: incomplete artifacts")
+                continue
+
+            path, res_prefix = find_result
+            sql = (path / f"{res_prefix}sql_{cand_id:02d}" / f"{instance_id}.sql").read_text(encoding="utf-8")
+            if not sql:
+                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: no SQL found")
+                continue
+            
+            # Загружаем мета-данные для времени выполнения
+            if stage_name != "generation":
+                meta_path = path / f"{res_prefix}result_{cand_id:02d}" / f"{instance_id}_meta.json"
+            else:
+                meta_path = path / f"{res_prefix}manifests" / f"{instance_id}_meta.json"
+            
+            meta = {}
+            if meta_path.exists():
+                try:
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        meta = json.load(f)
+                except Exception as e:
+                    logger.warning(f"Failed to load meta for {instance_id} cand {cand_id}: {e}")
+
+            execution_time = 0.0
+            question = ""
+            dialect = "sqlite"
+            db_id = instance_id
+            
+            if meta and stage_name != "generation":
+                # Пытаемся достать время из разных структур
+                if "attempts" in meta and meta["attempts"]:
+                    execution_time = meta["attempts"][-1].get("execution_duration_sec", 0.0)
+                elif "metadata" in meta:
+                    execution_time = meta["metadata"].get("total_duration_sec", 0.0)
+                elif "execution" in meta:
+                    execution_time = meta["execution"].get("duration_sec", 0.0)
+                
+                question = meta.get("question", "")
+                dialect = meta.get("dialect", "sqlite")
+                db_id = meta.get("db_id", instance_id)
+            elif meta:    
+                execution_time = meta["candidates"][f"{cand_id}:02d"].get("execution", {}).get("duration_sec", 0.0)
+                question = meta.get("question", "")
+                dialect = meta.get("dialect", "sqlite")
+                db_id = meta.get("db_id", instance_id)    
+            
+            seen_cand_ids.add(cand_id)
+            candidates.append({
+                "candidate_id": cand_id,
+                "stage": stage_name,
+                "stage_priority": _get_stage_priority(csv_path),
+                "csv_path": csv_path,
+                "sql": sql,
+                "normalized_sql": _normalize_sql(sql),
+                "df": df,
+                "execution_time": execution_time,
+                "question": question,
+                "dialect": dialect,
+                "external_knowledge": ek_paths[instance_id].read_text(encoding="utf-8") if ek_paths.get(instance_id) else None,
+                "db_id": db_id,
+            })
+            logger.info(f"Found candidate {cand_id} from {stage_name} for {instance_id} (time: {execution_time:.3f}s)")
+    
+    return candidates
+
+
 def run_llm_pairwise_comparison(
     model: BaseChatModel,
     question: str, dialect: str, external_knowledge: str,
@@ -196,103 +312,74 @@ def run_llm_pairwise_comparison(
     return {"messages": messages, "raw_response": "", "reason": "", "winner": "UNKNOWN", "success": False}
 
 
-def _collect_candidates_for_instance(
-    instance_id: str, run_id: str, runs_root: str, gen_prefix: str, logger: logging.Logger
-) -> List[Dict[str, Any]]:
-    """Собирает всех успешных кандидатов для instance_id из всех источников."""
-    candidates = []
-    seen_cand_ids = set()
+def _llm_tournament(
+    candidates: List[Dict[str, Any]],
+    model: BaseChatModel,
+    prompt_template: str,
+    retry_config: Dict[str, float],
+    logger: logging.Logger
+) -> Tuple[Dict[str, Any], str, Optional[List[Dict[str, Any]]]]:
+    """Проводит турнир между кандидатами через LLM. Возвращает (победитель, причина)."""
+    if len(candidates) < 2:
+        return candidates[0], "only_one_in_tournament", None
     
-    # Сканируем все возможные директории
-    search_dirs = [
-        (Path(runs_root) / run_id / "correction" / gen_prefix, "valid_result_", "semantic"),
-        (Path(runs_root) / run_id / "correction" / gen_prefix, "result_", "correction"),
-        (Path(runs_root) / run_id / "generation" / gen_prefix, "result_", "generation"),
-    ]
-    
-    for base_dir, res_dir, stage_name in search_dirs:
-        if not base_dir.exists():
-            continue
-    
-        for result_dir in base_dir.glob(f"*{res_dir}*"):
-            csv_path = result_dir / f"{instance_id}.csv"
-            if not csv_path.exists():
-                continue
-        
-            try:
-                cand_id = int(result_dir.name.rsplit("_")[-1])
-            except ValueError:
-                continue
-            
-            if cand_id in seen_cand_ids:
-                continue
-            
-            # Загружаем DataFrame
-            df = _load_df_from_csv(csv_path)
-            if df is None:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: invalid CSV")
-                continue
-            
-            # Загружаем SQL
-            find_result = _find_candidate_results(instance_id, cand_id, run_id, runs_root, gen_prefix)
-            if find_result is None:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: incomplete artifacts")
-                continue
+    tournament_log = []
+    win_results = {challenger["candidate_id"]: 0 for challenger in candidates}
 
-            path, res_prefix = find_result
-            sql = (path / f"{res_prefix}sql_{cand_id:02d}" / f"{instance_id}.sql").read_text(encoding="utf-8")
-            if not sql:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: no SQL found")
-                continue
+    for i, challenger_a in enumerate(candidates[:-1]):
+        for challenger_b in candidates[i+1:]:
+            logger.info(f"Tournament match: cand {challenger_a['candidate_id']} vs cand {challenger_b['candidate_id']}")
             
-            # Загружаем мета-данные для времени выполнения
-            meta_path = path / f"{res_prefix}result_{cand_id:02d}" / f"{instance_id}_meta.json"
-            meta = {}
-            if meta_path.exists():
-                try:
-                    with open(meta_path, "r", encoding="utf-8") as f:
-                        meta = json.load(f)
-                except Exception as e:
-                    logger.warning(f"Failed to load meta for {instance_id} cand {cand_id}: {e}")
-
-            execution_time = 0.0
-            question = ""
-            dialect = "sqlite"
-            external_knowledge = "None"
-            db_id = instance_id
+            result_a = df_to_markdown(challenger_a["df"])
+            result_b = df_to_markdown(challenger_b["df"])
             
-            if meta:
-                # Пытаемся достать время из разных структур
-                if "attempts" in meta and meta["attempts"]:
-                    execution_time = meta["attempts"][-1].get("execution_duration_sec", 0.0)
-                elif "metadata" in meta:
-                    execution_time = meta["metadata"].get("total_duration_sec", 0.0)
-                elif "execution" in meta:
-                    execution_time = meta["execution"].get("duration_sec", 0.0)
-                
-                question = meta.get("question", "")
-                dialect = meta.get("dialect", "sqlite")
-                external_knowledge = meta.get("external_knowledge", "None")
-                db_id = meta.get("db_id", instance_id)
+            llm_result = run_llm_pairwise_comparison(
+                model=model,
+                question=challenger_a["question"],
+                dialect=challenger_a["dialect"],
+                external_knowledge=challenger_a["external_knowledge"],
+                sql_a=challenger_a["sql"],
+                result_a=result_a,
+                time_a=challenger_a["execution_time"],
+                sql_b=challenger_b["sql"],
+                result_b=result_b,
+                time_b=challenger_b["execution_time"],
+                prompt_template=prompt_template,
+                retry_config=retry_config,
+                logger=logger
+            )
             
-            seen_cand_ids.add(cand_id)
-            candidates.append({
-                "candidate_id": cand_id,
-                "stage": stage_name,
-                "stage_priority": _get_stage_priority(csv_path),
-                "csv_path": csv_path,
-                "sql": sql,
-                "normalized_sql": _normalize_sql(sql),
-                "df": df,
-                "execution_time": execution_time,
-                "question": question,
-                "dialect": dialect,
-                "external_knowledge": external_knowledge,
-                "db_id": db_id,
+            tournament_log.append({
+                "champion_id": challenger_a["candidate_id"],
+                "challenger_id": challenger_b["candidate_id"],
+                "llm_winner": llm_result["winner"],
+                "messages": llm_result["messages"],
+                "raw_response": llm_result["raw_response"]
             })
-            logger.info(f"Found candidate {cand_id} from {stage_name} for {instance_id} (time: {execution_time:.3f}s)")
+            
+            if llm_result["winner"] == "B":
+                logger.info(f"Challenger {challenger_b['candidate_id']} wins.")
+                win_results[challenger_b["candidate_id"]] += 1
+            elif llm_result["winner"] == "TIE":
+                logger.info("TIE. Keeping current champion (or faster one).")
+                if challenger_b["execution_time"] < challenger_a["execution_time"]:
+                    win_results[challenger_b["candidate_id"]] += 1
+                else:
+                    win_results[challenger_a["candidate_id"]] += 1
+
+            elif llm_result["winner"] == "UNKNOWN":
+                logger.warning("LLM returned UNKNOWN. Fallback: keeping faster candidate.")
+                if challenger_b["execution_time"] < challenger_a["execution_time"]:
+                    win_results[challenger_b["candidate_id"]] += 1
+                else:
+                    win_results[challenger_a["candidate_id"]] += 1
+            else:
+                logger.info(f"Candidate {challenger_a['candidate_id']} gives a point as fallback.")
+                win_results[challenger_a["candidate_id"]] += 1
     
-    return candidates
+    champion_id = max(win_results, key=win_results.get)
+    champion = next(c for c in candidates if c['candidate_id'] == champion_id)
+    return champion, f"tournament({len(candidates)}_candidates,{len(tournament_log)}_matches)", tournament_log
 
 
 def select_final_for_instance(
@@ -303,6 +390,8 @@ def select_final_for_instance(
     prompt_name: str = "pairwise_selection",
     runs_root: str = "logs/runs",
     gen_prefix: str = "simple",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
     selection_mode: Literal["execution", "sql", "llm", "random"] = "execution",
     use_llm_tiebreaker: bool = True,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG
@@ -323,7 +412,7 @@ def select_final_for_instance(
     start_time = time.perf_counter()
     
     # 2. Сбор кандидатов
-    candidates = _collect_candidates_for_instance(instance_id, run_id, runs_root, gen_prefix, logger)
+    candidates = _collect_candidates_for_instance(instance_id, run_id, runs_root, gen_prefix, data_root, input_data_root, logger)
     
     results = {
         "instance_id": instance_id,
@@ -540,76 +629,6 @@ def select_final_for_instance(
     return results
 
 
-def _llm_tournament(
-    candidates: List[Dict[str, Any]],
-    model: BaseChatModel,
-    prompt_template: str,
-    retry_config: Dict[str, float],
-    logger: logging.Logger
-) -> Tuple[Dict[str, Any], str, Optional[List[Dict[str, Any]]]]:
-    """Проводит турнир между кандидатами через LLM. Возвращает (победитель, причина)."""
-    if len(candidates) < 2:
-        return candidates[0], "only_one_in_tournament", None
-    
-    tournament_log = []
-    win_results = {challenger["candidate_id"]: 0 for challenger in candidates}
-
-    for i, challenger_a in enumerate(candidates[:-1]):
-        for challenger_b in candidates[i+1:]:
-            logger.info(f"Tournament match: cand {challenger_a['candidate_id']} vs cand {challenger_b['candidate_id']}")
-            
-            result_a = df_to_markdown(challenger_a["df"])
-            result_b = df_to_markdown(challenger_b["df"])
-            
-            llm_result = run_llm_pairwise_comparison(
-                model=model,
-                question=challenger_a["question"],
-                dialect=challenger_a["dialect"],
-                external_knowledge=challenger_a["external_knowledge"],
-                sql_a=challenger_a["sql"],
-                result_a=result_a,
-                time_a=challenger_a["execution_time"],
-                sql_b=challenger_b["sql"],
-                result_b=result_b,
-                time_b=challenger_b["execution_time"],
-                prompt_template=prompt_template,
-                retry_config=retry_config,
-                logger=logger
-            )
-            
-            tournament_log.append({
-                "champion_id": challenger_a["candidate_id"],
-                "challenger_id": challenger_b["candidate_id"],
-                "llm_winner": llm_result["winner"],
-                "messages": llm_result["messages"],
-                "raw_response": llm_result["raw_response"]
-            })
-            
-            if llm_result["winner"] == "B":
-                logger.info(f"Challenger {challenger_b['candidate_id']} wins.")
-                win_results[challenger_b["candidate_id"]] += 1
-            elif llm_result["winner"] == "TIE":
-                logger.info("TIE. Keeping current champion (or faster one).")
-                if challenger_b["execution_time"] < challenger_a["execution_time"]:
-                    win_results[challenger_b["candidate_id"]] += 1
-                else:
-                    win_results[challenger_a["candidate_id"]] += 1
-
-            elif llm_result["winner"] == "UNKNOWN":
-                logger.warning("LLM returned UNKNOWN. Fallback: keeping faster candidate.")
-                if challenger_b["execution_time"] < challenger_a["execution_time"]:
-                    win_results[challenger_b["candidate_id"]] += 1
-                else:
-                    win_results[challenger_a["candidate_id"]] += 1
-            else:
-                logger.info(f"Candidate {challenger_a['candidate_id']} gives a point as fallback.")
-                win_results[challenger_a["candidate_id"]] += 1
-    
-    champion_id = max(win_results, key=win_results.get)
-    champion = next(c for c in candidates if c['candidate_id'] == champion_id)
-    return champion, f"tournament({len(candidates)}_candidates,{len(tournament_log)}_matches)", tournament_log
-
-
 def voting_selection(
     run_id: str,
     model: BaseChatModel,
@@ -618,6 +637,8 @@ def voting_selection(
     prompt_name: str = "pairwise_selection",
     runs_root: str = "logs/runs",
     gen_prefix: str = "simple",
+    data_root: str = "data",
+    input_data_root: str = "Spider2/spider2-lite",
     selection_mode: Literal["execution", "sql", "llm", "random"] = "execution",
     use_llm_tiebreaker: bool = True,
     max_workers: int = 2,
@@ -636,7 +657,7 @@ def voting_selection(
         instance_ids = set()
         for module, prefixes in [
             ("correction", ["valid_result_", "result_"]), 
-            ("generation", ["result_"])
+            ("generation", ["results_"])
         ]:
             module_path = Path(runs_root) / run_id / module / gen_prefix
             if not module_path.exists():
@@ -644,8 +665,6 @@ def voting_selection(
 
             for prefix in prefixes:
                 for result_dir in module_path.glob(f"{prefix}*"):
-                    if not result_dir.name.startswith(prefix):
-                        continue
                     for csv_file in result_dir.glob("*.csv"):
                         instance_ids.add(csv_file.stem)
 
@@ -669,6 +688,7 @@ def voting_selection(
                 instance_id=iid, run_id=run_id, model=model,
                 prompt_dir=prompt_dir, prompt_name=prompt_name,
                 runs_root=runs_root, gen_prefix=gen_prefix,
+                data_root=data_root, input_data_root=input_data_root,
                 selection_mode=selection_mode, use_llm_tiebreaker=use_llm_tiebreaker,
                 retry_config=retry_config
             ): iid
@@ -770,6 +790,8 @@ if __name__ == "__main__":
         prompt_name=args.prompt_name,
         runs_root=args.run_root,
         gen_prefix=args.gen_prefix,
+        data_root=args.data_root,
+        input_data_root=args.input_data_root,
         selection_mode=args.selection_mode,
         use_llm_tiebreaker=use_llm_tb,
         max_workers=args.max_workers,
