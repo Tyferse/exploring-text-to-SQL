@@ -42,3 +42,35 @@ _Рекомендации по разработке text-to-SQL систем_
 | Однородность вывода                | Традиционная       | Группировка запросов по результатам исполнения.                                               | +0.7% EX.                                                                                                                                    | [83, с. 344],<br>для GPT-4<br>на BIRD dev.                                        |
 |                                    | Статичная          | Голосование по большинству и попарное сравнение через LLM.                                    | Генерация:<br>+60 секунд;<br>+8623 токенов.                                                                                                  | Таб. 18,<br>для Step 3.5 Flash<br>на Spider 2.0-lite.                             |
 
+## Источники
+
+#### Систематические обзоры
+
+1. [A Survey of Text-to-SQL in the Era of LLMs: Where are we, and where are we going?](https://arxiv.org/abs/2408.05109v6)
+
+2. [Next-Generation Database Interfaces: A Survey of LLM-based Text-to-SQL](https://arxiv.org/abs/2406.08426v8)
+
+3. [Toward Real-World Table Agents: Capabilities, Workflows, and Design Principles for LLM-based Table Intelligence](https://arxiv.org/abs/2507.10281)
+
+4. [A Survey on Employing Large Language Models for Text-to-SQL Tasks](https://arxiv.org/abs/2407.15186)
+
+5. [Exploring the Landscape of Text-to-SQL with Large Language Models: Progresses, Challenges and Opportunities](https://arxiv.org/abs/2505.23838)
+
+6. [DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction](https://arxiv.org/abs/2304.11015)
+
+#### Бенчмарки
+
+7. [Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs
+](https://arxiv.org/abs/2305.03111)
+
+8. [SPIDER 2.0: EVALUATING LANGUAGE MODELS ON REAL-WORLD ENTERPRISE TEXT-TO-SQL WORKFLOWS](https://arxiv.org/abs/2411.07763)
+
+#### Методы
+
+7. [DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction](https://arxiv.org/abs/2304.11015)
+
+8. [Text-to-SQL Empowered by Large Language Models: A Benchmark Evaluation](https://arxiv.org/abs/2308.15363)
+
+9. [MCS-SQL: Leveraging Multiple Prompts and Multiple-Choice Selection For Text-to-SQL Generation](https://aclanthology.org/2025.coling-main.24.pdf)
+
+10. [CHESS: Contextual Harnessing for Efficient SQL Synthesis](https://arxiv.org/abs/2405.16755)
