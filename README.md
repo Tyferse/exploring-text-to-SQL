@@ -338,7 +338,7 @@ _Рисунок 9 - Классификация ошибок метода ReFoRCE
 
 ![Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis_clauses.png)
 
-_Рисунок 10 - Классификация ошибок метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite_
+_Рисунок 10 - Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite_
 
 ---
 
@@ -412,7 +412,7 @@ _Рисунок 12 - Классификация ошибок метода AutoLi
 
 ![Классификация ошибок в операторах метода AutoLink на Spider 2.0-lite](analysis/images/autolink_hy3preview_spider2-lite-error_analysis_clauses.png)
 
-_Рисунок 13 - Классификация ошибок метода AutoLink на Spider 2.0-lite_
+_Рисунок 13 - Классификация ошибок в операторах метода AutoLink на Spider 2.0-lite_
 
 ---
 
