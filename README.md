@@ -336,7 +336,7 @@ _Рисунок 9 - Классификация ошибок метода ReFoRCE
 
  - 
 
-![Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis.png)
+![Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis_clauses.png)
 
 _Рисунок 10 - Классификация ошибок метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite_
 
