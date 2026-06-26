@@ -311,12 +311,17 @@ _Рисунок 8 - Схема метода ReFoRCE_
 
 исправление всех исследовательских запросов: 09:14.
 
-
+Ниже представлены две классификации ошибок: стандартная и по операторам. Вторая означает, что ошибка связана с конкретным оператором SQL или какой-то неверно указанный идентификатор располагается в нём.
 
 ![Классификация ошибок метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis.png)
-![Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis.png)
 
 _Рисунок 9 - Классификация ошибок метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite_
+
+ - 
+
+![Классификация ошибок в операторах метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite](analysis/images/reforce_step35flash_spider2-lite-error_analysis.png)
+
+_Рисунок 10 - Классификация ошибок метода ReFoRCE для Step 3.5 Flash на Spider 2.0-lite_
 
 ---
 
@@ -364,7 +369,7 @@ _Рисунок 9 - Классификация ошибок метода ReFoRCE
 
 ![Схема метода AutoLink](analysis/images/autolink_schema.drawio.png)
 
-_Рисунок 6 - Схема метода AutoLink_
+_Рисунок 11 - Схема метода AutoLink_
 
 #### Статистика запуска
 
@@ -380,6 +385,19 @@ _Таблица 9 - Оценка затрат на запуск AutoLink по ш
 | **Полный алгоритм**      | 15:02                                   | 7               | 125,578             | 3,636                |
 
 _Средние значения вычислялись относительно примеров, для которых перечисленные шаги вызывались, для полного алгоритма статистика по всем примерам._
+
+
+
+
+![Классификация ошибок в операторах метода AutoLink на Spider 2.0-lite](analysis/images/autolink_hy3preview_spider2-lite-error_analysis.png)
+
+_Рисунок 12 - Классификация ошибок метода AutoLink на Spider 2.0-lite_
+
+ - 
+
+![Классификация ошибок в операторах метода AutoLink на Spider 2.0-lite](analysis/images/autolink_hy3preview_spider2-lite-error_analysis_clauses.png)
+
+_Рисунок 13 - Классификация ошибок метода AutoLink на Spider 2.0-lite_
 
 ---
 
