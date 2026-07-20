@@ -25,17 +25,18 @@ class EmbeddingModelManager:
     # Конфигурации известных моделей
     MODEL_CONFIGS: Dict[str, Dict] = json.load(open("config/embedding_models.json", encoding='utf-8'))
     
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, log_path: str = None):
+    def __init__(self, cache_folder: str = None, log_path: str = None):
         if hasattr(self, '_initialized') and self._initialized:
             return
-        
+
+        self.cache_folder = cache_folder
         self.logger = get_logger("embedding_model_manager", log_path, mode='w') if log_path else None
         self._models: Dict[str, SentenceTransformer] = {}
         self._locks: Dict[str, threading.Lock] = {}
@@ -62,7 +63,7 @@ class EmbeddingModelManager:
                         device = "cpu"
                     
                     model_kwargs = {"torch_dtype": dtype}
-                    model = SentenceTransformer(model_name, device=device, model_kwargs=model_kwargs)
+                    model = SentenceTransformer(model_name, cache_folder=self.cache_folder, device=device, model_kwargs=model_kwargs)
                     
                     self._models[key] = model
                     self._locks[key] = threading.Lock()
@@ -113,15 +114,13 @@ class EmbeddingModelManager:
             "show_progress_bar": False,
             "convert_to_numpy": True,
         }
-        import os
-        os.path.isfile()
         if is_query:
             prompt_name = self.MODEL_CONFIGS[model.config.name_or_path]['prompt_name']
             if prompt_name:
                 encode_kwargs["prompt_name"] = prompt_name
             else:
                 encode_kwargs["prompt"] = prompt or "Instruct: Given a natural language query, retrieve relevant database columns that answer the query\nQuery: "
-
+                
         try:
             embeddings = model.encode(**encode_kwargs)
         except:
@@ -164,4 +163,4 @@ class EmbeddingModelManager:
             if self.logger: self.logger.info(f"Cleared model from cache: {key}")
 
 
-embedding_model_manager = EmbeddingModelManager()
+embedding_model_manager = EmbeddingModelManager(cache_folder="/home/jovyan/models")

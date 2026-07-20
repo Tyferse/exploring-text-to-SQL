@@ -5,7 +5,6 @@ import json
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
 from dataclasses import dataclass, field, asdict
@@ -106,7 +105,7 @@ class TableLinking:
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_name: Optional[str] = None,
-        prompt_dir: str = "config/prompts/schema_linking",
+        prompt_dir: str = "config/prompts",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
@@ -141,7 +140,7 @@ class TableLinking:
         self.max_workers = max_workers
         self.max_tables = max_tables
         self.stage = stage
-        self.user_prompt = ((Path(prompt_dir) / f"{prompt_name}.md").read_text(encoding="utf-8") 
+        self.user_prompt = ((Path(prompt_dir) / "schema_linking" / f"{prompt_name}.md").read_text(encoding="utf-8") 
                             if prompt_name is not None else DEFAULT_PROMPT)
 
         self.log_dir = Path(run_root) / run_id / "schema_linking"
@@ -180,7 +179,7 @@ class TableLinking:
         q_key = "question" if "question" in tasks[0] else "instruction"
         tasks = {
             instance["instance_id"]: {
-                "dialect": self.instance.get("dialect", ""),
+                "dialect": instance.get("dialect", ""),
                 "db_id": instance.get("db_id", instance.get("db")), 
                 "question": instance[q_key],
                 "external_knowledge": (str(self.data_root / self.input_data_root / "resource" / "documents" 
@@ -189,12 +188,11 @@ class TableLinking:
                 "available_ids": ids_data.get(instance["instance_id"], {}).get("used_indices", [])
             } 
             for instance in tasks 
-            if not (self.log_dir / f"{self.stage}_results" / f"{instance['instance_id']}.json").exists()
         }
         if self.input_data_root.startswith("Spider2/"):
             inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
             for iid in tasks:
-                tasks[iid]["db_id"] = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks[iid]["db_id"],
+                tasks[iid]["db_id"] = inst2dialect[remove_digits(iid).split("_")[0]] + "_" + tasks[iid]["db_id"]
         else:
             for iid in tasks:
                 tasks[iid]["db_id"] = tasks[iid].get("dialect", "") + ("_" if tasks[iid].get("dialect") else "") + tasks[iid]["db_id"]
@@ -330,7 +328,7 @@ class TableLinking:
             col_ids=self.instances[instance_id].get("available_ids", []),
             doc_data=self.schemas.get(db_id, {}),
             target_max_tokens=self.max_schema_length,
-            block_formatter=format_compact_block,
+            format_schema_block=format_compact_block,
             similar_tables=self.similar_tables[db_id], 
             include_samples=False,
             include_descriptions=False, 
@@ -520,14 +518,17 @@ class TableLinking:
 
     def run(self) -> Dict[str, Any]:
         self.logger.info(f"Starting pipeline for {len(self.instances)} instances | Workers: {self.max_workers}")
-        self.schemas = self._load_schemas() if not hasattr(self, "schemas") else self.schemas
         self.instances = self._load_instances()
         results = {}
         successful = 0
         failed = 0
         
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = {executor.submit(self._process_single_instance, iid, data): iid for iid, data in self.instances.items()}
+            futures = {
+                executor.submit(self._process_single_instance, iid, data): iid 
+                for iid, data in self.instances.items()
+                if not (self.log_dir / f"{self.stage}_results" / f"{iid}.json").exists()
+            }
             
             for future in tqdm(as_completed(futures), total=len(futures), desc="Selecting Tables"):
                 iid = futures[future]

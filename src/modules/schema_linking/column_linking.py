@@ -136,9 +136,9 @@ class ColumnLinkingResult:
     instance_id: str
     tables_selected: List[Dict[str, str]]
     columns_mapped: List[Dict[str, Any]]
-    column_ids: Optional[List[int]] = None
     blocking_issues: List[str]
     success: bool
+    column_ids: Optional[List[int]] = None
     attempts: List[ColumnLinkingAttempt] = field(default_factory=list)
     final_error: Optional[str] = None
     
@@ -180,7 +180,7 @@ class ColumnLinking:
         data_root: str = "data",
         storage_root: str = "storage",
         prompt_name: Optional[str] = None,
-        prompt_dir: str = "config/prompts/schema_linking",
+        prompt_dir: str = "config/prompts",
         max_schema_length: int = 64000,
         retry_config: Optional[Dict[str, float]] = None,
         max_workers: int = 4,
@@ -198,7 +198,7 @@ class ColumnLinking:
             data_root: Корневая папка со всеми входными данными
             storage_root: Папка с метаданными схем
             prompt_name: Название .md файла (без расширения) с промптом пользователя
-            prompt_dir: Папка с .md файлами промптов
+            prompt_dir: Папка со всеми файлами промптов
             max_schema_length: максимальное оценочное число токенов для схемы
             retry_config: Настройки повторных попыток
             max_workers: Число параллельных потоков
@@ -209,7 +209,7 @@ class ColumnLinking:
         self.input_data_root = input_data_root
         self.data_root = Path(data_root)
         self.storage_root = Path(storage_root)
-        self.user_prompt = ((Path(prompt_dir) / f"{prompt_name}.md").read_text(encoding="utf-8") 
+        self.user_prompt = ((Path(prompt_dir) / "schema_linking" / f"{prompt_name}.md").read_text(encoding="utf-8") 
                             if prompt_name is not None else DEFAULT_PROMPT)
         self.max_schema_length = max_schema_length
         self.retry_config = {**DEFAULT_RETRY_CONFIG, **(retry_config or {})}
@@ -255,8 +255,8 @@ class ColumnLinking:
         for instance in tasks:
             iid = instance["instance_id"]
             # Пропускаем уже обработанные
-            if (self.log_dir / f"{self.stage}_results" / f"{iid}.json").exists():
-                continue
+            # if (self.log_dir / f"{self.stage}_results" / f"{iid}.json").exists():
+            #     continue
 
             tasks_dict[iid] = {
                 "dialect": instance.get("dialect", ""),
@@ -294,8 +294,8 @@ class ColumnLinking:
         for iid in tasks_dict:
             if not tasks_dict[iid]["available_ids"]:
                 tasks_dict[iid]["available_ids"] = [
-                    cid for tn in self.schemas[db_id]
-                    for cid in self.schemas[db_id][tn].keys()
+                    cid for tn in self.schemas[tasks_dict[iid]["db_id"]]
+                    for cid in self.schemas[tasks_dict[iid]["db_id"]][tn].keys()
                 ]
         
         return tasks_dict
@@ -507,7 +507,7 @@ class ColumnLinking:
             col_ids=self.instances[instance_id].get("available_ids", []),
             doc_data=self.schemas.get(db_id, {}),
             target_max_tokens=self.max_schema_length,
-            block_formatter=format_detailed_block, 
+            format_schema_block=format_detailed_block, 
             similar_tables=self.similar_tables.get(db_id, {}), 
             include_samples=False,
             include_descriptions=False, 
@@ -670,7 +670,7 @@ class ColumnLinking:
                          for cid in available_columns[tn] if cid in available_ids] 
                     for tn in available_columns
                 }
-
+            
             # Добавляем все похожие таблицы для получения полного списка
             if self.similar_tables:
                 for tn in self.similar_tables.get(db_id, {}):
@@ -678,6 +678,7 @@ class ColumnLinking:
                         for stn in self.similar_tables[db_id][tn]:
                             available_columns[stn] = available_columns[tn].copy()
 
+            
             return self.select_columns(
                 instance_id=instance_id,
                 db_id=db_id,
@@ -702,7 +703,7 @@ class ColumnLinking:
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {
                 executor.submit(self._process_single_instance, iid, data): iid 
-                for iid, data in self.instances.items()
+                for iid, data in self.instances.items() if not (self.log_dir / f"{self.stage}_results" / f"{iid}.json").exists()
             }
             
             for future in tqdm(as_completed(futures), total=len(futures), desc="Linking Columns"):
@@ -756,7 +757,7 @@ if __name__ == "__main__":
     
     # Pipeline
     parser.add_argument("--prompt-name", type=str, default="sl_column_level")
-    parser.add_argument("--prompt-dir", type=str, default="config/prompts/schema_linking")
+    parser.add_argument("--prompt-dir", type=str, default="config/prompts")
     parser.add_argument("--max-workers", type=int, default=4)
     parser.add_argument("--max-columns", type=int, default=None, help="Max columns to return per instance")
     parser.add_argument("--max-attempts", type=int, default=4)

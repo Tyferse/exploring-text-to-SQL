@@ -13,7 +13,7 @@
         "stages": [
             {"stage": "retrieve_columns", "enabled": true},
             {"stage": "SchemaLinkingAgentPipeline", "enabled": true},
-            {"stage": "generate_schema", "enabled": true}
+            {"stage": "generate_schemas", "enabled": true}
         ]
     },
     {

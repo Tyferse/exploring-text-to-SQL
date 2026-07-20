@@ -65,7 +65,8 @@ def _set_nested_value(d: Dict, path: List[str], value: Any):
 def generate_variants(
     scan_config: Dict, 
     base_params: Dict, 
-    is_grid: bool = False
+    is_grid: bool = False,
+    total_variants: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
     Генерирует список вариантов параметров на основе scan_config.
@@ -95,7 +96,7 @@ def generate_variants(
         elif spec["type"] == "enum":
             values = list(spec["values"])
         value_lists.append(values)
-    
+
     if is_grid:
         # Декартово произведение
         variants = []
@@ -103,12 +104,22 @@ def generate_variants(
             variant = {}
             for path, val in zip(paths, combo):
                 _set_nested_value(variant, path, val)
+                
             variants.append(variant)
+
+        if len(variants) < total_variants:
+            for _ in range(total_variants - len(variants)):
+                variant = {}
+                for path in paths:
+                    default = _get_nested_value(base_params, path)    
+                    _set_nested_value(variant, path, default)
+                    
+                variants.append(variant)
 
         return variants
     else:
         # Построчное выравнивание с паддингом дефолтами
-        max_len = max(len(v) for v in value_lists)
+        max_len = max(len(v) for v in value_lists) if total_variants is None else total_variants
         
         padded_lists = []
         for path, values in zip(paths, value_lists):
@@ -355,11 +366,9 @@ def run_experiment(spec_path: str, skip_completed: bool = True):
     scan_config = spec.get("scan_config", {})
     is_grid = spec.get("is_param_grid", False)
     
-    param_variants = generate_variants(scan_config, base_params, is_grid)
-    
     # Обработка flow_override
     flow_overrides = spec.get("flow_override", [])
-    max_variants = len(param_variants)
+    max_variants = 1 # len(param_variants)
     flow_has_lists = False
     for module in flow_overrides:
         if "enabled" in module and isinstance(module["enabled"], list):
@@ -374,7 +383,25 @@ def run_experiment(spec_path: str, skip_completed: bool = True):
     if is_grid and flow_has_lists:
         raise ValueError("List arguments for flow_override are not supported if \"is_param_grid\": true, use only one value instead.")
 
+    pvariants = 1
+    for module in scan_config:
+        for stage in scan_config[module]:
+            for pval in scan_config[module][stage].values():
+                pval_count = 1
+                
+                if isinstance(pval, dict) and set(pval.keys()) == {"type", "values"}:
+                    if pval['type'] == "enum":
+                        pval_count = len(pval['values'])
+                    elif pval['type'] == "range":
+                        pval_count = (pval['values'][1] - pval['values'][0] + 1) // pval['values'][0][2]
+
+                pvariants = max(pvariants, pval_count) if not is_grid else pvariants * pval_count          
+
+    max_variants = max(pvariants, max_variants)
+    
     flow_variants = apply_flow_overrides(base_flow, flow_overrides, max_variants)
+
+    param_variants = generate_variants(scan_config, base_params, is_grid, max_variants)
     
     logger.info(f"Experiment '{experiment_name}': generated {max_variants} variants")
     

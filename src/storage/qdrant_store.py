@@ -288,11 +288,10 @@ class QdrantVectorStore(BaseVectorStore):
             raise RuntimeError("Index not loaded. Call build_index() first.")
         
         results: Union[Dict[str, List[VectorSearchResult]], List[VectorSearchResult]] = {}
-        
         for i in range(0, len(queries), batch_size):
             batch_queries = queries[i:i + batch_size]
             vectors = self._encode_texts(batch_queries, is_query=is_query)
-
+            
             # Формируем фильтр Qdrant
             qdrant_filter = None
             if filters:

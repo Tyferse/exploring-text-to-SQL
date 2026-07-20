@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import snowflake.connector
 from google.cloud import bigquery
+from wrapt_timeout_decorator import timeout as func_timeout
 
 
 class SQLExecutor:
@@ -49,7 +50,7 @@ class SQLExecutor:
     def thread_safe_sql_execution(self, sql, db_name, dialect="sqlite"):
         if dialect == "sqlite":
             with self.sqlite_lock:
-                return self.sql_execution(sql, db_name, dialect)
+                return func_timeout(self.timeout)(self.sql_execution)(sql, db_name, dialect)
         else:
             return self.sql_execution(sql, db_name, dialect)
 

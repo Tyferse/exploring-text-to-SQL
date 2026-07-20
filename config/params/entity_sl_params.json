@@ -1,6 +1,7 @@
 {
   "general": {
     "input_data_root": "Spider2/spider2-lite",
+    "tasks": "spider2-lite_wo_bq.jsonl",
     "run_name": "entity_linking"
   },
   "preprocessing": {
@@ -12,38 +13,38 @@
   },
   "schema_linking": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "http://localhost:8000/v1",
       "api_key": null,
       "temperature": 0.0
     },
     "ColumnLinking": {
       "max_schema_length": 64000,
-      "max_workers": 4,
+      "max_workers": 6,
       "max_columns": null
     },
     "TableLinking": {
       "max_schema_length": 64000,
-      "max_workers": 4,
+      "max_workers": 6,
       "max_tables": null
     },
     "ColumnTableLinking": {
       "max_schema_length": 64000,
       "max_columns": null,
       "max_tables": null,
-      "max_workers": 4
+      "max_workers": 6
     },
     "TableColumnLinking": {
       "max_schema_length": 64000,
       "max_columns": null,
       "max_tables": null,
-      "max_workers": 4
+      "max_workers": 6
     },
     "BidirectionalLinking": {
       "max_schema_length": 64000,
       "max_columns": null,
       "max_tables": null,
-      "max_workers": 4,
+      "max_workers": 6,
       "cleanup_intermediate": true, 
       "require_both_success": false
     },
@@ -54,8 +55,8 @@
   },
   "generation": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "http://localhost:8000/v1",
       "api_key": null,
       "temperature": 1.0
     },
@@ -63,7 +64,7 @@
       "prompt_name":"gen_basic",
       "n_candidates": 1,
       "prefix": "one_step",
-      "max_workers": 3,
+      "max_workers": 6,
       "max_schema_tokens": 64000,
       "chars_per_token": 3.0
     }

@@ -19,7 +19,6 @@ def format_detailed_block(
     """
     lines = [f"###Table full name: {table_name}", "["]
     
-    # 🔹 similar_tables — ОБЯЗАТЕЛЬНО, если передан и не пуст
     if similar_tables:
         clean_similar = [str(t).strip() for t in similar_tables if t and str(t).strip()]
         if clean_similar:
@@ -234,14 +233,15 @@ def load_schemas(docs_dir: str) -> Dict[str, Dict[str, Dict[int, Dict[str, Any]]
     return schemas
 
 def load_similar_tables(meta_path: str) -> Dict[str, Dict[str, List[str]]]:
+    """Загружает словарь схожих таблиц в формате {db_id: {table_name: [similar_table1, similar_table2, ...]}}."""
     similar_tables = {}
     for meta_file in Path(meta_path).glob("*_meta.json"):
         db_id = meta_file.stem.replace("_meta", "")
         with open(meta_file, "r", encoding="utf-8") as f:
             meta_data = json.load(f)["tables"]
-            similar_tables[db_id] = {table: meta_data[table]["similar_table"] 
+            similar_tables[db_id] = {table: meta_data[table]["similar_tables"] 
                                      for table in meta_data 
-                                     if meta_data[table].get("similar_table")}
+                                     if meta_data[table].get("similar_tables")}
     return similar_tables
 
 def compress_schema_to_fit(

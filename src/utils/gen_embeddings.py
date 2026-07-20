@@ -34,7 +34,7 @@ def gen_column_embeddings(
             for file in os.listdir(os.path.join(storage_root, input_data_root, "schema_cache"))
             if file.endswith("_meta.json")
         }
-
+    
     vsm = VectorStoreManager(
         storage_root=storage_root,
         location=location,

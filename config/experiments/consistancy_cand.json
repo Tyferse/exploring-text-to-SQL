@@ -1,14 +1,14 @@
 {
-  "name": "consistancy_mode",
+  "name": "consistancy_cand",
   "description": "Measures the impact of candidates number.",
   "params_config": "consistancy_params.json",
   "flow_config": "consistancy_flow.json",
-  "checkpoint_after_stage": null,
+  "checkpoint_after_stage": "generation",
   "scan_config": {
     "generation": {
       "n_candidates": {
         "type": "enum",
-        "values": [2, 4, 8, 16, 2, 4, 8, 16, 2, 4, 8, 16]
+        "values": [12, 12, 12]
       }
     }
   },
@@ -19,11 +19,11 @@
       "stages": [
         {
           "stage": "simple_correction", 
-          "enabled": [false, false, false, false, true, true, true, true, true, true, true, true]
+          "enabled": [false, true, true]
         },
         {
           "stage": "simple_semantic_correction", 
-          "enabled": [false, false, false, false, false, false, false, false, true, true, true, true]
+          "enabled": [false, false, true]
         }
       ]
     }

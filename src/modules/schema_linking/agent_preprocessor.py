@@ -9,8 +9,8 @@ class SchemaLinkingPreprocessor:
     Загружает двухчастный промпт.
     """
     
-    def __init__(self, prompt_name: str, base_dir: str = "config/prompts/schema_linking", logger: Optional[logging.Logger] = None):
-        self.base_dir = Path(base_dir)
+    def __init__(self, prompt_name: str, base_dir: str = "config/prompts", logger: Optional[logging.Logger] = None):
+        self.base_dir = Path(base_dir) / "schema_linking"
         self.prompt_name = prompt_name
         self.system_path = self.base_dir / f"{prompt_name}.md"
         self.input_path = self.base_dir / f"{prompt_name}_input.md"

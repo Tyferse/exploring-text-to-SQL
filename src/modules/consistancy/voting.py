@@ -9,7 +9,7 @@ import random
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Literal, Optional, List, Tuple
+from typing import Dict, Any, Literal, Optional, List, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -150,7 +150,7 @@ def _find_candidate_results(instance_id: str, candidate_id: int, run_id: str, ru
         ]) or all((path / file).exists() for file in [
             Path(f"{prefix}results_{cand_str}") / f"{instance_id}.csv", 
             Path(f"{prefix}sql_{cand_str}") / f"{instance_id}.sql", 
-            Path(f"{prefix}manifests") / f"{instance_id}_meta.json"
+            Path(f"{prefix}manifests") / f"{instance_id}.json"
         ]):
             return path, prefix
         
@@ -158,7 +158,8 @@ def _find_candidate_results(instance_id: str, candidate_id: int, run_id: str, ru
     
 
 def _collect_candidates_for_instance(
-    instance_id: str, run_id: str, runs_root: str, gen_prefix: str, data_root: str, input_data_root: str, logger: logging.Logger
+    instance_id: str, run_id: str, runs_root: str, gen_prefix: str, 
+    external_knowledge: str = "None", logger: Optional[logging.Logger] = None
 ) -> List[Dict[str, Any]]:
     """Собирает всех успешных кандидатов для instance_id из всех источников."""
     candidates = []
@@ -170,17 +171,13 @@ def _collect_candidates_for_instance(
         (Path(runs_root) / run_id / "correction" / gen_prefix, "result_", "correction"),
         (Path(runs_root) / run_id / "generation" / gen_prefix, "results_", "generation"),
     ]
-
-    tasks = resolve_tasks(None, data_root, input_data_root)
-    ek_paths = {task["instance_id"]: (Path(data_root) / input_data_root / "resource" 
-                                      / "documents" / task["external_knowledge"])
-                for task in tasks if task.get("external_knowledge")}
     
     for base_dir, res_dir, stage_name in search_dirs:
         if not base_dir.exists():
             continue
 
         for result_dir in base_dir.glob(f"{res_dir}*"):
+            # print(result_dir)
             csv_path = result_dir / f"{instance_id}.csv"
             if not csv_path.exists():
                 continue
@@ -196,26 +193,26 @@ def _collect_candidates_for_instance(
             # Загружаем DataFrame
             df = _load_df_from_csv(csv_path)
             if df is None:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: invalid CSV")
+                if logger: logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: invalid CSV")
                 continue
             
             # Загружаем SQL
             find_result = _find_candidate_results(instance_id, cand_id, run_id, runs_root, gen_prefix)
             if find_result is None:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: incomplete artifacts")
+                if logger: logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: incomplete artifacts")
                 continue
 
             path, res_prefix = find_result
             sql = (path / f"{res_prefix}sql_{cand_id:02d}" / f"{instance_id}.sql").read_text(encoding="utf-8")
             if not sql:
-                logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: no SQL found")
+                if logger: logger.debug(f"Skipping {instance_id} cand {cand_id} from {stage_name}: no SQL found")
                 continue
             
             # Загружаем мета-данные для времени выполнения
             if stage_name != "generation":
                 meta_path = path / f"{res_prefix}result_{cand_id:02d}" / f"{instance_id}_meta.json"
             else:
-                meta_path = path / f"{res_prefix}manifests" / f"{instance_id}_meta.json"
+                meta_path = path / f"{res_prefix}manifests" / f"{instance_id}.json"
             
             meta = {}
             if meta_path.exists():
@@ -223,7 +220,7 @@ def _collect_candidates_for_instance(
                     with open(meta_path, "r", encoding="utf-8") as f:
                         meta = json.load(f)
                 except Exception as e:
-                    logger.warning(f"Failed to load meta for {instance_id} cand {cand_id}: {e}")
+                    if logger: logger.warning(f"Failed to load meta for {instance_id} cand {cand_id}: {e}")
 
             execution_time = 0.0
             question = ""
@@ -243,7 +240,7 @@ def _collect_candidates_for_instance(
                 dialect = meta.get("dialect", "sqlite")
                 db_id = meta.get("db_id", instance_id)
             elif meta:    
-                execution_time = meta["candidates"][f"{cand_id}:02d"].get("execution", {}).get("duration_sec", 0.0)
+                execution_time = meta["candidates"][f"{cand_id:02d}"].get("execution", {}).get("duration_sec", 0.0)
                 question = meta.get("question", "")
                 dialect = meta.get("dialect", "sqlite")
                 db_id = meta.get("db_id", instance_id)    
@@ -260,10 +257,11 @@ def _collect_candidates_for_instance(
                 "execution_time": execution_time,
                 "question": question,
                 "dialect": dialect,
-                "external_knowledge": ek_paths[instance_id].read_text(encoding="utf-8") if ek_paths.get(instance_id) else None,
+                "external_knowledge": external_knowledge,
                 "db_id": db_id,
             })
-            logger.info(f"Found candidate {cand_id} from {stage_name} for {instance_id} (time: {execution_time:.3f}s)")
+            if logger: logger.info(f"Found candidate {cand_id} from {stage_name} for {instance_id} (time: {execution_time:.3f}s)")
+            
     
     return candidates
 
@@ -388,10 +386,9 @@ def select_final_for_instance(
     model: BaseChatModel,
     prompt_dir: str = "config/prompts/consistancy",
     prompt_name: str = "pairwise_selection",
+    external_knowledge: str = "None",
     runs_root: str = "logs/runs",
     gen_prefix: str = "simple",
-    data_root: str = "data",
-    input_data_root: str = "Spider2/spider2-lite",
     selection_mode: Literal["execution", "sql", "llm", "random"] = "execution",
     use_llm_tiebreaker: bool = True,
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG
@@ -412,7 +409,7 @@ def select_final_for_instance(
     start_time = time.perf_counter()
     
     # 2. Сбор кандидатов
-    candidates = _collect_candidates_for_instance(instance_id, run_id, runs_root, gen_prefix, data_root, input_data_root, logger)
+    candidates = _collect_candidates_for_instance(instance_id, run_id, runs_root, gen_prefix, external_knowledge, logger)
     
     results = {
         "instance_id": instance_id,
@@ -632,7 +629,7 @@ def select_final_for_instance(
 def voting_selection(
     run_id: str,
     model: BaseChatModel,
-    instance_ids: Optional[List[str]] = None,
+    tasks: Optional[Union[List[Dict[str, Any]], str]] = None,
     prompt_dir: str = "config/prompts/consistancy",
     prompt_name: str = "pairwise_selection",
     runs_root: str = "logs/runs",
@@ -653,6 +650,7 @@ def voting_selection(
     logger = get_logger("final_selection", str(main_log))
     
     # Если instance_ids не переданы, собираем все уникальные из всех источников
+    instance_ids = list(tasks.keys()) if isinstance(tasks, dict) else None
     if instance_ids is None:
         instance_ids = set()
         for module, prefixes in [
@@ -675,6 +673,11 @@ def voting_selection(
     
     if not instance_ids:
         return {"results": {}, "stats": {"total_jobs": 0}}
+
+    tasks = resolve_tasks(None, data_root, input_data_root)
+    ek_paths = {task["instance_id"]: (Path(data_root) / input_data_root / "resource" 
+                                      / "documents" / task["external_knowledge"])
+                for task in tasks if task.get("external_knowledge")}
     
     all_results = {}
     start_pipeline = time.perf_counter()
@@ -687,8 +690,8 @@ def voting_selection(
                 select_final_for_instance,
                 instance_id=iid, run_id=run_id, model=model,
                 prompt_dir=prompt_dir, prompt_name=prompt_name,
+                external_knowledge=(ek_paths[iid].read_text(encoding="utf-8") if ek_paths.get(iid) else "None"),
                 runs_root=runs_root, gen_prefix=gen_prefix,
-                data_root=data_root, input_data_root=input_data_root,
                 selection_mode=selection_mode, use_llm_tiebreaker=use_llm_tiebreaker,
                 retry_config=retry_config
             ): iid

@@ -18,14 +18,14 @@
             {"stage": "TableColumnLinking", "enabled": true},
             {"stage": "BidirectionalLinking", "enabled": true},
             {"stage": "SchemaLinkingAgentPipeline", "enabled": true},
-            {"stage": "generate_schema", "enabled": true}
+            {"stage": "generate_schemas", "enabled": true}
         ]
     },
     {
         "module": "dbc_retrieval",
         "enabled": true,
         "stages": [
-            {"stage": "exploratory_execution", "enabled": true}
+            {"stage": "exec_exploration", "enabled": true}
         ]
     },
     {

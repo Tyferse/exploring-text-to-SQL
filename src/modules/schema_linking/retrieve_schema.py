@@ -236,7 +236,8 @@ class RetrievalCache:
         self,
         run_id: str,
         cache_dir: Optional[str] = None,  # Если None, используется runs/{run_id}/cache
-        runs_root: str = "logs/runs"
+        runs_root: str = "logs/runs",
+        force_refresh: bool = False
     ):
         self.run_id = run_id
         self.runs_root = runs_root
@@ -264,17 +265,23 @@ class RetrievalCache:
                     return set(int(idx) for idx in data.get("used_indices", [])), data.get("db_id")
             except Exception as e:
                 self.logger.warning(f"Failed to load cache for {instance_id}: {e}")
+                
         return set(), None
     
-    def add_used_indices(self, instance_id: str, indices: list[int]) -> None:
+    def add_used_indices(self, instance_id: str, indices: list[int], new_db_id: Optional[str] = None) -> None:
         """Добавляет новые индексы в кэш (объединяет с существующими)."""
         existing, db_id = self.get_used_indices(instance_id)
         existing.update({int(idx) for idx in indices})
+
+        if db_id is None and new_db_id is not None:
+            db_id = new_db_id
         
         path = self._get_cache_path(instance_id)
         try:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump({"db_id": db_id, "used_indices": sorted(list(existing))}, f, indent=2)
+
+            self.logger.info(f"{len(indices)} added for db={db_id} iid={instance_id}")
 
         except Exception as e:
             self.logger.warning(f"Failed to save cache for {instance_id}: {e}")
@@ -353,6 +360,7 @@ class SchemaRetriever:
         Итеративно подбирает столбцы для генерации SQL.
         """
         # 1. Загружаем уже использованные индексы
+        self.cache.logger.info(f"Begin vector retrieval for db={db_id} iid={instance_id}")
         used_ids = self.cache.get_used_indices(instance_id)[0] if not force_refresh else set()
         
         # 2. Первый запрос: семантический поиск
@@ -389,7 +397,7 @@ class SchemaRetriever:
         
         # 6. Сохраняем в кэш
         new_ids = {r.id for r in enriched if r.id}
-        self.cache.add_used_indices(instance_id, list(new_ids))
+        self.cache.add_used_indices(instance_id, list(new_ids), db_id)
         
         # 7. Преобразуем в формат для агента/генерации
         return [
@@ -507,7 +515,7 @@ def retrieve_columns(
                 pbar.update(1)
     
     cache.cache_union(instance_db)
-    if not os.path.exists(os.path.join("storage", input_data_root, "schema_cache", "initial_schema")):
+    if not os.path.exists(os.path.join(cache.cache_dir, "..", "initial_schema")) or force_refresh:
         generate_schemas(
             run_id, tasks=tasks, input_data_root=input_data_root, output_dir="initial_schema", 
             docs_path=os.path.join("storage", input_data_root, "schema_cache"), 

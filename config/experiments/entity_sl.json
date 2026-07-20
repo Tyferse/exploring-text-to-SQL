@@ -2,7 +2,7 @@
   "name": "entity_sl",
   "description": "Launch all available entity level LLM-based schema linking pipelines",
   "params_config": "entity_sl_params.json",
-  "flow_config": "entity_linging_flow.json",
+  "flow_config": "entity_linking_flow.json",
   "checkpoint_after_stage": "spider2preprocess",
   "scan_config": {
     "schema_linking": {

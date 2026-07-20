@@ -73,7 +73,7 @@ def resolve_run_id(
                     candidates.append((run_dir, ts))
                 except:
                     continue
-        
+
         if candidates:
             # Сортируем по времени (предполагаем формат YYYYMMDD_HHMMSS)
             candidates.sort(key=lambda x: x[1], reverse=True)

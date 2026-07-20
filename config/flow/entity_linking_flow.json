@@ -15,7 +15,7 @@
             {"stage": "ColumnTableLinking", "enabled": true},
             {"stage": "TableColumnLinking", "enabled": true},
             {"stage": "BidirectionalLinking", "enabled": true},
-            {"stage": "generate_schema", "enabled": true}
+            {"stage": "generate_schemas", "enabled": true}
         ]
     },
     {

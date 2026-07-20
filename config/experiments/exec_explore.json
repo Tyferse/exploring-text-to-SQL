@@ -1,15 +1,15 @@
 {
   "name": "exec_exploration",
   "description": "Test influence of execution exploration (with schema linking)",
-  "params_config": "entity_sl_params.json",
-  "flow_config": "entity_linging_flow.json",
+  "params_config": "exec_exploration_params.json",
+  "flow_config": "exploration_flow.json",
   "checkpoint_after_stage": null,
   "scan_config": {
     "schema_linking": {
       "generate_schemas": {
         "included": {
           "type": "enum",
-          "values": ["selected", "selected", "selected", "retrieved", "full", "full"]
+          "values": ["selected", "selected", "selected", "retrieved", "retrieved", "full"]
         }
       }
     }
@@ -27,11 +27,11 @@
     },
     {
       "module": "schema_linking", 
-      "enabled": [true, true, true, true, false],
+      "enabled": [true, true, true, true, true, false],
       "stages": [
         {
           "stage": "retrieve_columns", 
-          "enabled": [false, false, false, true]
+          "enabled": [false, false, false, true, true]
         },
         {
           "stage": "ColumnLinking", 

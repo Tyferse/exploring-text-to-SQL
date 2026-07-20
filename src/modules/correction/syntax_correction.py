@@ -48,7 +48,7 @@ def _get_failed_operator(sql: str, error_message: str, dialect: str) -> str:
 
 def _is_empty_or_null_result(status: str, df: Any) -> bool:
     """Проверяет, является ли результат пустым или состоящим только из NULL."""
-    if status == "empty":
+    if status == "empty" or (isinstance(df) and "Empty" in df):
         return True
     if status == "success" and df is not None:
         if len(df) == 0:

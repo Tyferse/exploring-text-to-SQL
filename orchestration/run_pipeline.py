@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from core import execute_stage, HANDLER_REGISTRY
+from .core import execute_stage, HANDLER_REGISTRY
 from src.storage.docker_qdrant import ensure_qdrant_running
 from src.storage.vector_manager import VectorStoreManager
 from src.utils.logger import get_logger, ResourceMonitor
@@ -100,10 +100,11 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
     logger = get_logger("text-to-sql pipeline", str(log_dir / "pipeline.log"))
 
     logger.info(f"Text-to-SQL pipeline starting | Run ID: {run_id}")
-    logger.info(f"Params: {params_config} | Flow: {flow_config}")
-
+    logger.info(f"Params: {json.dumps(params)}\n\n----\n\nFlow: {flow}")
+    
     # 3.1 Определяем вспомогательные переменные
     vsm = None
+    print(params["preprocessing"].get("column_vector_db", {}))
     for module in flow:
         if module.get("enabled", True) and module["module"] in ("preprocessing", "schema_linking"):
             for stage in module.get("stages", []):
@@ -120,9 +121,13 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
                                 str(Path(general["storage_root"], general["input_data_root"], "column_vdb"))
                             )
 
-                        vsm = VectorStoreManager(**vsm_params)
+                        vsm = VectorStoreManager(
+                            storage_root=general["storage_root"], 
+                            log_path=str(Path("logs") / "dbs" / general["input_data_root"]),
+                            **vsm_params
+                        )
                     except Exception as e:
-                        logging.error("Pipeline aborted due to vector store initialization errors")
+                        logging.error(f"Pipeline aborted due to vector store initialization errors: {e}")
                         raise e
 
     executor = SQLExecutor(general["input_data_root"], general["data_root"], general["storage_root"], general["local_dbs"], general.get("exec_timeout", 600))
@@ -168,14 +173,14 @@ def run_pipeline(params_path: Optional[str] = None, flow_path: Optional[str] = N
                 if model:
                     stage_kwargs["model"] = model
                 
-                result = execute_stage(handler_key, stage_kwargs)
+                result = execute_stage(handler_key, stage_kwargs, logger)
                 state[f"{stage_id}_result"] = result
                 logger.info(f"Stage '{stage_id}' completed successfully.")
             
             model = model if general.get("model") else None
 
             # Предполагаем, что больше vsm не понадобится, и надо освободить ресурсы
-            if mod_name == "schema_linking":
+            if mod_name == "schema_linking" and vsm is not None:
                 vsm.close_all()
 
         metadata["status"] = "completed"

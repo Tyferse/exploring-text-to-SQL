@@ -214,9 +214,9 @@ class SchemaLinkingAgentPipeline:
     def extract_all_candidates(self):
         cand_dir = self.agent.cache_dir / "agent_candidates"
         agent_candidates = {}
-        for file in cand_dir.iterdir():
+        for file in cand_dir.glob("*.json"):
             instance_id = file.stem
-            with open(cand_dir / file, "r", encoding="utf-8") as f:
+            with open(file, "r", encoding="utf-8") as f:
                 cand_data = json.load(f)
             
             agent_candidates[instance_id] = {"db_id": cand_data["db_id"], "used_indices": cand_data["column_ids"]}

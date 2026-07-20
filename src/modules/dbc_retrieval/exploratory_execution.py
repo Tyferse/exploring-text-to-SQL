@@ -170,7 +170,7 @@ def _process_single_example(
     logger.debug(f"Task params: dialect={dialect}, db_id={db_id}, question_len={len(question)}")
     
     # Подготовка путей к промптам
-    prompt_base = Path(prompt_dir)
+    prompt_base = Path(prompt_dir) / "dbc_retrieval"
     template_path = prompt_base / f"{prompt_name}.md"
     rules_path = prompt_base / "dialects" / f"{dialect}_rules.txt"
     specifics_path = prompt_base / "dialects" / f"{dialect}_specifics.txt"

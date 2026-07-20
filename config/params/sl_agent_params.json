@@ -1,6 +1,7 @@
 {
   "general": {
     "input_data_root": "Spider2/spider2-lite",
+    "tasks": "spider2-lite_wo_bq.jsonl",
     "run_name": "sl_agent"
   },
   "preprocessing": {
@@ -10,7 +11,7 @@
     },
     "column_vector_db": {
       "location": null,
-      "max_cached_sessions": 2
+      "max_cached_sessions": 6
     },
     "gen_column_embeddings": {
       "batch_size": 256,
@@ -23,8 +24,8 @@
       "max_workers": 2
     },
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "http://localhost:8000/v1",
       "api_key": null,
       "temperature": 0.8
     },
@@ -39,7 +40,7 @@
         "max_delay": 30.0,
         "backoff_multiplier": 4.0
       },
-      "max_workers": 4
+      "max_workers": 6
     },
     "generate_schemas": {
       "included": "retrieved",
@@ -48,8 +49,8 @@
   },
   "generation": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "http://localhost:8000/v1",
       "api_key": null,
       "temperature": 1.0
     },
@@ -64,7 +65,7 @@
         "max_delay": 30.0,
         "backoff_multiplier": 3.0
       },
-      "max_workers": 3,
+      "max_workers": 6,
       "max_schema_tokens": 64000,
       "chars_per_token": 3.0
     }

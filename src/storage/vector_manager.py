@@ -343,7 +343,6 @@ class VectorStoreManager:
                 batch_size=batch_size,
                 is_query=is_query
             )
-            print(search_results)
             results[db_id] = search_results
             if self.logger: self.logger.info(f"Searched {len(queries)} queries for db '{db_id}'")
         

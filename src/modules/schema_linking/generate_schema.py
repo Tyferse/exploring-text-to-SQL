@@ -1,14 +1,12 @@
-import os
 import json
 import logging
 import random
-from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Literal, Callable, Union
 
 from tqdm import tqdm
 
-from .schema_formatter import format_detailed_block, compress_schema_to_fit, load_similar_tables, estimate_prompt_length
+from .schema_formatter import load_schemas, load_similar_tables, format_detailed_block, compress_schema_to_fit, load_similar_tables, estimate_prompt_length
 from src.utils.logger import get_logger
 from src.utils.preprocessing import remove_digits, resolve_tasks
 from src.utils.run_manager import resolve_run_id
@@ -17,7 +15,7 @@ from src.utils.run_manager import resolve_run_id
 def generate_single_schema(
     instance_id: str,
     col_ids: List[str],
-    doc_data: Dict[int, Dict[str, Any]],
+    doc_data: Dict[str, Dict[int, Dict[str, Any]]],
     format_schema_block: Callable = format_detailed_block,
     target_max_tokens: int = 64_000,
     similar_tables: Optional[Dict[str, Dict[str, List[str]]]] = None,
@@ -58,32 +56,24 @@ def generate_single_schema(
 
         # 1. Сбор данных по столбцам
         valid_columns_found = 0
-        for cid, col_info in doc_data.items():
-            if cid not in col_ids:
-                continue
-            
-            if not col_info:
-                if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
-                continue
-
-            colmeta = col_info["metadata"]
-            if not table_mapping.get(colmeta["table_name"]):
-                table_mapping[colmeta["table_name"]] = []
-            
-            desc = col_info.get("text", "")
-            desc = desc.split("Description: ", 1)[1] if desc else ""
-            
-            table_mapping[colmeta["table_name"]].append({
-                "column_name": colmeta.get("column_name", cid),
-                "data_type": colmeta.get("data_type", colmeta.get("column_type", "TEXT")),
-                "description": desc,
-                "sample_values": colmeta.get("sample_values", colmeta.get("column_vals", []))
-            })
-            valid_columns_found += 1
+        for table_name in doc_data:
+            for cid, col_info in doc_data[table_name].items():
+                if cid not in col_ids:
+                    continue
+                
+                if not col_info:
+                    if log: log.warning(f"Column with id={cid} doesn't exist | {instance_id}")
+                    continue
+    
+                if not table_mapping.get(table_name): 
+                    table_mapping[table_name] = []
+                                
+                table_mapping[table_name].append(col_info)
+                valid_columns_found += 1
 
         if valid_columns_found == 0:
             if log: log.warning(f"Valid columns have not been found in metadata | {instance_id}")
-            return False, metadata
+            return "", metadata
 
         # 2. Сжатие схемы до целевого размера
         compressed_mapping, strategies = compress_schema_to_fit(
@@ -129,8 +119,8 @@ def generate_schemas(
     run_root: str = "logs/runs",
     data_root: str = "data",
     input_data_root: str = "Spider2/spider2-lite",
+    storage_root: str = "storage",
     output_dir: str = "final_schema",
-    docs_path: Optional[str] = None,
     included: Literal["retrieved", "tables", "selected", "full"] = "full",
     target_max_tokens: int = 64_000,
     **kwargs
@@ -144,22 +134,14 @@ def generate_schemas(
     output_path = log_dir / output_dir
 
     # Загрузка документов схем
-    docs_path = Path(docs_path)
-    db_docs: Dict[str, Dict[str, Any]] = {}
-    similar_tables: Dict[str, Dict[str, List[str]]] = {}
-
-    for doc_file in docs_path.glob("*_docs.json"):
-        db_id = doc_file.stem.replace("_docs", "")
-        with open(doc_file, "r", encoding="utf-8") as f:
-            docs_data = json.load(f)
-            db_docs[db_id] = {int(col["id"]): {key: col[key] for key in col if key != "id"} for col in docs_data}
-    
+    docs_path = Path(storage_root) / input_data_root / "schema_cache"
+    db_docs: Dict[str, Dict[int, Dict[str, Any]]] = load_schemas(docs_path)
     similar_tables = load_similar_tables(docs_path)
     inverse_similar_tables = {
         db_id: {
             stn: tn 
-            for tn in similar_tables[db_id] 
-            for stn in similar_tables[db_id][tn]
+            for tn in set(similar_tables[db_id]) 
+            for stn in set(similar_tables[db_id][tn]) | {tn}
         } 
         for db_id in similar_tables
     }
@@ -169,7 +151,7 @@ def generate_schemas(
 
     # Загружаем примеры
     schema_tasks = resolve_tasks(tasks, data_root, input_data_root)
-    if input_data_root.startswith("Spider2/"):
+    if input_data_root.startswith("Spider2/spider2-lite"):
         inst2dialect = {"sf": "snowflake", "bq": "bigquery", "ga": "bigquery", "local": "sqlite"}
         schema_tasks = [(instance["instance_id"], 
                          inst2dialect[remove_digits(instance["instance_id"]).split("_")[0]] + "_" + instance.get("db_id", instance.get("db")))
@@ -215,30 +197,32 @@ def generate_schemas(
             tables_data = json.load(f)
             used_tables = {
                 iid: tables_data[iid]["used_tables"] + list({
-                    inverse_similar_tables[tn] for tn in tables_data[iid]["used_tables"]
+                    inverse_similar_tables[tables_data[iid]["db_id"]][tn] for tn in tables_data[iid]["used_tables"]
+                    if tn in inverse_similar_tables[tables_data[iid]["db_id"]]
                 })
                 for iid in tables_data
             }
-
+               
         indices_data = {iid: {
                 "db_id": tables_data[iid]["db_id"], 
                 "used_indices": [
-                    cid for cid in db_docs[tables_data["db_id"]] 
-                    if db_docs[tables_data[iid]["db_id"]][cid]["metadata"]["table_name"] in used_tables
+                    cid for table_name in db_docs[tables_data[iid]["db_id"]] 
+                    if table_name in used_tables[iid] 
+                    for cid in db_docs[tables_data[iid]["db_id"]][table_name].keys()
                 ]
             } 
             for iid in tables_data
         }
     
     elif included == "selected":
-        indices_path_list = (run_path / "schema_linking").glob("*_indices.json")
-        indices_path_list += (run_path / "schema_linking").glob("*_candidates.json") 
+        indices_path_list = list((run_path / "schema_linking").glob("*_indices.json"))
+        indices_path_list += list((run_path / "schema_linking").glob("*_candidates.json"))
         indices_data = {}
         for file in indices_path_list:
             with open(file, "r", encoding="utf-8") as f:
                 partial_data = json.load(f)
 
-            if file.endswith("table_linking_candidates.json") and not file.endswith("column_table_linking_candidates.json"):
+            if file.name.endswith("table_linking_candidates.json") and not file.name.endswith("column_table_linking_candidates.json"):
                 tables_data = {
                     iid: partial_data[iid]["used_tables"] + list({
                         inverse_similar_tables[tn] for tn in partial_data[iid]["used_tables"]
@@ -249,8 +233,9 @@ def generate_schemas(
                     iid: {
                         "db_id": partial_data[iid]["db_id"], 
                         "used_indices": [
-                            cid for cid in db_docs[partial_data[iid]["db_id"]] 
-                            if db_docs[partial_data[iid]["db_id"]][cid]["metadata"]["table_name"] in tables_data[iid]
+                            cid for table_name in db_docs[partial_data[iid]["db_id"]] 
+                            if table_name in tables_data[iid]
+                            for cid in db_docs[partial_data[iid]["db_id"]][table_name].keys()
                         ]
                     }
                     for iid in partial_data
@@ -263,13 +248,37 @@ def generate_schemas(
                         + partial_data[instance_id]["used_indices"]
                     ))
                 else:
-                    indices_data[instance_id]["used_indices"] = list(set(
-                        partial_data[instance_id]["used_indices"]
-                    ))
+                    indices_data[instance_id] = {
+                        "db_id": partial_data[instance_id]["db_id"],
+                        "used_indices": (
+                            list(set(partial_data[instance_id]["used_indices"])) 
+                            if partial_data[instance_id]["used_indices"] is not None 
+                            else []
+                        )
+                    }
 
+            indices_data = {
+                instance_id: {
+                    "db_id": vals["db_id"], 
+                    "used_indices": (
+                        vals["used_indices"] 
+                        if vals["used_indices"] 
+                        else [cid for tn in db_docs[vals["db_id"]] 
+                              for cid in db_docs[vals["db_id"]][tn].keys()]
+                    ) 
+                } 
+                for instance_id, vals in indices_data.items()
+            }  
+            
     elif included == "full":
-        indices_data = {instance_id: {"db_id": db_id, "used_indices": list(db_docs[db_id].keys())} 
-                        for instance_id, db_id in schema_tasks}
+        indices_data = {
+            instance_id: {
+                "db_id": db_id, 
+                "used_indices": [cid for tn in db_docs[db_id] 
+                                 for cid in db_docs[db_id][tn].keys()]
+            } 
+            for instance_id, db_id in schema_tasks
+        }
 
     # Подготовка директорий
     output_path.mkdir(parents=True, exist_ok=True)

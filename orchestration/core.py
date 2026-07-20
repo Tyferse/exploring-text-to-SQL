@@ -37,7 +37,7 @@ HANDLER_REGISTRY = {
 }
 
 
-def execute_stage(handler_key: str, kwargs: Dict[str, Any], logger: Optional[logging.Logger]) -> Any:
+def execute_stage(handler_key: str, kwargs: Dict[str, Any], logger: Optional[logging.Logger] = None) -> Any:
     """
     Универсальный вызов этапа.
     - Если функция: вызывает напрямую handler(**kwargs)

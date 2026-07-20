@@ -240,7 +240,7 @@ def generate_sql_simple(
     executor: SQLExecutor,
     runs_root: str = "logs/runs",
     prompt_name: str = "gen_basic",
-    prompt_dir: str = "config/prompts/generation",
+    prompt_dir: str = "config/prompts",
     n_candidates: int = 1,
     prefix: str = "one_step",
     retry_config: Dict[str, float] = DEFAULT_RETRY_CONFIG
@@ -286,7 +286,7 @@ def generate_sql_simple(
     
     try:
         # 2. Промпт
-        prompt_template = _load_prompt_template(prompt_name, prompt_dir)
+        prompt_template = _load_prompt_template(prompt_name, str(Path(prompt_dir) / "generation"))
         optimization_rules = _load_optimization_rules(prompt_dir, dialect)
         
         # Рендеринг промпта (простая замена плейсхолдеров)
@@ -506,7 +506,7 @@ def simple_generation(
     storage_root: str = "storage",
     schema_dir: str = "final_schema",
     prompt_name: str = "gen_basic",
-    prompt_dir: str = "config/prompts/generation",
+    prompt_dir: str = "config/prompts",
     n_candidates: int = 1,
     prefix: str = "one_step",
     max_workers: int = 3,
@@ -647,7 +647,7 @@ if __name__ == "__main__":
 
     # === Промпты ===
     parser.add_argument("--prompt-name", default="gen_basic", help="Имя шаблона промпта (без .md)")
-    parser.add_argument("--prompt-dir", default="config/prompts/generation", help="Директория промптов")
+    parser.add_argument("--prompt-dir", default="config/prompts", help="Директория всех промптов")
     parser.add_argument("--schema-dir", default="final_schema", help="Папка с заранее сформированными схемами БД (относительно папки schema_linking)")
     
     # === Генерация ===

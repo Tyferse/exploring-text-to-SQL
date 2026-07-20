@@ -9,7 +9,7 @@
     "model": null,
     "prompt_dir": "config/prompts", 
     "local_dbs": {"sqlite": "resource/databases/spider2-localdb"},
-    "exec_timeout": 600
+    "exec_timeout": 360
   },
   "preprocessing": {
     "spider2preprocess": {
@@ -40,8 +40,8 @@
       "force_refresh": false
     },
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "https://localhost:8000/v1",
       "api_key": null,
       "temperature": 0.8
     },
@@ -146,12 +146,12 @@
   },
   "dbc_retrieval": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "https://localhost:8000/v1",
       "api_key": null,
       "temperature": 0.0
     },
-    "exploratory_execution": {
+    "exec_exploration": {
       "prompt_name": "exploratory_execution",
       "max_queries": 10,
       "max_rows": 20,
@@ -166,8 +166,8 @@
   },
   "generation": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "https://localhost:8000",
       "api_key": null,
       "temperature": 1.0
     },
@@ -189,8 +189,8 @@
   },
   "correction": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "https://localhost:8000/v1",
       "api_key": null,
       "temperature": 1.0
     },
@@ -241,8 +241,8 @@
   },
   "consistancy": {
     "model": { 
-      "model_name": "Qwen3.7-9B", 
-      "base_url": "https://localhost:5433",
+      "model_name": "Qwen3.6-27B", 
+      "base_url": "https://localhost:8000/v1",
       "api_key": null,
       "temperature": 1.0
     },
